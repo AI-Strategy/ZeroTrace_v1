@@ -7,6 +7,7 @@ mod security;
 mod storage;
 
 use crate::graph::connection_pool::TenantPooler;
+use crate::storage::postgres::PostgresTenantPooler;
 use axum::{
     extract::State,
     http::{HeaderMap, StatusCode},
@@ -26,6 +27,12 @@ struct ExecutePayload {
     parameters: serde_json::Value,
 }
 
+#[derive(Clone)]
+struct AppState {
+    neo4j: Arc<TenantPooler>,
+    postgres: Arc<PostgresTenantPooler>,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 0. Initialize Structured Logging
@@ -42,13 +49,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("!!! STARTING IN SHADOW MODE - NO BLOCKS, LOG ONLY !!!");
     }
 
+    // PRE-FLIGHT: Verify persistent media sandbox (Vector 56 Defense)
+    // Ensures /app/media is mounted and writable by the runtime user before we accept traffic.
+    // If this fails, we hard-exit to prevent a "Zombie State" (running without persistence).
+    if let Err(e) = crate::monitoring::volume_health::verify_volume_mount("/app/media") {
+        eprintln!("{}", e);
+        std::process::exit(1); 
+    }
+
     // 1. Initialize the Multi-Tenant Substrate
-    let pooler = Arc::new(TenantPooler::new());
+    let neo4j_pool = Arc::new(TenantPooler::new());
+    let postgres_pool = Arc::new(PostgresTenantPooler::new());
+
+    let state = Arc::new(AppState {
+        neo4j: neo4j_pool,
+        postgres: postgres_pool,
+    });
 
     // 2. Start the Axum Production Server
     let app = Router::new()
         .route("/v1/execute", post(handle_execution))
-        .with_state(pooler);
+        .with_state(state);
 
     let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
     let addr = format!("0.0.0.0:{}", port);
@@ -62,7 +83,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn handle_execution(
-    State(_pooler): State<Arc<TenantPooler>>,
+    State(_state): State<Arc<AppState>>,
     _headers: HeaderMap,
     Json(payload): Json<ExecutePayload>,
 ) -> Response {

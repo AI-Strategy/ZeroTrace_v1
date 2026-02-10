@@ -37,3 +37,15 @@ pub mod normalization;
 pub mod training_data_scrubber;
 pub mod universal_guard;
 pub mod v30_context_stitch;
+
+pub mod openclaw_sentinel;
+
+pub mod path_jail;
+pub mod ws_gatekeeper;
+
+pub mod detonator;
+pub mod linguistic_shield;
+pub mod logic_guard;
+pub mod registry_guard;
+pub mod privacy_filter;
+pub mod agentic_firewall;

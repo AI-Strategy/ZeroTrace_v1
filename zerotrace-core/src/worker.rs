@@ -1,4 +1,4 @@
-use crate::interceptor::universal_guard::UniversalGuard;
+use crate::interceptor::universal_guard::ProductionGuard as UniversalGuard;
 use serde_json::json;
 use worker::*;
 
@@ -34,7 +34,7 @@ pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response
     let user_id = "user_123"; // Logic would extract from Auth Header
 
     let secure_prompt = match guard
-        .evaluate_complete_risk_profile(&body_text, user_id)
+        .evaluate_complete_risk_profile_legacy(&body_text, user_id)
         .await
     {
         Ok(prompt) => prompt,

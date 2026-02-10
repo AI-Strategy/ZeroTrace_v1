@@ -1,0 +1,43 @@
+groups:
+  - name: zerotrace-shadow-ops
+    rules:
+      # 1. Latent Space Obfuscation (V43) - Critical
+      - alert: ZeroTraceLatentObfuscation
+        expr: sum(rate(zerotrace_mitigation_total{vector="V43"}[5m])) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Latent Space Obfuscation detected (V43)"
+          description: "High-entropy latent space manipulation detected. Deep-reasoning bypass attempt in progress."
+
+      # 2. Zombie Identity / Agent Compromise (V54) - Critical
+      - alert: ZeroTraceZombieIdentity
+        expr: zerotrace_agent_stability_index < 0.25
+        for: 1m
+        labels:
+          severity: critical
+          action: airlock
+        annotations:
+          summary: "Zombie Identity Detected (V54)"
+          description: "Agent Stability Index dropped below 0.25. Agent may be hallucinating or hijacked. Airlock Triggered."
+
+      # 3. Context Stitching (V30) - Warning
+      - alert: ZeroTraceContextStitch
+        expr: sum(rate(zerotrace_mitigation_total{vector="V30"}[10m])) > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Context Stitching Campaign (V30)"
+          description: "Sustained Low-and-Slow information gathering detected across multiple sessions."
+
+      # 4. Global Mesh Latency (Performance)
+      - alert: ZeroTraceHighLatency
+        expr: histogram_quantile(0.99, sum(rate(zerotrace_mesh_latency_ms_bucket[5m])) by (le)) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Latency in Security Mesh"
+          description: "P99 Latency > 100ms. Speculative execution may be thrashing."

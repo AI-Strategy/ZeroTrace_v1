@@ -31,3 +31,7 @@ primary_region = "lax" # Southern California base
   # Global ZeroTrace Config
   RUST_LOG = "info"
   NEO4J_AURA_POOL_SIZE = "5" # Max connections per tenant to avoid Aura starvation
+
+[mounts]
+  source = "zt_media_vault"     # Name of the volume (must create this via CLI)
+  destination = "/app/media"    # The 'Jail' root for Vector 56

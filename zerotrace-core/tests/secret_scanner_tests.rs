@@ -45,6 +45,7 @@ fn redaction_merges_overlapping_spans() {
             preview: "[redacted]".to_string(),
             entropy_x100: None,
             input_hash: "h".to_string(),
+            finding_id: "test-id-1".to_string(),
         },
         Finding {
             kind: FindingKind::CustomPattern("P2".to_string()),
@@ -52,6 +53,7 @@ fn redaction_merges_overlapping_spans() {
             preview: "[redacted]".to_string(),
             entropy_x100: None,
             input_hash: "h".to_string(),
+            finding_id: "test-id-2".to_string(),
         },
     ];
 

@@ -7,9 +7,9 @@
 //! - Allow detector updates (new regexes/pattern IDs) without code redeploys.
 //! - Provide stable, structured findings for enforcement + audit + metrics.
 
+use blake3;
 use regex::{Regex, RegexSet};
 use serde::Deserialize;
-use blake3;
 use std::{
     fs,
     num::NonZeroUsize,
@@ -142,13 +142,7 @@ impl Finding {
 /// NOTE: does NOT include any secret material or the preview.
 fn compute_finding_id(kind: &FindingKind, span: (usize, usize), input_hash: &str) -> String {
     // Keep format stable: if you change it, you’ll break correlation.
-    let payload = format!(
-        "{}:{}:{}:{}",
-        kind.stable_id(),
-        span.0,
-        span.1,
-        input_hash
-    );
+    let payload = format!("{}:{}:{}:{}", kind.stable_id(), span.0, span.1, input_hash);
     blake3::hash(payload.as_bytes()).to_hex().to_string()
 }
 
@@ -225,9 +219,10 @@ fn validate_pattern_spec(spec: &PatternSpec) -> Result<(), RegistryError> {
     // Defensive: prevent absurd IDs (log injection, path tricks, etc).
     if spec.id.is_empty()
         || spec.id.len() > 64
-        || !spec.id.bytes().all(|b| {
-            b.is_ascii_uppercase() || b.is_ascii_digit() || b == b'_' || b == b'-'
-        })
+        || !spec
+            .id
+            .bytes()
+            .all(|b| b.is_ascii_uppercase() || b.is_ascii_digit() || b == b'_' || b == b'-')
     {
         return Err(RegistryError::InvalidPattern);
     }
@@ -242,8 +237,8 @@ fn compile_patterns(specs: &[PatternSpec]) -> Result<CompiledPatterns, RegistryE
         validate_pattern_spec(s)?;
     }
 
-    let set =
-        RegexSet::new(specs.iter().map(|s| s.regex.as_str())).map_err(|_| RegistryError::RegexCompileFailed)?;
+    let set = RegexSet::new(specs.iter().map(|s| s.regex.as_str()))
+        .map_err(|_| RegistryError::RegexCompileFailed)?;
 
     let mut entries = Vec::with_capacity(specs.len());
     for s in specs {
@@ -287,10 +282,16 @@ impl HotReloadPatternRegistry {
     pub fn update_from_specs(&self, specs: Vec<PatternSpec>) -> Result<(), RegistryError> {
         let compiled = compile_patterns(&specs)?;
 
-        let mut guard = self.inner.write().map_err(|_| RegistryError::RegexCompileFailed)?;
+        let mut guard = self
+            .inner
+            .write()
+            .map_err(|_| RegistryError::RegexCompileFailed)?;
         *guard = Arc::new(compiled);
 
-        info!(event = "pattern_registry_updated", pattern_count = specs.len(),);
+        info!(
+            event = "pattern_registry_updated",
+            pattern_count = specs.len(),
+        );
         Ok(())
     }
 }
@@ -318,7 +319,10 @@ pub struct FilePatternRegistry {
 }
 
 impl FilePatternRegistry {
-    pub fn new(path: impl Into<PathBuf>, fallback_specs: Vec<PatternSpec>) -> Result<Self, RegistryError> {
+    pub fn new(
+        path: impl Into<PathBuf>,
+        fallback_specs: Vec<PatternSpec>,
+    ) -> Result<Self, RegistryError> {
         let path = path.into();
         let inner = HotReloadPatternRegistry::new(fallback_specs)?;
         Ok(Self {
@@ -332,7 +336,10 @@ impl FilePatternRegistry {
         let meta = fs::metadata(&self.path).map_err(|_| RegistryError::FileReadFailed)?;
         let mtime = meta.modified().map_err(|_| RegistryError::FileReadFailed)?;
 
-        let mut lm = self.last_modified.write().map_err(|_| RegistryError::FileReadFailed)?;
+        let mut lm = self
+            .last_modified
+            .write()
+            .map_err(|_| RegistryError::FileReadFailed)?;
         if lm.map(|t| t >= mtime).unwrap_or(false) {
             return Ok(false);
         }
@@ -582,8 +589,6 @@ fn classify_token(token: &str) -> TokenClass {
 
 // --- Helpers ---
 
-
-
 fn dedup_findings(findings: &mut Vec<Finding>) {
     if findings.is_empty() {
         return;
@@ -809,13 +814,30 @@ impl<'a> Iterator for TokenIter<'a> {
 fn is_wrap_punct_byte(b: u8) -> bool {
     matches!(
         b,
-        b'(' | b')' | b'[' | b']' | b'{' | b'}' | b'<' | b'>' | b'"' | b'\''
-            | b',' | b';' | b':' | b'!' | b'?' | b'.'
+        b'(' | b')'
+            | b'['
+            | b']'
+            | b'{'
+            | b'}'
+            | b'<'
+            | b'>'
+            | b'"'
+            | b'\''
+            | b','
+            | b';'
+            | b':'
+            | b'!'
+            | b'?'
+            | b'.'
     )
 }
 
 fn looks_like_urlish(s: &str) -> bool {
-    if s.starts_with("http://") || s.starts_with("https://") || s.starts_with("www.") || s.contains("://") {
+    if s.starts_with("http://")
+        || s.starts_with("https://")
+        || s.starts_with("www.")
+        || s.contains("://")
+    {
         return true;
     }
 
@@ -863,8 +885,6 @@ fn redact_preview(s: &str) -> String {
     format!("{prefix}…{suffix}")
 }
 
-
-
 // ---------------------------- Defaults ----------------------------
 
 /// Default baseline patterns (you can replace/update at runtime).
@@ -902,7 +922,10 @@ mod tests {
     use super::*;
     use std::num::NonZeroUsize;
 
-    fn make_scanner_with_specs(specs: Vec<PatternSpec>, cfg: SecretScannerConfig) -> SecretScanner<HotReloadPatternRegistry> {
+    fn make_scanner_with_specs(
+        specs: Vec<PatternSpec>,
+        cfg: SecretScannerConfig,
+    ) -> SecretScanner<HotReloadPatternRegistry> {
         cfg.validate().unwrap();
         let reg = Arc::new(HotReloadPatternRegistry::new(specs).unwrap());
         SecretScanner::new(cfg, reg).unwrap()
@@ -936,7 +959,9 @@ mod tests {
 
         let input = "leak AKIA1234567890ABCD12 in text";
         let findings = scanner.scan(input).unwrap();
-        assert!(findings.iter().any(|f| f.kind == FindingKind::AwsAccessKeyId));
+        assert!(findings
+            .iter()
+            .any(|f| f.kind == FindingKind::AwsAccessKeyId));
     }
 
     #[test]
@@ -991,11 +1016,14 @@ mod tests {
 
         let scanner = make_scanner_with_specs(vec![], cfg);
 
-        let token = "aZ0bY1cX2dW3eV4fU5gT6hS7iR8jQ9kP0lO1mN2nM3oL4pK5qJ6rI7sH8tG9uF0vE1wD2xC3yB4zA5";
+        let token =
+            "aZ0bY1cX2dW3eV4fU5gT6hS7iR8jQ9kP0lO1mN2nM3oL4pK5qJ6rI7sH8tG9uF0vE1wD2xC3yB4zA5";
         let input = format!("prefix {} suffix", token);
 
         let findings = scanner.scan(&input).unwrap();
-        assert!(findings.iter().any(|f| f.kind == FindingKind::HighEntropyToken));
+        assert!(findings
+            .iter()
+            .any(|f| f.kind == FindingKind::HighEntropyToken));
     }
 
     #[test]
@@ -1180,11 +1208,14 @@ mod tests {
     #[test]
     fn hot_reload_update_success_changes_behavior() {
         let cfg = base_cfg();
-        let reg = Arc::new(HotReloadPatternRegistry::new(vec![PatternSpec {
-            id: "FOO".to_string(),
-            kind: None,
-            regex: r"\bFOOSECRET\b".to_string(),
-        }]).unwrap());
+        let reg = Arc::new(
+            HotReloadPatternRegistry::new(vec![PatternSpec {
+                id: "FOO".to_string(),
+                kind: None,
+                regex: r"\bFOOSECRET\b".to_string(),
+            }])
+            .unwrap(),
+        );
         let scanner = SecretScanner::new(cfg, reg.clone()).unwrap();
 
         let input = "FOOSECRET";
@@ -1195,7 +1226,8 @@ mod tests {
             id: "BAR".to_string(),
             kind: None,
             regex: r"\bBARSECRET\b".to_string(),
-        }]).unwrap();
+        }])
+        .unwrap();
 
         let findings2 = scanner.scan("BARSECRET").unwrap();
         assert_eq!(findings2.len(), 1);
@@ -1207,11 +1239,14 @@ mod tests {
     #[test]
     fn hot_reload_update_failure_keeps_old_patterns() {
         let cfg = base_cfg();
-        let reg = Arc::new(HotReloadPatternRegistry::new(vec![PatternSpec {
-            id: "FOO".to_string(),
-            kind: None,
-            regex: r"\bFOOSECRET\b".to_string(),
-        }]).unwrap());
+        let reg = Arc::new(
+            HotReloadPatternRegistry::new(vec![PatternSpec {
+                id: "FOO".to_string(),
+                kind: None,
+                regex: r"\bFOOSECRET\b".to_string(),
+            }])
+            .unwrap(),
+        );
         let scanner = SecretScanner::new(cfg, reg.clone()).unwrap();
 
         assert_eq!(scanner.scan("FOOSECRET").unwrap().len(), 1);
@@ -1236,7 +1271,10 @@ mod tests {
             kind: None,
             regex: r"\bX\b".to_string(),
         };
-        assert!(matches!(compile_patterns(&[bad]), Err(RegistryError::InvalidPattern)));
+        assert!(matches!(
+            compile_patterns(&[bad]),
+            Err(RegistryError::InvalidPattern)
+        ));
     }
 
     #[test]
@@ -1246,7 +1284,10 @@ mod tests {
             kind: None,
             regex: "a".repeat(513),
         };
-        assert!(matches!(compile_patterns(&[bad]), Err(RegistryError::InvalidPattern)));
+        assert!(matches!(
+            compile_patterns(&[bad]),
+            Err(RegistryError::InvalidPattern)
+        ));
     }
 
     #[test]
@@ -1255,7 +1296,9 @@ mod tests {
         let scanner = make_scanner_with_specs(default_pattern_specs(), cfg);
 
         let input = "sk-abcdefghijklmnopqrstuvwxyzABCDE";
-        let (findings, redacted) = scanner.scan_and_redact(input, RedactionStyle::default()).unwrap();
+        let (findings, redacted) = scanner
+            .scan_and_redact(input, RedactionStyle::default())
+            .unwrap();
 
         assert!(!findings.is_empty());
         assert!(!redacted.contains("sk-abcdefghijklmnopqrstuvwxyzABCDE"));
@@ -1275,7 +1318,8 @@ mod tests {
     #[test]
     fn urlish_leading_slash_does_not_skip_single_slash_base64ish() {
         // Should NOT be considered a path-like URL (only one slash).
-        let token = "/aZ0bY1cX2dW3eV4fU5gT6hS7iR8jQ9kP0lO1mN2nM3oL4pK5qJ6rI7sH8tG9uF0vE1wD2xC3yB4zA5";
+        let token =
+            "/aZ0bY1cX2dW3eV4fU5gT6hS7iR8jQ9kP0lO1mN2nM3oL4pK5qJ6rI7sH8tG9uF0vE1wD2xC3yB4zA5";
         assert!(!looks_like_urlish(token));
     }
 
@@ -1294,25 +1338,26 @@ mod tests {
 
     #[test]
     fn file_registry_refresh_flow() {
-        use tempfile::NamedTempFile;
         use std::io::Write;
+        use tempfile::NamedTempFile;
 
         // Use a closed file path
         let mut tmp = NamedTempFile::new().unwrap();
         // Regex needs double backslash in JSON string to be a single backslash in regex string
         let initial = r#"[{ "id":"FOO", "regex":"\\bFOOSECRET\\b" }]"#;
         write!(tmp, "{initial}").unwrap();
-        
-        // Keep the temporary file around but close the writer handle if possible, 
-        // or just rely on OS allowing read. 
-        // Better: usage of `keep()` or just re-opening. 
+
+        // Keep the temporary file around but close the writer handle if possible,
+        // or just rely on OS allowing read.
+        // Better: usage of `keep()` or just re-opening.
         // Simplest fix for Windows: Put it in a temp DIR so we control the file creation/closing.
-        
+
         let tmp_dir = tempfile::tempdir().unwrap();
         let file_path = tmp_dir.path().join("patterns.json");
         std::fs::write(&file_path, initial).unwrap();
 
-        let reg = Arc::new(FilePatternRegistry::new(file_path.clone(), default_pattern_specs()).unwrap());
+        let reg =
+            Arc::new(FilePatternRegistry::new(file_path.clone(), default_pattern_specs()).unwrap());
 
         // First refresh should load file.
         let refreshed = reg.refresh_if_changed().unwrap();
@@ -1328,8 +1373,8 @@ mod tests {
         // Ensure time moves forward for mtime check if needed, but here we just wrote it.
         // Some filesystems have low resolution. We can just force a change if we sleep slightly
         // or just rely on content change + mtime check logic.
-        std::thread::sleep(std::time::Duration::from_millis(10)); 
-        
+        std::thread::sleep(std::time::Duration::from_millis(10));
+
         let updated = r#"[{ "id":"BAR", "regex":"\\bBARSECRET\\b" }]"#;
         std::fs::write(&file_path, updated).unwrap();
 
@@ -1338,24 +1383,25 @@ mod tests {
         // The scanner has an Arc to logic. We can cast or just hold a ref to reg.
         // In the test `reg` is `FilePatternRegistry`.
         assert_eq!(reg.refresh_if_changed().unwrap(), true);
-        
+
         // Verify new pattern works
         assert_eq!(scanner.scan("BARSECRET").unwrap().len(), 1);
         assert_eq!(scanner.scan("FOOSECRET").unwrap().len(), 0);
-    // So: separate test below validates refresh_if_changed toggles.
+        // So: separate test below validates refresh_if_changed toggles.
     }
 
     #[test]
     fn file_registry_refresh_if_changed_returns_false_when_unchanged() {
-        use tempfile::NamedTempFile;
         use std::io::Write;
+        use tempfile::NamedTempFile;
 
         let mut tmp = NamedTempFile::new().unwrap();
         let initial = r#"[{ "id":"FOO", "regex":"\\bFOOSECRET\\b" }]"#;
         write!(tmp, "{initial}").unwrap();
         tmp.flush().unwrap();
 
-        let reg = FilePatternRegistry::new(tmp.path().to_path_buf(), default_pattern_specs()).unwrap();
+        let reg =
+            FilePatternRegistry::new(tmp.path().to_path_buf(), default_pattern_specs()).unwrap();
         assert_eq!(reg.refresh_if_changed().unwrap(), true);
         assert_eq!(reg.refresh_if_changed().unwrap(), false);
     }

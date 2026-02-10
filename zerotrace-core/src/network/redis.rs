@@ -142,3 +142,42 @@ impl RedisClient {
         Ok(body.result)
     }
 }
+
+use std::future::Future;
+use std::pin::Pin;
+use crate::interceptor::sanitize::{TokenStore, StoreError};
+
+impl TokenStore for RedisClient {
+    fn set_with_ttl<'a>(
+        &'a self,
+        key: &'a str,
+        value: &'a str,
+        ttl_secs: u64,
+    ) -> Pin<Box<dyn Future<Output = Result<(), StoreError>> + Send + 'a>> {
+        let key = key.to_string();
+        let value = value.to_string();
+        // Since &self is 'a, we need to clone the client or capture the async block correctly.
+        // But RedisClient is Clone, so we can clone it into the async block.
+        let client = self.clone();
+
+        Box::pin(async move {
+            client.set_with_ttl(&key, &value, ttl_secs)
+                .await
+                .map_err(StoreError::StoreFailure)
+        })
+    }
+
+    fn get<'a>(
+        &'a self,
+        key: &'a str,
+    ) -> Pin<Box<dyn Future<Output = Result<Option<String>, StoreError>> + Send + 'a>> {
+        let key = key.to_string();
+        let client = self.clone();
+
+        Box::pin(async move {
+            client.get(&key)
+                .await
+                .map_err(StoreError::StoreFailure)
+        })
+    }
+}

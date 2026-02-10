@@ -8,3 +8,4 @@ pub mod storage;
 pub mod worker;
 
 pub mod security;
+pub mod monitoring;

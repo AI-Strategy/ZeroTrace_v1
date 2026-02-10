@@ -36,3 +36,6 @@ pub mod v51_sampling_quota;
 pub mod v52_namespace_pinning;
 pub mod v53_biometric_liveness;
 pub mod v54_nhi_lifecycle;
+
+pub mod kms_client;
+pub mod vault_manager;

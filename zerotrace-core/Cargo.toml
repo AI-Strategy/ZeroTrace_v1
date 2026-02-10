@@ -18,10 +18,10 @@ neo4rs = "0.7"
 # Security & Cryptography
 ring = "0.17"            # For Ed25519 signature verification
 aes-gcm = "0.10"         # For Adversarial Vault decryption
-sha2 = "0.10"            # For WORM Ledger hashing
-radix_trie = "0.2"       # Fast-path Tier 1 matching
 hmac = "0.12"
+sha2 = "0.10"            # For WORM Ledger hashing
 subtle = "2"
+
 
 # Performance & Serialization
 serde = { version = "1.0", features = ["derive"] }

@@ -2,7 +2,7 @@
 // Vector 54: Runaway Agent Sprawl (Zombie Identities)
 // Defense: Identity Kill-Switch. Revokes NHI tokens older than TTL.
 
-use chrono::{DateTime, Utc, Duration};
+use chrono::{DateTime, Duration, Utc};
 
 pub struct NhiToken {
     pub id: String,
@@ -45,9 +45,9 @@ mod tests {
     fn test_zombie_detection() {
         let now = Utc::now();
         let two_months_ago = now - Duration::days(60);
-        
+
         let zombie_token = NhiToken::new("agent-007", two_months_ago, 30);
-        
+
         match zombie_token.check_status() {
             TokenState::Expired(overdue) => assert!(overdue >= 29), // approx 30 days overdue
             _ => panic!("Should be expired"),
@@ -58,7 +58,7 @@ mod tests {
     fn test_active_token() {
         let now = Utc::now();
         let yesterday = now - Duration::days(1);
-        
+
         let active_token = NhiToken::new("agent-008", yesterday, 30);
         assert_eq!(active_token.check_status(), TokenState::Active);
     }

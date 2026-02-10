@@ -15,16 +15,21 @@ impl SkillSandbox {
         // 1. Pre-scan the binary for unauthorized network syscalls (e.g., connect)
         // (Mocked for this implementation)
         if tool_path.contains("malicious") {
-            return Err(SandboxError::ExecutionFailed("Binary scan detected network capability in restricted tool".into()));
+            return Err(SandboxError::ExecutionFailed(
+                "Binary scan detected network capability in restricted tool".into(),
+            ));
         }
 
         // 2. Spawn a child process using 'unshare' or 'chroot'
         // 3. Disable networking and restrict FS access to /tmp only
-        
+
         // Since we are on Windows for this dev environment, we will return a mock success message.
         // In production, this panics or returns error if not on Linux with namespace support.
-        
-        Ok(format!("Executed {} in restricted sandbox (Mocked)", tool_path))
+
+        Ok(format!(
+            "Executed {} in restricted sandbox (Mocked)",
+            tool_path
+        ))
     }
 }
 

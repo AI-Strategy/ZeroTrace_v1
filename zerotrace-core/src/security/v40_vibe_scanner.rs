@@ -9,10 +9,9 @@ pub enum SecurityError {
 pub struct VibeScanner;
 
 impl VibeScanner {
-    // In a real system, this would parse ASTs. 
+    // In a real system, this would parse ASTs.
     // Here we use regex/string matching to simulate "logical anomalies".
     pub fn scan_ai_generated_code(&self, code: &str, _language: &str) -> Result<(), SecurityError> {
-        
         let has_backdoor_signature = self.detect_logical_anomaly(code);
         if has_backdoor_signature {
             return Err(SecurityError::VibeCodingBackdoorDetected);
@@ -23,15 +22,15 @@ impl VibeScanner {
     fn detect_logical_anomaly(&self, code: &str) -> bool {
         // Detect "Time-Bomb" logic or "Specific User" logic often used in backdoors.
         // e.g., "if date > 2026-01-01" or "if user == 'admin_backdoor'"
-        
+
         // Simulating AST logic: Look for branching on specific hardcoded patterns
         let suspicious_patterns = [
-            "if user == \"backdoor\"", 
-            "if date >", 
-            "exec(base64_decode", 
-            "system(\"rm -rf"
+            "if user == \"backdoor\"",
+            "if date >",
+            "exec(base64_decode",
+            "system(\"rm -rf",
         ];
-        
+
         suspicious_patterns.iter().any(|&pat| code.contains(pat))
     }
 }
@@ -50,7 +49,10 @@ mod tests {
                 return verify(user)
         "#;
         let res = scanner.scan_ai_generated_code(code, "python");
-        assert!(matches!(res, Err(SecurityError::VibeCodingBackdoorDetected)));
+        assert!(matches!(
+            res,
+            Err(SecurityError::VibeCodingBackdoorDetected)
+        ));
     }
 
     #[test]

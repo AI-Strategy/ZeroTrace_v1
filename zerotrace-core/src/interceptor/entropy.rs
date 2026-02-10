@@ -37,11 +37,12 @@ pub fn scan_for_secrets(input: &str) -> Vec<String> {
     // 2. High Entropy Word Scanning
     // Split by whitespace and check each "word"
     for word in input.split_whitespace() {
-        if word.len() > 20 { // short words rarely have high enough entropy to matter for keys
+        if word.len() > 20 {
+            // short words rarely have high enough entropy to matter for keys
             let entropy = calculate_shannon_entropy(word);
             // Threshold is heuristic; 4.5 is a common start point for base64/random strings
             if entropy > 4.5 {
-                // Ignore likely non-secret long strings (like URLs) if needed, 
+                // Ignore likely non-secret long strings (like URLs) if needed,
                 // but for now, flag it.
                 warnings.push(format!("HIGH_ENTROPY_STRING_DETECTED:{:.2}", entropy));
             }

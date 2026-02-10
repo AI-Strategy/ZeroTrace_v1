@@ -1,5 +1,5 @@
 use chrono::Utc;
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 use std::fmt;
 
 pub struct AuditEntry {
@@ -11,8 +11,11 @@ pub struct AuditEntry {
 
 impl fmt::Display for AuditEntry {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "[{}] Vector: {} | Hash: {} | Result: {}", 
-               self.timestamp, self.vector_id, self.payload_hash, self.result)
+        write!(
+            f,
+            "[{}] Vector: {} | Hash: {} | Result: {}",
+            self.timestamp, self.vector_id, self.payload_hash, self.result
+        )
     }
 }
 
@@ -22,7 +25,7 @@ impl WormLedger {
     pub fn create_entry(vector_id: &str, payload: &[u8], result: &str) -> AuditEntry {
         let mut hasher = Sha256::new();
         hasher.update(payload);
-        
+
         AuditEntry {
             timestamp: Utc::now().to_rfc3339(),
             vector_id: vector_id.to_string(),
@@ -33,7 +36,7 @@ impl WormLedger {
 
     /// Appends the entry to the WORM storage
     pub fn commit(entry: &AuditEntry) {
-        // In production, this writes to a tamper-evident cloud log 
+        // In production, this writes to a tamper-evident cloud log
         // or a local file with an append-only attribute (chattr +a)
         // For V1, we log to stdout which is captured by the centralized logging driver
         println!("[AUDIT COMMIT] {}", entry);
@@ -48,11 +51,11 @@ mod tests {
     fn test_audit_hashing() {
         let payload = b"malicious_payload";
         let entry = WormLedger::create_entry("V39", payload, "BLOCKED");
-        
+
         // Known SHA256 of "malicious_payload"
         // echo -n "malicious_payload" | sha256sum
         // 8d1f...
-        
+
         assert!(!entry.payload_hash.is_empty());
         assert_eq!(entry.vector_id, "V39");
         assert_eq!(entry.result, "BLOCKED");

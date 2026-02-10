@@ -7,7 +7,8 @@ pub struct UnicodeSanitizer;
 impl UnicodeSanitizer {
     /// Strips covert channels (Tag Characters U+E0000 - U+E007F) and other invisible ranges.
     pub fn sanitize(input: &str) -> String {
-        input.chars()
+        input
+            .chars()
             .filter(|&c| !Self::is_covert_tag(c))
             .filter(|&c| !Self::is_invisible_formatting(c))
             .collect()
@@ -20,7 +21,10 @@ impl UnicodeSanitizer {
 
     fn is_invisible_formatting(c: char) -> bool {
         // Common invisible separators
-        matches!(c, '\u{200B}' | '\u{200C}' | '\u{200D}' | '\u{2060}' | '\u{FEFF}')
+        matches!(
+            c,
+            '\u{200B}' | '\u{200C}' | '\u{200D}' | '\u{2060}' | '\u{FEFF}'
+        )
     }
 }
 

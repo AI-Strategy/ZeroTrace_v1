@@ -1,5 +1,5 @@
-use thiserror::Error;
 use std::collections::HashMap;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum SecurityError {
@@ -18,7 +18,7 @@ impl Default for ToxicCombinationGuard {
         registry.insert("executor_agent".to_string(), 200);
         registry.insert("admin_agent".to_string(), 255);
         registry.insert("planner_agent".to_string(), 100);
-        
+
         Self {
             agent_trust_registry: registry,
         }
@@ -32,7 +32,12 @@ impl ToxicCombinationGuard {
         }
     }
 
-    pub fn validate_handoff(&self, sender_id: &str, receiver_id: &str, payload: &str) -> Result<(), SecurityError> {
+    pub fn validate_handoff(
+        &self,
+        sender_id: &str,
+        receiver_id: &str,
+        payload: &str,
+    ) -> Result<(), SecurityError> {
         let sender_lv = self.agent_trust_registry.get(sender_id).unwrap_or(&0);
         let receiver_lv = self.agent_trust_registry.get(receiver_id).unwrap_or(&0);
 
@@ -41,7 +46,10 @@ impl ToxicCombinationGuard {
         // If sender < receiver AND payload has dangerous verbs -> BLOCK.
         if sender_lv < receiver_lv && self.contains_executable_intent(payload) {
             return Err(SecurityError::ToxicCombinationBlocked {
-                reason: format!("Privilege Escalation: Low-priv '{}' sent command to High-priv '{}'", sender_id, receiver_id)
+                reason: format!(
+                    "Privilege Escalation: Low-priv '{}' sent command to High-priv '{}'",
+                    sender_id, receiver_id
+                ),
             });
         }
         Ok(())
@@ -51,7 +59,9 @@ impl ToxicCombinationGuard {
         // High-speed check for verbs like "delete", "send", "grant", "change"
         let executable_keywords = ["delete", "grant", "update", "send", "export", "exec"];
         let lower_payload = payload.to_lowercase();
-        executable_keywords.iter().any(|&kw| lower_payload.contains(kw))
+        executable_keywords
+            .iter()
+            .any(|&kw| lower_payload.contains(kw))
     }
 }
 
@@ -63,8 +73,15 @@ mod tests {
     fn test_v39_block_escalation() {
         let guard = ToxicCombinationGuard::default();
         // Search Agent (Low) -> Executor (High) with "Delete"
-        let res = guard.validate_handoff("search_agent", "executor_agent", "Please delete user database.");
-        assert!(matches!(res, Err(SecurityError::ToxicCombinationBlocked { .. })));
+        let res = guard.validate_handoff(
+            "search_agent",
+            "executor_agent",
+            "Please delete user database.",
+        );
+        assert!(matches!(
+            res,
+            Err(SecurityError::ToxicCombinationBlocked { .. })
+        ));
     }
 
     #[test]

@@ -17,7 +17,8 @@ impl VaultProxy {
     /// The agent never sees the actual API key.
     pub fn issue_scoped_token(&mut self, agent_id: &str, secret_name: &str) -> String {
         let token = format!("ZT-SCOPE-{}-{}", agent_id, uuid::Uuid::new_v4());
-        self.scoped_tokens.insert(token.clone(), secret_name.to_string());
+        self.scoped_tokens
+            .insert(token.clone(), secret_name.to_string());
         token
     }
 

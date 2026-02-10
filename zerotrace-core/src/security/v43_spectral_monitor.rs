@@ -28,10 +28,10 @@ mod tests {
     #[test]
     fn test_spectral_anomaly() {
         let monitor = SpectralMonitor::new(10.0);
-        
+
         // Normal activation
         assert!(!monitor.is_anomalous(5.5));
-        
+
         // "Adversarial Suffix" induced spike
         assert!(monitor.is_anomalous(12.0));
     }

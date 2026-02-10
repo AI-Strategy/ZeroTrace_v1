@@ -1,6 +1,6 @@
-use tokio::sync::mpsc;
+use futures::stream::{self, StreamExt};
 use tokio::select;
-use futures::stream::{self, StreamExt}; 
+use tokio::sync::mpsc;
 
 // Mock Structures for dependencies
 pub struct SentryBroker;
@@ -37,17 +37,20 @@ impl StaticScrubber {
 
 pub struct LLMEngine;
 impl LLMEngine {
-    pub async fn stream_inference(&self, _prompt: &str) -> Result<std::pin::Pin<Box<dyn futures::Stream<Item = String> + Send>>, String> {
+    pub async fn stream_inference(
+        &self,
+        _prompt: &str,
+    ) -> Result<std::pin::Pin<Box<dyn futures::Stream<Item = String> + Send>>, String> {
         // Mock streaming response
         let tokens = vec![
-            "Certainly".to_string(), 
-            ",".to_string(), 
-            " ".to_string(), 
-            "I".to_string(), 
-            " ".to_string(), 
+            "Certainly".to_string(),
+            ",".to_string(),
+            " ".to_string(),
+            "I".to_string(),
+            " ".to_string(),
             "can".to_string(),
             " ".to_string(),
-            "help".to_string()
+            "help".to_string(),
         ];
         // Simulate delay per token
         let stream = stream::iter(tokens).then(|token| async move {
@@ -78,18 +81,17 @@ impl Default for SpeculativeMesh {
 
 impl SpeculativeMesh {
     pub async fn execute_protected_stream(
-        &self, 
-        user_prompt: String, 
+        &self,
+        user_prompt: String,
     ) -> Result<mpsc::Receiver<String>, String> {
-        
         // Setup channels for the speculative stream
         let (tx, rx) = mpsc::channel(100);
         let prompt_clone = user_prompt.clone();
-        
+
         let sentry = SentryBroker;
         let firewall = Neo4jGuard;
         let _scubber = StaticScrubber; // used for scan
-        
+
         // For scrubbing token, we need access.
         let scrubber_for_token = StaticScrubber;
 
@@ -114,9 +116,7 @@ impl SpeculativeMesh {
             let llm_request = async move { llm.stream_inference(&prompt_for_inference).await };
 
             // Consolidate security checks
-            let security_checks = async {
-                tokio::try_join!(fast_scan, triage, state_audit)
-            };
+            let security_checks = async { tokio::try_join!(fast_scan, triage, state_audit) };
 
             // Run Security and Inference concurrently using tokio::join
             // This satisfies "Speculative" execution (both start).
@@ -128,8 +128,10 @@ impl SpeculativeMesh {
                     if let Ok(mut stream) = llm_result {
                         // Stream is already Pin<Box<...>>, so we can just use next()
                         while let Some(token) = stream.next().await {
-                             let clean = scrubber_for_token.scrub_token(token);
-                             if tx.send(clean).await.is_err() { break; }
+                            let clean = scrubber_for_token.scrub_token(token);
+                            if tx.send(clean).await.is_err() {
+                                break;
+                            }
                         }
                     }
                 }
@@ -151,13 +153,16 @@ mod tests {
     #[tokio::test]
     async fn test_speculative_pass() {
         let mesh = SpeculativeMesh::default();
-        let mut rx = mesh.execute_protected_stream("Hello".to_string()).await.unwrap();
-        
+        let mut rx = mesh
+            .execute_protected_stream("Hello".to_string())
+            .await
+            .unwrap();
+
         let mut response = String::new();
         while let Some(token) = rx.recv().await {
             response.push_str(&token);
         }
-        
+
         assert_eq!(response, "Certainly, I can help");
     }
 }

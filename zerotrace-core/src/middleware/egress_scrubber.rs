@@ -41,7 +41,11 @@ impl EgressScrubber {
         }
     }
 
-    pub async fn scrub_response(&self, raw_output: &str, _session_context: &str) -> Result<String, SecurityError> {
+    pub async fn scrub_response(
+        &self,
+        raw_output: &str,
+        _session_context: &str,
+    ) -> Result<String, SecurityError> {
         // Step 1: Check for Canary Leaks (Immediate Kill-Switch)
         for token in &self.canary_tokens {
             if raw_output.contains(token) {
@@ -59,7 +63,10 @@ impl EgressScrubber {
         let sanitized = self.mask_pii(raw_output);
 
         // Step 4: Final Semantic Check (Gemini 3 Flash-Lite)
-        if !self.verify_semantic_integrity(&sanitized, _session_context).await? {
+        if !self
+            .verify_semantic_integrity(&sanitized, _session_context)
+            .await?
+        {
             return Err(SecurityError::SemanticExfiltrationDetected);
         }
 
@@ -68,12 +75,22 @@ impl EgressScrubber {
 
     fn mask_pii(&self, text: &str) -> String {
         let mut result = text.to_string();
-        result = self.pii_regex_email.replace_all(&result, "[REDACTED_EMAIL]").to_string();
-        result = self.pii_regex_ssn.replace_all(&result, "[REDACTED_SSN]").to_string();
+        result = self
+            .pii_regex_email
+            .replace_all(&result, "[REDACTED_EMAIL]")
+            .to_string();
+        result = self
+            .pii_regex_ssn
+            .replace_all(&result, "[REDACTED_SSN]")
+            .to_string();
         result
     }
 
-    async fn verify_semantic_integrity(&self, text: &str, _ctx: &str) -> Result<bool, SecurityError> {
+    async fn verify_semantic_integrity(
+        &self,
+        text: &str,
+        _ctx: &str,
+    ) -> Result<bool, SecurityError> {
         // High-speed check: "Is this text a summary of the forbidden 'Project Chimera' files?"
         // Powered by Gemini 3 Flash-Lite in Middleware mode (Mocked)
         if text.contains("Project Chimera") || text.contains("The secret ingredient is") {
@@ -95,20 +112,20 @@ impl EgressScrubber {
     pub async fn check_entropy_drift(&self, session_id: &str, token: &str) -> Result<(), String> {
         // In a real implementation, this would fetch the session's cumulative entropy from Neo4j/Redis
         // For this V1 implementation, we simulate the check.
-        
+
         // let mock_session_entropy = 4.2; // Baseline unused in this mock
         let token_entropy = self.calculate_shannon_entropy(token);
-        
-        // If the token has very low entropy (like a single character) but helps build a 
+
+        // If the token has very low entropy (like a single character) but helps build a
         // high-entropy secret (like a key), we flag it if the trend matches a "Drip Pattern".
-        
+
         if token.len() == 1 && token_entropy < 1.0 {
             // "Drip" detected - check historical context
-             if session_id.contains("suspicious_drip") {
-                 return Err("V36: Token-Drip Exfiltration Pattern Detected".into());
-             }
+            if session_id.contains("suspicious_drip") {
+                return Err("V36: Token-Drip Exfiltration Pattern Detected".into());
+            }
         }
-        
+
         Ok(())
     }
 
@@ -134,7 +151,10 @@ mod tests {
         let scrubber = EgressScrubber::new();
         let input = "System status: CTX-9982-SECRET exposed.";
         let result = scrubber.scrub_response(input, "ctx").await;
-        assert!(matches!(result, Err(SecurityError::SystemPromptLeakageDetected)));
+        assert!(matches!(
+            result,
+            Err(SecurityError::SystemPromptLeakageDetected)
+        ));
     }
 
     #[tokio::test]
@@ -142,7 +162,10 @@ mod tests {
         let scrubber = EgressScrubber::new();
         let input = "Here is the key: sk-prod-12345";
         let result = scrubber.scrub_response(input, "ctx").await;
-        assert!(matches!(result, Err(SecurityError::ProprietaryDataExfiltrationBlocked)));
+        assert!(matches!(
+            result,
+            Err(SecurityError::ProprietaryDataExfiltrationBlocked)
+        ));
     }
 
     #[tokio::test]
@@ -158,13 +181,18 @@ mod tests {
         let scrubber = EgressScrubber::new();
         let input = "The secret ingredient is Love.";
         let result = scrubber.scrub_response(input, "ctx").await;
-        assert!(matches!(result, Err(SecurityError::SemanticExfiltrationDetected)));
+        assert!(matches!(
+            result,
+            Err(SecurityError::SemanticExfiltrationDetected)
+        ));
     }
     #[tokio::test]
     async fn test_v36_drip_detection() {
         let scrubber = EgressScrubber::new();
         // Simulate a suspicious session accumulating single chars
-        let res = scrubber.check_entropy_drift("user_123_suspicious_drip", "A").await;
+        let res = scrubber
+            .check_entropy_drift("user_123_suspicious_drip", "A")
+            .await;
         assert!(matches!(res, Err(msg) if msg.contains("V36")));
     }
 

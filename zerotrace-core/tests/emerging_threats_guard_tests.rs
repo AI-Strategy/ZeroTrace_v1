@@ -1,10 +1,10 @@
 use std::time::Duration;
 
 use async_trait::async_trait;
-use rand::{RngCore, SeedableRng, rngs::StdRng};
+use rand::{rngs::StdRng, RngCore, SeedableRng};
 use zerotrace_core::interceptor::emerging::{
-    EmergingThreatsGuard, GuardConfig, ManyShotConfig, Sleeper, seeded_rng,
-    UnknownFormatPolicy, ImageSanitizeConfig, ImageFormat,
+    seeded_rng, EmergingThreatsGuard, GuardConfig, ImageFormat, ImageSanitizeConfig,
+    ManyShotConfig, Sleeper, UnknownFormatPolicy,
 };
 
 struct NoopSleeper;

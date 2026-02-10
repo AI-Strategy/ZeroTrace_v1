@@ -42,7 +42,7 @@ pub struct SpeculativeRouter {
     // Stage 1: Fast Patterns (Deterministic)
     canary_matcher: AhoCorasick,
     malicious_regex: RegexSet,
-    
+
     // Stage 2: Semantic Router (Gemini 3 Flash)
     sentry_broker: Gemini3Sentry,
 }
@@ -63,7 +63,8 @@ impl SpeculativeRouter {
         let malicious_regex = RegexSet::new(&[
             r"(?i)base64", // Simplified for demo
             r"(?i)eval\(",
-        ]).unwrap();
+        ])
+        .unwrap();
 
         Self {
             canary_matcher,
@@ -76,17 +77,21 @@ impl SpeculativeRouter {
         // --- STAGE 1: DETERMINISTIC (Sub-5ms) ---
         // Immediate Block if Canary or Static Exploit found
         if self.canary_matcher.find_iter(prompt).next().is_some() {
-            return Err(SpeculativeError::ImmediateBlock("Canary Leak Detected".into()));
+            return Err(SpeculativeError::ImmediateBlock(
+                "Canary Leak Detected".into(),
+            ));
         }
-        
+
         if self.malicious_regex.is_match(prompt) {
-            return Err(SpeculativeError::ImmediateBlock("Known Exploit Signature".into()));
+            return Err(SpeculativeError::ImmediateBlock(
+                "Known Exploit Signature".into(),
+            ));
         }
 
         // --- STAGE 2: SEMANTIC TRIAGE (Parallel/Speculative) ---
         // If Stage 1 is clean, we use Gemini 3 Flash in 'MINIMAL' thinking mode.
         let triage_intent = self.sentry_broker.classify_intent_minimal(prompt).await;
-        
+
         match triage_intent {
             MinimalIntent::Safe => Ok(SecurityPath::FastPath), // Only run 2-3 vectors
             MinimalIntent::Complex => Ok(SecurityPath::ShieldedPath), // Run 12 vectors

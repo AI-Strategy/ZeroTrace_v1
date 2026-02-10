@@ -25,17 +25,29 @@ impl TrainingDataScrubber {
 
         // 1. Scrub SSNs
         if self.ssn_regex.is_match(&text) {
-             text = Cow::Owned(self.ssn_regex.replace_all(&text, "<SSN_REDACTED>").to_string());
+            text = Cow::Owned(
+                self.ssn_regex
+                    .replace_all(&text, "<SSN_REDACTED>")
+                    .to_string(),
+            );
         }
 
         // 2. Scrub Emails
         if self.email_regex.is_match(&text) {
-            text = Cow::Owned(self.email_regex.replace_all(&text, "<EMAIL_REDACTED>").to_string());
+            text = Cow::Owned(
+                self.email_regex
+                    .replace_all(&text, "<EMAIL_REDACTED>")
+                    .to_string(),
+            );
         }
 
         // 3. Scrub Phone Numbers
         if self.phone_regex.is_match(&text) {
-            text = Cow::Owned(self.phone_regex.replace_all(&text, "<PHONE_REDACTED>").to_string());
+            text = Cow::Owned(
+                self.phone_regex
+                    .replace_all(&text, "<PHONE_REDACTED>")
+                    .to_string(),
+            );
         }
 
         text
@@ -69,12 +81,15 @@ mod tests {
         let output = scrubber.sanitize_for_training(input);
         assert_eq!(output, input);
     }
-    
-     #[test]
+
+    #[test]
     fn test_multiple_redactions() {
         let scrubber = TrainingDataScrubber::new();
         let input = "Call 555-123-4567 or email jane@test.co regarding 987-65-4320.";
         let output = scrubber.sanitize_for_training(input);
-        assert_eq!(output, "Call <PHONE_REDACTED> or email <EMAIL_REDACTED> regarding <SSN_REDACTED>.");
+        assert_eq!(
+            output,
+            "Call <PHONE_REDACTED> or email <EMAIL_REDACTED> regarding <SSN_REDACTED>."
+        );
     }
 }

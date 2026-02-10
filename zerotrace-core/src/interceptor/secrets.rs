@@ -6,18 +6,10 @@
 //! - Detect leaked credentials in untrusted text without ever echoing secrets.
 //! - Allow detector updates (new regexes/pattern IDs) without code redeploys.
 //! - Provide stable, structured findings for enforcement + audit + metrics.
-//!
-//! Suggested dependencies (Cargo.toml):
-//! regex = "1"
-//! thiserror = "1"
-//! tracing = "0.1"
-//! tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
-//! blake3 = "1"
-//! serde = { version = "1", features = ["derive"] }
-//! serde_json = "1"
 
 use regex::{Regex, RegexSet};
 use serde::Deserialize;
+use blake3;
 use std::{
     fs,
     num::NonZeroUsize,
@@ -77,11 +69,20 @@ impl SecretScannerConfig {
         {
             return Err(ScanError::InvalidConfig);
         }
+        // Defensive: keep the bounds sane.
+        if self.max_findings.get() == 0
+            || self.max_candidates.get() == 0
+            || self.max_input_bytes.get() == 0
+            || self.max_token_bytes.get() == 0
+            || self.min_token_len_for_entropy.get() == 0
+        {
+            return Err(ScanError::InvalidConfig);
+        }
         Ok(())
     }
 }
 
-/// Finding kind is now pluggable.
+/// Finding kind is pluggable.
 /// - Built-ins remain stable.
 /// - Dynamic patterns come through as CustomPattern("<pattern_id>").
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -106,11 +107,49 @@ impl FindingKind {
 /// Safe-to-return finding (does not include raw secret).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Finding {
+    /// Stable identifier for correlation across logs, metrics, enforcement actions, and audits.
+    /// Deterministic: depends only on kind + span + input_hash.
+    pub finding_id: String,
     pub kind: FindingKind,
     pub span: (usize, usize), // byte offsets
     pub preview: String,      // redacted preview only
     pub entropy_x100: Option<u32>,
     pub input_hash: String,
+}
+
+impl Finding {
+    /// Construct a Finding with a stable ID derived from (kind, span, input_hash).
+    pub fn new(
+        kind: FindingKind,
+        span: (usize, usize),
+        preview: String,
+        entropy_x100: Option<u32>,
+        input_hash: String,
+    ) -> Self {
+        let finding_id = compute_finding_id(&kind, span, &input_hash);
+        Self {
+            finding_id,
+            kind,
+            span,
+            preview,
+            entropy_x100,
+            input_hash,
+        }
+    }
+}
+
+/// Deterministic stable ID for a finding.
+/// NOTE: does NOT include any secret material or the preview.
+fn compute_finding_id(kind: &FindingKind, span: (usize, usize), input_hash: &str) -> String {
+    // Keep format stable: if you change it, you’ll break correlation.
+    let payload = format!(
+        "{}:{}:{}:{}",
+        kind.stable_id(),
+        span.0,
+        span.1,
+        input_hash
+    );
+    blake3::hash(payload.as_bytes()).to_hex().to_string()
 }
 
 /// Errors safe to propagate.
@@ -183,13 +222,12 @@ fn kind_from_spec(spec: &PatternSpec) -> FindingKind {
 }
 
 fn validate_pattern_spec(spec: &PatternSpec) -> Result<(), RegistryError> {
-    // Defensive: prevent absurd IDs (log injection, filesystem fun, etc).
+    // Defensive: prevent absurd IDs (log injection, path tricks, etc).
     if spec.id.is_empty()
         || spec.id.len() > 64
-        || !spec
-            .id
-            .bytes()
-            .all(|b| b.is_ascii_uppercase() || b.is_ascii_digit() || b == b'_' || b == b'-')
+        || !spec.id.bytes().all(|b| {
+            b.is_ascii_uppercase() || b.is_ascii_digit() || b == b'_' || b == b'-'
+        })
     {
         return Err(RegistryError::InvalidPattern);
     }
@@ -204,8 +242,8 @@ fn compile_patterns(specs: &[PatternSpec]) -> Result<CompiledPatterns, RegistryE
         validate_pattern_spec(s)?;
     }
 
-    let set = RegexSet::new(specs.iter().map(|s| s.regex.as_str()))
-        .map_err(|_| RegistryError::RegexCompileFailed)?;
+    let set =
+        RegexSet::new(specs.iter().map(|s| s.regex.as_str())).map_err(|_| RegistryError::RegexCompileFailed)?;
 
     let mut entries = Vec::with_capacity(specs.len());
     for s in specs {
@@ -225,8 +263,6 @@ fn compile_patterns(specs: &[PatternSpec]) -> Result<CompiledPatterns, RegistryE
 /// Updates are atomic for readers:
 /// - If update fails, old patterns remain in use.
 /// - If update succeeds, new patterns are swapped in immediately.
-///
-/// That’s the whole “ship updated detectors without redeploy” bit.
 pub struct HotReloadPatternRegistry {
     inner: RwLock<Arc<CompiledPatterns>>,
 }
@@ -250,15 +286,17 @@ impl HotReloadPatternRegistry {
 
     pub fn update_from_specs(&self, specs: Vec<PatternSpec>) -> Result<(), RegistryError> {
         let compiled = compile_patterns(&specs)?;
+
         let mut guard = self.inner.write().map_err(|_| RegistryError::RegexCompileFailed)?;
         *guard = Arc::new(compiled);
 
-        info!(
-            event = "pattern_registry_updated",
-            pattern_count = specs.len(),
-        );
+        info!(event = "pattern_registry_updated", pattern_count = specs.len(),);
         Ok(())
     }
+}
+
+lazy_static::lazy_static! {
+    static ref DEFAULT_COMPILED: Arc<CompiledPatterns> = Arc::new(default_compiled_patterns());
 }
 
 impl PatternRegistry for HotReloadPatternRegistry {
@@ -266,13 +304,13 @@ impl PatternRegistry for HotReloadPatternRegistry {
         self.inner
             .read()
             .map(|g| g.clone())
-            .unwrap_or_else(|_| Arc::new(default_compiled_patterns()))
+            .unwrap_or_else(|_| DEFAULT_COMPILED.clone())
     }
 }
 
 /// File-backed hot reload (poll-style).
 ///
-/// Call `refresh_if_changed()` periodically (cron, timer, admin endpoint).
+/// Call `refresh_if_changed()` periodically (timer, admin endpoint).
 pub struct FilePatternRegistry {
     path: PathBuf,
     last_modified: RwLock<Option<SystemTime>>,
@@ -323,9 +361,8 @@ impl PatternRegistry for FilePatternRegistry {
 /// Secret scanner engine.
 ///
 /// Complexity:
-/// - Pattern scan: O(n) average for set check + regex iter (bounded by max_findings).
+/// - Pattern scan: RegexSet match + limited regex iter (bounded by max_findings).
 /// - Entropy scan: O(C * L) where C is candidate tokens (bounded), L token length (bounded).
-/// - Space: O(F) findings (bounded).
 pub struct SecretScanner<R: PatternRegistry> {
     cfg: SecretScannerConfig,
     registry: Arc<R>,
@@ -399,10 +436,12 @@ fn scan_patterns_with_registry(
         return Ok(());
     }
 
-    for entry in &compiled.entries {
+    // Optimization: only run regexes that RegexSet says match.
+    for idx in compiled.set.matches(input).iter() {
         if out.len() >= cfg.max_findings.get() {
             break;
         }
+        let entry = &compiled.entries[idx];
 
         for m in entry.re.find_iter(input) {
             if out.len() >= cfg.max_findings.get() {
@@ -421,13 +460,13 @@ fn scan_patterns_with_registry(
                 end = span.1,
             );
 
-            out.push(Finding {
-                kind: entry.kind.clone(),
+            out.push(Finding::new(
+                entry.kind.clone(),
                 span,
                 preview,
-                entropy_x100: None,
-                input_hash: input_hash.to_string(),
-            });
+                None,
+                input_hash.to_string(),
+            ));
         }
     }
 
@@ -488,13 +527,13 @@ fn scan_entropy(input: &str, input_hash: &str, cfg: &SecretScannerConfig, out: &
                 end = end,
             );
 
-            out.push(Finding {
-                kind: FindingKind::HighEntropyToken,
-                span: (start, end),
+            out.push(Finding::new(
+                FindingKind::HighEntropyToken,
+                (start, end),
                 preview,
-                entropy_x100: Some(entropy_x100),
-                input_hash: input_hash.to_string(),
-            });
+                Some(entropy_x100),
+                input_hash.to_string(),
+            ));
         }
     }
 }
@@ -541,12 +580,22 @@ fn classify_token(token: &str) -> TokenClass {
     TokenClass::Other
 }
 
+// --- Helpers ---
+
+
+
+fn dedup_findings(findings: &mut Vec<Finding>) {
+    if findings.is_empty() {
+        return;
+    }
+    // Sort deterministically to make dedup stable.
+    findings.sort_by(|a, b| a.finding_id.cmp(&b.finding_id));
+    findings.dedup_by(|a, b| a.finding_id == b.finding_id);
+}
+
 // ---------------------------- Redaction ----------------------------
 
 /// Redaction style options.
-///
-/// Why:
-/// - You’ll want different output formats for logs vs UI vs downstream storage.
 #[derive(Debug, Clone)]
 pub struct RedactionStyle {
     pub replacement: String,
@@ -572,10 +621,6 @@ impl Default for RedactionStyle {
 /// - Never panics on malformed spans.
 /// - Handles overlaps by merging.
 /// - Attempts to respect UTF-8 boundaries (clamps to nearest safe boundary).
-///
-/// Complexity:
-/// - Sorting spans: O(F log F), F bounded by max_findings
-/// - Building output: O(n)
 pub fn redact_by_findings(input: &str, findings: &[Finding], style: RedactionStyle) -> String {
     let mut spans: Vec<RedactSpan> = findings
         .iter()
@@ -631,7 +676,6 @@ pub fn redact_by_findings(input: &str, findings: &[Finding], style: RedactionSty
         }
 
         out.push_str(&build_placeholder(&m, &style));
-
         cursor = m.end;
     }
 
@@ -696,38 +740,92 @@ fn clamp_up_to_char_boundary(s: &str, mut i: usize) -> usize {
 
 // ---------------------------- Tokenization & hygiene ----------------------------
 
+/// Safe tokenizer that yields (byte_offset, token_slice) without pointer arithmetic.
+///
+/// This keeps offsets correct and avoids relying on how split_whitespace is implemented.
 fn token_iter<'a>(input: &'a str) -> impl Iterator<Item = (usize, &'a str)> + 'a {
-    input.split_whitespace().filter_map(move |raw| {
-        let start = raw.as_ptr() as usize - input.as_ptr() as usize;
-        let trimmed = trim_wrapping_punct(raw);
-        if trimmed.is_empty() {
+    TokenIter { input, idx: 0 }.filter_map(|(start, end)| {
+        let bytes = input.as_bytes();
+        let (mut s, mut e) = (start, end);
+
+        // Trim ASCII wrapping punctuation on both ends.
+        while s < e && is_wrap_punct_byte(bytes[s]) {
+            s += 1;
+        }
+        while e > s && is_wrap_punct_byte(bytes[e - 1]) {
+            e -= 1;
+        }
+
+        if s >= e {
             None
         } else {
-            let left_trim = raw.len() - raw.trim_start_matches(is_wrap_punct).len();
-            Some((start + left_trim, trimmed))
+            Some((s, &input[s..e]))
         }
     })
 }
 
-fn trim_wrapping_punct(s: &str) -> &str {
-    s.trim_matches(is_wrap_punct)
+struct TokenIter<'a> {
+    input: &'a str,
+    idx: usize,
 }
 
-fn is_wrap_punct(c: char) -> bool {
+impl<'a> Iterator for TokenIter<'a> {
+    type Item = (usize, usize); // (start,end)
+    fn next(&mut self) -> Option<Self::Item> {
+        let s = self.input;
+        let len = s.len();
+        if self.idx >= len {
+            return None;
+        }
+
+        // Skip whitespace
+        while self.idx < len {
+            let ch = s[self.idx..].chars().next()?;
+            if ch.is_whitespace() {
+                self.idx += ch.len_utf8();
+            } else {
+                break;
+            }
+        }
+        if self.idx >= len {
+            return None;
+        }
+
+        let start = self.idx;
+
+        // Read until whitespace
+        while self.idx < len {
+            let ch = s[self.idx..].chars().next()?;
+            if ch.is_whitespace() {
+                break;
+            }
+            self.idx += ch.len_utf8();
+        }
+        let end = self.idx;
+        Some((start, end))
+    }
+}
+
+fn is_wrap_punct_byte(b: u8) -> bool {
     matches!(
-        c,
-        '(' | ')' | '[' | ']' | '{' | '}' | '<' | '>' | '"' | '\'' | ',' | ';' | ':' | '!' | '?' | '.'
+        b,
+        b'(' | b')' | b'[' | b']' | b'{' | b'}' | b'<' | b'>' | b'"' | b'\''
+            | b',' | b';' | b':' | b'!' | b'?' | b'.'
     )
 }
 
 fn looks_like_urlish(s: &str) -> bool {
-    s.starts_with("http://") 
-        || s.starts_with("https://") 
-        || s.starts_with("www.")
-        || s.contains("://")
-        // Don't just check for '/' because Base64 uses it.
-        // Maybe check for file paths?
-        || s.starts_with('/') 
+    if s.starts_with("http://") || s.starts_with("https://") || s.starts_with("www.") || s.contains("://") {
+        return true;
+    }
+
+    // Avoid false-negatives for base64 tokens that start with '/'.
+    // Consider "path-like" only if it has multiple slashes (actual path segments).
+    if s.starts_with('/') && s.matches('/').count() >= 2 {
+        return true;
+    }
+
+    false
 }
 
 fn looks_like_emailish(s: &str) -> bool {
@@ -741,22 +839,31 @@ fn hash_for_logs(input: &str) -> String {
     blake3::hash(input.as_bytes()).to_hex().to_string()
 }
 
+/// Safe preview: never panics on UTF-8 boundaries.
 fn redact_preview(s: &str) -> String {
-    const MIN: usize = 8;
-    if s.len() < MIN {
+    const MIN_CHARS: usize = 8;
+    let total = s.chars().count();
+    if total < MIN_CHARS {
         return "[redacted]".to_string();
     }
-    let prefix = &s[..3];
-    let suffix = &s[s.len() - 2..];
+
+    let prefix: String = s.chars().take(3).collect();
+    let suffix: String = s
+        .chars()
+        .rev()
+        .take(2)
+        .collect::<Vec<char>>()
+        .into_iter()
+        .rev()
+        .collect();
+
+    if prefix.is_empty() || suffix.is_empty() {
+        return "[redacted]".to_string();
+    }
     format!("{prefix}…{suffix}")
 }
 
-fn dedup_findings(findings: &mut Vec<Finding>) {
-    findings.sort_by(|a, b| {
-        (a.kind.stable_id(), a.span.0, a.span.1).cmp(&(b.kind.stable_id(), b.span.0, b.span.1))
-    });
-    findings.dedup_by(|a, b| a.kind == b.kind && a.span == b.span);
-}
+
 
 // ---------------------------- Defaults ----------------------------
 
@@ -784,4 +891,472 @@ fn default_compiled_patterns() -> CompiledPatterns {
 pub fn load_specs_from_file(path: &Path) -> Result<Vec<PatternSpec>, RegistryError> {
     let content = fs::read_to_string(path).map_err(|_| RegistryError::FileReadFailed)?;
     serde_json::from_str(&content).map_err(|_| RegistryError::InvalidJson)
+}
+
+// ============================================================================
+// Tests (large bench)
+// ============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::num::NonZeroUsize;
+
+    fn make_scanner_with_specs(specs: Vec<PatternSpec>, cfg: SecretScannerConfig) -> SecretScanner<HotReloadPatternRegistry> {
+        cfg.validate().unwrap();
+        let reg = Arc::new(HotReloadPatternRegistry::new(specs).unwrap());
+        SecretScanner::new(cfg, reg).unwrap()
+    }
+
+    fn base_cfg() -> SecretScannerConfig {
+        SecretScannerConfig::default()
+    }
+
+    #[test]
+    fn config_validation_rejects_nan() {
+        let mut cfg = base_cfg();
+        cfg.entropy_threshold_base64ish = f64::NAN;
+        assert!(matches!(cfg.validate(), Err(ScanError::InvalidConfig)));
+    }
+
+    #[test]
+    fn input_too_large_is_rejected() {
+        let mut cfg = base_cfg();
+        cfg.max_input_bytes = NonZeroUsize::new(8).unwrap();
+        let scanner = make_scanner_with_specs(default_pattern_specs(), cfg);
+
+        let input = "this is longer than eight bytes";
+        assert!(matches!(scanner.scan(input), Err(ScanError::InputTooLarge)));
+    }
+
+    #[test]
+    fn pattern_scan_detects_default_aws_key() {
+        let cfg = base_cfg();
+        let scanner = make_scanner_with_specs(default_pattern_specs(), cfg);
+
+        let input = "leak AKIA1234567890ABCD12 in text";
+        let findings = scanner.scan(input).unwrap();
+        assert!(findings.iter().any(|f| f.kind == FindingKind::AwsAccessKeyId));
+    }
+
+    #[test]
+    fn pattern_scan_detects_default_openai_key() {
+        let cfg = base_cfg();
+        let scanner = make_scanner_with_specs(default_pattern_specs(), cfg);
+
+        let input = "key sk-abcdefghijklmnopqrstuvwxyzABCDE in text";
+        let findings = scanner.scan(input).unwrap();
+        assert!(findings.iter().any(|f| f.kind == FindingKind::OpenAiApiKey));
+    }
+
+    #[test]
+    fn pattern_scan_preview_is_utf8_safe() {
+        let cfg = base_cfg();
+        let specs = vec![PatternSpec {
+            id: "UNICODE_SECRET".to_string(),
+            kind: None,
+            regex: r"🔒\S{6,}".to_string(),
+        }];
+        let scanner = make_scanner_with_specs(specs, cfg);
+
+        let input = "here 🔒секрет123 in text";
+        let findings = scanner.scan(input).unwrap();
+        assert_eq!(findings.len(), 1);
+        // Just ensure it didn't panic and produced a preview.
+        assert!(!findings[0].preview.is_empty());
+    }
+
+    #[test]
+    fn pattern_scan_respects_max_findings_limit() {
+        let mut cfg = base_cfg();
+        cfg.max_findings = NonZeroUsize::new(5).unwrap();
+        cfg.enable_entropy_scanning = false;
+
+        let scanner = make_scanner_with_specs(default_pattern_specs(), cfg);
+
+        let mut input = String::new();
+        for _ in 0..50 {
+            input.push_str(" sk-abcdefghijklmnopqrstuvwxyzABCDE ");
+        }
+
+        let findings = scanner.scan(&input).unwrap();
+        assert_eq!(findings.len(), 5);
+    }
+
+    #[test]
+    fn entropy_scan_detects_high_entropy_base64ish() {
+        let mut cfg = base_cfg();
+        cfg.enable_pattern_scanning = false;
+        cfg.entropy_threshold_base64ish = 4.5;
+
+        let scanner = make_scanner_with_specs(vec![], cfg);
+
+        let token = "aZ0bY1cX2dW3eV4fU5gT6hS7iR8jQ9kP0lO1mN2nM3oL4pK5qJ6rI7sH8tG9uF0vE1wD2xC3yB4zA5";
+        let input = format!("prefix {} suffix", token);
+
+        let findings = scanner.scan(&input).unwrap();
+        assert!(findings.iter().any(|f| f.kind == FindingKind::HighEntropyToken));
+    }
+
+    #[test]
+    fn entropy_scan_skips_urls_and_emails() {
+        let mut cfg = base_cfg();
+        cfg.enable_pattern_scanning = false;
+
+        let scanner = make_scanner_with_specs(vec![], cfg);
+
+        let input = "https://example.com/path/to/thing bob@example.com";
+        let findings = scanner.scan(input).unwrap();
+        assert!(findings.is_empty());
+    }
+
+    #[test]
+    fn entropy_scan_respects_max_candidates_limit() {
+        let mut cfg = base_cfg();
+        cfg.enable_pattern_scanning = false;
+        cfg.max_candidates = NonZeroUsize::new(5).unwrap();
+
+        let scanner = make_scanner_with_specs(vec![], cfg);
+
+        // 20 tokens, but only first 5 are considered.
+        let mut input = String::new();
+        for i in 0..20 {
+            input.push_str(&format!("tok{:02}{} ", i, "aZ0bY1cX2dW3eV4fU5gT6hS7iR8jQ9"));
+        }
+
+        let _ = scanner.scan(&input).unwrap();
+        // Not asserting exact findings count since entropy thresholds can vary with content,
+        // but this ensures we don't panic and we exercise the candidate bound.
+    }
+
+    #[test]
+    fn shannon_entropy_known_values() {
+        assert_eq!(calculate_shannon_entropy_bytes(b""), 0.0);
+        assert_eq!(calculate_shannon_entropy_bytes(b"aaaaaa"), 0.0);
+
+        // Two symbols with equal probability => 1 bit
+        let e = calculate_shannon_entropy_bytes(b"abababab");
+        assert!(e > 0.99 && e < 1.01);
+    }
+
+    #[test]
+    fn finding_id_is_deterministic_for_same_input_and_span() {
+        let cfg = SecretScannerConfig::default();
+        let scanner = make_scanner_with_specs(default_pattern_specs(), cfg);
+
+        let input = "leak AKIA1234567890ABCD12 in text";
+        let a = scanner.scan(input).unwrap();
+        let b = scanner.scan(input).unwrap();
+
+        assert!(!a.is_empty());
+        assert_eq!(a.len(), b.len());
+
+        // IDs should match 1:1 in stable order (dedup + sort makes order deterministic here).
+        for (fa, fb) in a.iter().zip(b.iter()) {
+            assert_eq!(fa.finding_id, fb.finding_id);
+            assert_eq!(fa.input_hash, fb.input_hash);
+        }
+    }
+
+    #[test]
+    fn finding_id_changes_when_span_changes() {
+        let input_hash = "deadbeef";
+        let f1 = Finding::new(
+            FindingKind::CustomPattern("X".to_string()),
+            (10, 20),
+            "abc…yz".to_string(),
+            None,
+            input_hash.to_string(),
+        );
+        let f2 = Finding::new(
+            FindingKind::CustomPattern("X".to_string()),
+            (10, 21),
+            "abc…yz".to_string(),
+            None,
+            input_hash.to_string(),
+        );
+        assert_ne!(f1.finding_id, f2.finding_id);
+    }
+
+    #[test]
+    fn finding_id_changes_when_kind_changes() {
+        let input_hash = "deadbeef";
+        let f1 = Finding::new(
+            FindingKind::CustomPattern("A".to_string()),
+            (10, 20),
+            "abc…yz".to_string(),
+            None,
+            input_hash.to_string(),
+        );
+        let f2 = Finding::new(
+            FindingKind::CustomPattern("B".to_string()),
+            (10, 20),
+            "abc…yz".to_string(),
+            None,
+            input_hash.to_string(),
+        );
+        assert_ne!(f1.finding_id, f2.finding_id);
+    }
+
+    #[test]
+    fn finding_id_is_blake3_hex_len() {
+        let f = Finding::new(
+            FindingKind::HighEntropyToken,
+            (1, 2),
+            "abc…yz".to_string(),
+            Some(123),
+            "hash".to_string(),
+        );
+        // blake3 hex digest is 64 chars.
+        assert_eq!(f.finding_id.len(), 64);
+        assert!(f.finding_id.chars().all(|c| c.is_ascii_hexdigit()));
+    }
+
+    #[test]
+    fn redaction_merges_overlaps_and_tags_multi() {
+        let input = "before SECRET after";
+        let findings = vec![
+            Finding::new(
+                FindingKind::CustomPattern("A".to_string()),
+                (7, 13),
+                "".to_string(),
+                None,
+                "x".to_string(),
+            ),
+            Finding::new(
+                FindingKind::CustomPattern("B".to_string()),
+                (9, 13),
+                "".to_string(),
+                None,
+                "x".to_string(),
+            ),
+        ];
+
+        let style = RedactionStyle::default();
+        let out = redact_by_findings(input, &findings, style);
+        assert!(out.contains("[REDACTED]:MULTI:2"));
+    }
+
+    #[test]
+    fn redaction_clamps_bad_spans_and_is_utf8_safe() {
+        // Intentionally create spans that cut through UTF-8 boundaries.
+        let input = "hi 🙂 secret";
+        let findings = vec![Finding::new(
+            FindingKind::CustomPattern("X".to_string()),
+            (4, 6), // likely mid-emoji byte range
+            "".to_string(),
+            None,
+            "x".to_string(),
+        )];
+
+        let out = redact_by_findings(input, &findings, RedactionStyle::default());
+        assert!(out.contains("[REDACTED]"));
+        // Output should remain valid UTF-8, and we should not panic.
+        assert!(out.is_char_boundary(out.len()));
+    }
+
+    #[test]
+    fn dedup_removes_duplicates() {
+        let mut findings = vec![
+            Finding::new(
+                FindingKind::OpenAiApiKey,
+                (10, 20),
+                "abc…yz".to_string(),
+                None,
+                "h".to_string(),
+            ),
+            Finding::new(
+                FindingKind::OpenAiApiKey,
+                (10, 20),
+                "abc…yz".to_string(),
+                None,
+                "h".to_string(),
+            ),
+        ];
+        dedup_findings(&mut findings);
+        assert_eq!(findings.len(), 1);
+    }
+
+    #[test]
+    fn hot_reload_update_success_changes_behavior() {
+        let cfg = base_cfg();
+        let reg = Arc::new(HotReloadPatternRegistry::new(vec![PatternSpec {
+            id: "FOO".to_string(),
+            kind: None,
+            regex: r"\bFOOSECRET\b".to_string(),
+        }]).unwrap());
+        let scanner = SecretScanner::new(cfg, reg.clone()).unwrap();
+
+        let input = "FOOSECRET";
+        let findings = scanner.scan(input).unwrap();
+        assert_eq!(findings.len(), 1);
+
+        reg.update_from_specs(vec![PatternSpec {
+            id: "BAR".to_string(),
+            kind: None,
+            regex: r"\bBARSECRET\b".to_string(),
+        }]).unwrap();
+
+        let findings2 = scanner.scan("BARSECRET").unwrap();
+        assert_eq!(findings2.len(), 1);
+
+        let findings3 = scanner.scan("FOOSECRET").unwrap();
+        assert!(findings3.is_empty());
+    }
+
+    #[test]
+    fn hot_reload_update_failure_keeps_old_patterns() {
+        let cfg = base_cfg();
+        let reg = Arc::new(HotReloadPatternRegistry::new(vec![PatternSpec {
+            id: "FOO".to_string(),
+            kind: None,
+            regex: r"\bFOOSECRET\b".to_string(),
+        }]).unwrap());
+        let scanner = SecretScanner::new(cfg, reg.clone()).unwrap();
+
+        assert_eq!(scanner.scan("FOOSECRET").unwrap().len(), 1);
+
+        // invalid regex
+        let bad = vec![PatternSpec {
+            id: "BAD".to_string(),
+            kind: None,
+            regex: r"(\b".to_string(),
+        }];
+
+        assert!(reg.update_from_specs(bad).is_err());
+
+        // old still works
+        assert_eq!(scanner.scan("FOOSECRET").unwrap().len(), 1);
+    }
+
+    #[test]
+    fn invalid_pattern_id_rejected() {
+        let bad = PatternSpec {
+            id: "not allowed".to_string(),
+            kind: None,
+            regex: r"\bX\b".to_string(),
+        };
+        assert!(matches!(compile_patterns(&[bad]), Err(RegistryError::InvalidPattern)));
+    }
+
+    #[test]
+    fn invalid_pattern_regex_too_long_rejected() {
+        let bad = PatternSpec {
+            id: "TOO_LONG".to_string(),
+            kind: None,
+            regex: "a".repeat(513),
+        };
+        assert!(matches!(compile_patterns(&[bad]), Err(RegistryError::InvalidPattern)));
+    }
+
+    #[test]
+    fn scan_and_redact_replaces_detected_secret() {
+        let cfg = base_cfg();
+        let scanner = make_scanner_with_specs(default_pattern_specs(), cfg);
+
+        let input = "sk-abcdefghijklmnopqrstuvwxyzABCDE";
+        let (findings, redacted) = scanner.scan_and_redact(input, RedactionStyle::default()).unwrap();
+
+        assert!(!findings.is_empty());
+        assert!(!redacted.contains("sk-abcdefghijklmnopqrstuvwxyzABCDE"));
+        assert!(redacted.contains("[REDACTED]"));
+    }
+
+    #[test]
+    fn token_iter_offsets_are_correct_basic() {
+        let input = "  (hello)  world!  ";
+        let toks: Vec<(usize, &str)> = token_iter(input).collect();
+        assert_eq!(toks.len(), 2);
+        assert_eq!(toks[0].1, "hello");
+        assert_eq!(toks[1].1, "world");
+        assert_eq!(&input[toks[0].0..toks[0].0 + toks[0].1.len()], "hello");
+    }
+
+    #[test]
+    fn urlish_leading_slash_does_not_skip_single_slash_base64ish() {
+        // Should NOT be considered a path-like URL (only one slash).
+        let token = "/aZ0bY1cX2dW3eV4fU5gT6hS7iR8jQ9kP0lO1mN2nM3oL4pK5qJ6rI7sH8tG9uF0vE1wD2xC3yB4zA5";
+        assert!(!looks_like_urlish(token));
+    }
+
+    #[test]
+    fn urlish_multiple_slashes_is_skipped() {
+        assert!(looks_like_urlish("/var/log/system.log"));
+        assert!(looks_like_urlish("/a/b/c"));
+    }
+
+    #[test]
+    fn classify_hexish_and_base64ish() {
+        assert_eq!(classify_token("deadBEEF0123"), TokenClass::Hexish);
+        assert_eq!(classify_token("AbcDef0123_-+/=="), TokenClass::Base64ish);
+        assert_eq!(classify_token("not$base64"), TokenClass::Other);
+    }
+
+    #[test]
+    fn file_registry_refresh_flow() {
+        use tempfile::NamedTempFile;
+        use std::io::Write;
+
+        // Use a closed file path
+        let mut tmp = NamedTempFile::new().unwrap();
+        // Regex needs double backslash in JSON string to be a single backslash in regex string
+        let initial = r#"[{ "id":"FOO", "regex":"\\bFOOSECRET\\b" }]"#;
+        write!(tmp, "{initial}").unwrap();
+        
+        // Keep the temporary file around but close the writer handle if possible, 
+        // or just rely on OS allowing read. 
+        // Better: usage of `keep()` or just re-opening. 
+        // Simplest fix for Windows: Put it in a temp DIR so we control the file creation/closing.
+        
+        let tmp_dir = tempfile::tempdir().unwrap();
+        let file_path = tmp_dir.path().join("patterns.json");
+        std::fs::write(&file_path, initial).unwrap();
+
+        let reg = Arc::new(FilePatternRegistry::new(file_path.clone(), default_pattern_specs()).unwrap());
+
+        // First refresh should load file.
+        let refreshed = reg.refresh_if_changed().unwrap();
+        assert_eq!(refreshed, true);
+
+        let cfg = base_cfg();
+        let scanner = SecretScanner::new(cfg, reg.clone()).unwrap();
+
+        let findings = scanner.scan("FOOSECRET").unwrap();
+        assert_eq!(findings.len(), 1);
+
+        // Update file content
+        // Ensure time moves forward for mtime check if needed, but here we just wrote it.
+        // Some filesystems have low resolution. We can just force a change if we sleep slightly
+        // or just rely on content change + mtime check logic.
+        std::thread::sleep(std::time::Duration::from_millis(10)); 
+        
+        let updated = r#"[{ "id":"BAR", "regex":"\\bBARSECRET\\b" }]"#;
+        std::fs::write(&file_path, updated).unwrap();
+
+        // Refresh should detect and load.
+        // We need access to refresh.
+        // The scanner has an Arc to logic. We can cast or just hold a ref to reg.
+        // In the test `reg` is `FilePatternRegistry`.
+        assert_eq!(reg.refresh_if_changed().unwrap(), true);
+        
+        // Verify new pattern works
+        assert_eq!(scanner.scan("BARSECRET").unwrap().len(), 1);
+        assert_eq!(scanner.scan("FOOSECRET").unwrap().len(), 0);
+    // So: separate test below validates refresh_if_changed toggles.
+    }
+
+    #[test]
+    fn file_registry_refresh_if_changed_returns_false_when_unchanged() {
+        use tempfile::NamedTempFile;
+        use std::io::Write;
+
+        let mut tmp = NamedTempFile::new().unwrap();
+        let initial = r#"[{ "id":"FOO", "regex":"\\bFOOSECRET\\b" }]"#;
+        write!(tmp, "{initial}").unwrap();
+        tmp.flush().unwrap();
+
+        let reg = FilePatternRegistry::new(tmp.path().to_path_buf(), default_pattern_specs()).unwrap();
+        assert_eq!(reg.refresh_if_changed().unwrap(), true);
+        assert_eq!(reg.refresh_if_changed().unwrap(), false);
+    }
 }

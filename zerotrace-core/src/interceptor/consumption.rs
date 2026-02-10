@@ -330,19 +330,16 @@ impl ConsumptionGuard {
 
         // 1) Tokenize with timeout and spawn_blocking to avoid stalling async executors.
         let input = ctx.user_input.to_owned();
-        let token_count = self
-            .tokenize_with_timeout(input)
-            .await
-            .map_err(|e| {
-                warn!(
-                    event = "consumption_guard_reject",
-                    reason = "tokenize_failed",
-                    error = %e,
-                    subject = ctx.subject_id.as_str(),
-                    request_id = ctx.request_id.as_ref().map(|r| r.as_str()),
-                );
-                e
-            })?;
+        let token_count = self.tokenize_with_timeout(input).await.map_err(|e| {
+            warn!(
+                event = "consumption_guard_reject",
+                reason = "tokenize_failed",
+                error = %e,
+                subject = ctx.subject_id.as_str(),
+                request_id = ctx.request_id.as_ref().map(|r| r.as_str()),
+            );
+            e
+        })?;
 
         // 2) Enforce token limits.
         if token_count > self.cfg.max_tokens_per_request.get() {
@@ -358,10 +355,8 @@ impl ConsumptionGuard {
         }
 
         // 3) Estimate cost (micros) with integer arithmetic.
-        let estimated_cost = estimate_cost_usd_micros(
-            token_count,
-            self.cfg.usd_per_1k_tokens_micros.get(),
-        );
+        let estimated_cost =
+            estimate_cost_usd_micros(token_count, self.cfg.usd_per_1k_tokens_micros.get());
 
         // 4) Reserve budget atomically in store.
         let key = self.daily_spend_key(&ctx.subject_id);
@@ -518,7 +513,10 @@ impl SpendStore for InMemorySpendStore {
         limit_usd_micros: u64,
         _ttl_secs: u64,
     ) -> Result<ReserveOutcome, SpendStoreError> {
-        let mut guard = self.inner.lock().map_err(|_| SpendStoreError::BackendError)?;
+        let mut guard = self
+            .inner
+            .lock()
+            .map_err(|_| SpendStoreError::BackendError)?;
         let current = *guard.get(key).unwrap_or(&0);
         let new_total = current.saturating_add(amount_usd_micros);
 

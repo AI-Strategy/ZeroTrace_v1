@@ -2,7 +2,7 @@ use std::time::Duration;
 use tokio::time::{sleep, Instant};
 
 /// Guard against Side-Channel Attacks (EMG22).
-/// 
+///
 /// Mitigates:
 /// 1. **Timing Attacks**: By buffering responses to a minimum duration.
 /// 2. **Packet Size Analysis**: By padding responses to a fixed block size.
@@ -13,7 +13,7 @@ pub struct SideChannelGuard {
 
 impl SideChannelGuard {
     /// Create a new guard with specified timing and padding configurations.
-    /// 
+    ///
     /// * `min_response_time_ms`: Minimum time the operation should take.
     /// * `padding_block_size`: The block size alignment for the output.
     pub fn new(min_response_time_ms: u64, padding_block_size: usize) -> Self {
@@ -24,7 +24,7 @@ impl SideChannelGuard {
     }
 
     /// Executes a secure response, ensuring deterministic timing and length padding.
-    /// 
+    ///
     /// This function:
     /// 1. Measures execution time.
     /// 2. Calculates necessary delay to meet `min_response_time`.
@@ -54,7 +54,7 @@ impl SideChannelGuard {
 
         let current_len = content.len();
         let remain = current_len % self.padding_block_size;
-        
+
         if remain > 0 {
             let padding_needed = self.padding_block_size - remain;
             // Extending String with spaces is efficient
@@ -63,7 +63,7 @@ impl SideChannelGuard {
                 content.push(' ');
             }
         }
-        
+
         content
     }
 }
@@ -76,21 +76,24 @@ mod tests {
     async fn test_timing_buffer() {
         let guard = SideChannelGuard::new(100, 256);
         let start = Instant::now();
-        
+
         let _ = guard.execute_secure_response("test".to_string()).await;
-        
+
         let elapsed = start.elapsed().as_millis();
-        assert!(elapsed >= 95, "Response was too fast! Timing attack possible.");
+        assert!(
+            elapsed >= 95,
+            "Response was too fast! Timing attack possible."
+        );
     }
 
     #[tokio::test]
     async fn test_length_padding() {
         let block_size = 10;
         let guard = SideChannelGuard::new(0, block_size);
-        
+
         let raw = "12345"; // 5 chars
         let secured = guard.execute_secure_response(raw.to_string()).await;
-        
+
         assert_eq!(secured.len(), 10, "Padding failed to align to block size.");
         assert!(secured.starts_with("12345"));
         assert!(secured.ends_with("     "));
@@ -100,32 +103,36 @@ mod tests {
     async fn test_exact_block_size_no_padding() {
         let block_size = 5;
         let guard = SideChannelGuard::new(0, block_size);
-        
+
         let raw = "12345";
         let secured = guard.execute_secure_response(raw.to_string()).await;
-        
-        assert_eq!(secured.len(), 5, "Should not add padding if already aligned.");
+
+        assert_eq!(
+            secured.len(),
+            5,
+            "Should not add padding if already aligned."
+        );
         assert_eq!(secured, "12345");
     }
-    
+
     #[tokio::test]
     async fn test_padding_unicode() {
-         let block_size = 10;
-         let guard = SideChannelGuard::new(0, block_size);
-         
-         // "🦀" is 4 bytes
-         let raw = "🦀"; 
-         let secured = guard.execute_secure_response(raw.to_string()).await;
-         
-         // 4 bytes + 6 spaces = 10 bytes? 
-         // String::len return bytes. 
-         // "🦀" is 4 bytes. 
-         // 4 % 10 = 4. 
-         // Need 6 bytes padding. 
-         // 6 spaces = 6 bytes. 
-         // Total bytes = 10.
-         
-         assert_eq!(secured.len(), 10);
-         assert!(secured.contains("🦀"));
+        let block_size = 10;
+        let guard = SideChannelGuard::new(0, block_size);
+
+        // "🦀" is 4 bytes
+        let raw = "🦀";
+        let secured = guard.execute_secure_response(raw.to_string()).await;
+
+        // 4 bytes + 6 spaces = 10 bytes?
+        // String::len return bytes.
+        // "🦀" is 4 bytes.
+        // 4 % 10 = 4.
+        // Need 6 bytes padding.
+        // 6 spaces = 6 bytes.
+        // Total bytes = 10.
+
+        assert_eq!(secured.len(), 10);
+        assert!(secured.contains("🦀"));
     }
 }

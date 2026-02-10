@@ -1,9 +1,10 @@
-use zerotrace_core::interceptor::crescendo::{
-    CrescendoConfig, CrescendoCounter, CrescendoError, EscalationDecision, RedisEval, RedisEvalError,
-};
+use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
-use std::future::Future;
+use zerotrace_core::interceptor::crescendo::{
+    CrescendoConfig, CrescendoCounter, CrescendoError, EscalationDecision, RedisEval,
+    RedisEvalError,
+};
 
 struct MockRedis {
     // capture last call for assertions

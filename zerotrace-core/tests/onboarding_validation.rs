@@ -34,15 +34,22 @@ fn test_onboarding_config_validation() {
     // 3. Attempt to load and deserialize it back (Validation Logic)
     let file_path = file.path();
     let file_content = std::fs::read_to_string(file_path).unwrap();
-    let loaded_config: TenantConfig = serde_json::from_str(&file_content).expect("Failed to parse tenant config");
+    let loaded_config: TenantConfig =
+        serde_json::from_str(&file_content).expect("Failed to parse tenant config");
 
     // 4. Assertions ensuring the provisioning script logic holds
     assert_eq!(loaded_config.organization_id, "UUID-9924-X");
-    assert_eq!(loaded_config.shard_endpoint, "bolt+s://zt-shard-UUID-9924-X.neo4j.io:7687");
+    assert_eq!(
+        loaded_config.shard_endpoint,
+        "bolt+s://zt-shard-UUID-9924-X.neo4j.io:7687"
+    );
     assert_eq!(loaded_config.status, "active");
-    
+
     // Validate Tier constraints (e.g., Enterprise must have bolt+s)
     if loaded_config.tier == "ENTERPRISE" {
-        assert!(loaded_config.shard_endpoint.starts_with("bolt+s://"), "Enterprise shards must be encrypted (bolt+s)");
+        assert!(
+            loaded_config.shard_endpoint.starts_with("bolt+s://"),
+            "Enterprise shards must be encrypted (bolt+s)"
+        );
     }
 }

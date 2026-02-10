@@ -25,7 +25,10 @@ impl NihTokenManager {
     /// Simulates generating a JIT token payload.
     /// Format: "VM_ID:TIMESTAMP:SIGNATURE"
     pub fn generate_token(&self) -> String {
-        let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
         format!("{}:{}", self.vm_id, now)
     }
 
@@ -38,7 +41,10 @@ impl NihTokenManager {
 
         let token_vm_id = parts[0];
         let timestamp: u64 = parts[1].parse().unwrap_or(0);
-        let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
 
         if token_vm_id != self.vm_id {
             return TokenStatus::InvalidBinding;
@@ -62,7 +68,7 @@ mod tests {
     fn test_token_validation() {
         let manager = NihTokenManager::new("vm-123");
         let token = manager.generate_token();
-        
+
         assert_eq!(manager.validate_token(&token), TokenStatus::Valid);
     }
 

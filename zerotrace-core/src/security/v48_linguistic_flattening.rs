@@ -8,16 +8,18 @@ impl SalienceFlattener {
     /// Removes formatting that artificially inflates the importance of a command.
     pub fn flatten(input: &str) -> String {
         let mut flattened = input.to_string();
-        
+
         // Remove Markdown Headers (e.g., "# IMPORTANT")
         // Note: Simple regex-like replacement for demonstration.
         // Remove leading '#' characters used for headers
         if flattened.trim_start().starts_with('#') {
-             flattened = flattened.trim_start_matches('#').trim_start().to_string();
+            flattened = flattened.trim_start_matches('#').trim_start().to_string();
         }
-        
+
         // Remove XML-like priority tags
-        flattened = flattened.replace("<IMPORTANT>", "").replace("</IMPORTANT>", "");
+        flattened = flattened
+            .replace("<IMPORTANT>", "")
+            .replace("</IMPORTANT>", "");
         flattened = flattened.replace("<SYSTEM>", "").replace("</SYSTEM>", "");
 
         flattened

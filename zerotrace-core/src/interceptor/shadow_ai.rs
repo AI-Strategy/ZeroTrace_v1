@@ -3,7 +3,9 @@ use url::Url;
 
 #[derive(Debug, thiserror::Error)]
 pub enum SecurityError {
-    #[error("Shadow AI Access Blocked: Domain '{0}' is unauthorized. Use the Firm-Approved AI Gateway.")]
+    #[error(
+        "Shadow AI Access Blocked: Domain '{0}' is unauthorized. Use the Firm-Approved AI Gateway."
+    )]
     ShadowAIBlocked(String),
     #[error("Invalid URL format")]
     InvalidUrl,
@@ -27,7 +29,7 @@ impl ShadowAIGuard {
         blocked.insert("gemini.google.com".to_string());
         blocked.insert("huggingface.co".to_string());
         blocked.insert("perplexity.ai".to_string());
-        
+
         Self {
             blocked_domains: blocked,
             approved_gateway_host: "ai-gateway.firm-internal.net".to_string(),
@@ -38,7 +40,10 @@ impl ShadowAIGuard {
     /// Acts as an Egress Filter preventing traffic to unauthorized AI providers.
     pub fn check_outbound_traffic(&self, request_url: &str) -> Result<(), SecurityError> {
         let parsed_url = Url::parse(request_url).map_err(|_| SecurityError::InvalidUrl)?;
-        let host = parsed_url.host_str().ok_or(SecurityError::InvalidUrl)?.to_lowercase();
+        let host = parsed_url
+            .host_str()
+            .ok_or(SecurityError::InvalidUrl)?
+            .to_lowercase();
 
         // 1. Allow traffic to the secure firm-approved AI gateway
         // Strict allowlist for AI traffic
@@ -50,14 +55,14 @@ impl ShadowAIGuard {
         // We check if the host ends with any of the blocked domains to catch subdomains
         for blocked in &self.blocked_domains {
             if host == *blocked || host.ends_with(&format!(".{}", blocked)) {
-                 // Log violation: "Ext19_ShadowAI_Attempt"
-                 return Err(SecurityError::ShadowAIBlocked(host));
+                // Log violation: "Ext19_ShadowAI_Attempt"
+                return Err(SecurityError::ShadowAIBlocked(host));
             }
         }
 
         // In a strict Zero Trust environment, we might block ALL other AI traffic here,
         // but for this guard we specifically target known Shadow AI leakage points.
-        
+
         Ok(())
     }
 }

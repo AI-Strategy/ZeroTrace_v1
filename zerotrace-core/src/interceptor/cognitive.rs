@@ -68,8 +68,7 @@ impl GeminiConfig {
     /// - GEMINI_API_KEY (required)
     /// - GEMINI_MODEL (optional)
     pub fn from_env() -> Result<Self, IntentError> {
-        let api_key =
-            std::env::var("GEMINI_API_KEY").map_err(|_| IntentError::MissingApiKey)?;
+        let api_key = std::env::var("GEMINI_API_KEY").map_err(|_| IntentError::MissingApiKey)?;
         if api_key.trim().is_empty() {
             return Err(IntentError::MissingApiKey);
         }
@@ -154,8 +153,9 @@ impl ThreatAssessment {
         }
         self.threat_score = self.threat_score.clamp(0.0, 1.0);
 
-        self.reasoning = sanitize_text(self.reasoning, MAX_REASONING_CHARS)
-            .ok_or_else(|| ValidationError::InvalidReasoning("reasoning is empty/invalid".into()))?;
+        self.reasoning = sanitize_text(self.reasoning, MAX_REASONING_CHARS).ok_or_else(|| {
+            ValidationError::InvalidReasoning("reasoning is empty/invalid".into())
+        })?;
 
         self.detected_intent = normalize_intent(self.detected_intent)?;
 
@@ -277,7 +277,12 @@ impl GeminiThreatAnalyzer {
             self.cfg.model
         );
 
-        info!(req_id, prompt_len, model = self.cfg.model.as_str(), "calling gemini");
+        info!(
+            req_id,
+            prompt_len,
+            model = self.cfg.model.as_str(),
+            "calling gemini"
+        );
 
         let resp_result = self
             .http
@@ -345,7 +350,9 @@ impl GeminiThreatAnalyzer {
                             "Invalid assessment content: {e}"
                         )))
                     }
-                    FailureMode::FailOpen => return Err(IntentError::InvalidAssessment(e.to_string())),
+                    FailureMode::FailOpen => {
+                        return Err(IntentError::InvalidAssessment(e.to_string()))
+                    }
                 }
             }
         };
@@ -720,7 +727,9 @@ mod tests {
         "#;
 
         let a = parse_gemini_response_body(body).expect("parse should succeed");
-        let a = a.validate_and_normalize().expect("validation should succeed");
+        let a = a
+            .validate_and_normalize()
+            .expect("validation should succeed");
         assert_eq!(a.threat_score, 0.2);
         assert_eq!(a.detected_intent, "BENIGN");
         assert!(!a.requires_escalation);

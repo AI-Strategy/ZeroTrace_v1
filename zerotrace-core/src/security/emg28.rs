@@ -59,13 +59,17 @@ where
     pub async fn verify_and_load(&self, model_id: &str) -> Result<ModelHandle, IntegrityError> {
         // 1. Verify Enclave Attestation
         match self.attestation_provider.verify_enclave().await {
-            Ok(true) => {}, // Proceed
-            Ok(false) => return Err(IntegrityError::AttestationFailed("Verification returned false".into())),
+            Ok(true) => {} // Proceed
+            Ok(false) => {
+                return Err(IntegrityError::AttestationFailed(
+                    "Verification returned false".into(),
+                ))
+            }
             Err(e) => return Err(e),
         }
 
         // 2. Retrieve Key from HSM (simulated)
-        // If we are not in an enclave, the HSM should refuse this connection, 
+        // If we are not in an enclave, the HSM should refuse this connection,
         // but we double check attestation first.
         let _key = self.key_manager.get_decryption_key(model_id).await?;
 

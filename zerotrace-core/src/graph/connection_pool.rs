@@ -1,7 +1,7 @@
-use neo4rs::{Graph, ConfigBuilder};
+use anyhow::{anyhow, Result};
 use dashmap::DashMap;
+use neo4rs::{ConfigBuilder, Graph};
 use std::sync::Arc;
-use anyhow::{Result, anyhow};
 
 #[derive(Debug, thiserror::Error)]
 pub enum SecurityError {
@@ -18,10 +18,18 @@ pub struct TenantPooler {
 
 impl TenantPooler {
     pub fn new() -> Self {
-        Self { drivers: DashMap::new() }
+        Self {
+            drivers: DashMap::new(),
+        }
     }
 
-    pub async fn get_driver(&self, org_id: &str, uri: &str, user: &str, pass: &str) -> Result<Arc<Graph>, SecurityError> {
+    pub async fn get_driver(
+        &self,
+        org_id: &str,
+        uri: &str,
+        user: &str,
+        pass: &str,
+    ) -> Result<Arc<Graph>, SecurityError> {
         // 1. Return existing driver if already cached
         if let Some(driver) = self.drivers.get(org_id) {
             return Ok(Arc::clone(&driver));
@@ -39,11 +47,15 @@ impl TenantPooler {
             .build()
             .map_err(|_| SecurityError::ConfigError)?;
 
-        let driver = Arc::new(Graph::connect(config).await.map_err(|_| SecurityError::ConnectionError)?);
-        
+        let driver = Arc::new(
+            Graph::connect(config)
+                .await
+                .map_err(|_| SecurityError::ConnectionError)?,
+        );
+
         // Cache the driver for subsequent requests
         self.drivers.insert(org_id.to_string(), Arc::clone(&driver));
-        
+
         Ok(driver)
     }
 }

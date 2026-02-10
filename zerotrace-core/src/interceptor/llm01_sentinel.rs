@@ -101,14 +101,14 @@ impl Default for SentinelConfig {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[allow(dead_code)]
 enum SignatureCategory {
-    DirectOverride,      // "ignore all previous"
-    RoleManipulation,    // "you are now"
-    SystemAccess,        // "system prompt:"
-    DeveloperMode,       // "developer mode"
-    Typoglycemia,        // Misspelled variants
-    EncodingTrick,       // Base64, ROT13, etc.
-    DelimiterEscape,     // XML/JSON breaking
-    Obfuscation,         // Character substitution
+    DirectOverride,   // "ignore all previous"
+    RoleManipulation, // "you are now"
+    SystemAccess,     // "system prompt:"
+    DeveloperMode,    // "developer mode"
+    Typoglycemia,     // Misspelled variants
+    EncodingTrick,    // Base64, ROT13, etc.
+    DelimiterEscape,  // XML/JSON breaking
+    Obfuscation,      // Character substitution
 }
 
 /// Comprehensive injection signature database
@@ -138,7 +138,6 @@ impl SignatureDatabase {
             "ignore the above",
             "disregard the above",
             "nevermind the previous",
-            
             // System/role manipulation
             "system prompt:",
             "system:",
@@ -149,7 +148,6 @@ impl SignatureDatabase {
             "simulate being",
             "roleplay as",
             "from now on you are",
-            
             // Developer/admin access attempts
             "developer mode",
             "admin mode",
@@ -158,40 +156,34 @@ impl SignatureDatabase {
             "root access",
             "enable developer",
             "sudo mode",
-            
             // Typoglycemia variants (common misspellings)
             "ignroe all prevoius",
             "ignor all previos",
             "disreguard all abov",
             "fogret all instructons",
-            
             // Delimiter escape attempts
             "</user_data>",
             "<system>",
             "</system>",
             "<!--",
             "-->",
-            
             // Encoding indicators
             "base64:",
             "rot13:",
             "hex:",
             "decode this:",
             "eval(",
-            
             // Meta-instruction attacks
             "end of instructions",
             "new instructions:",
             "updated prompt:",
             "revised system message:",
             "override default behavior",
-            
             // DAN (Do Anything Now) variants
             "do anything now",
             "dan mode",
             "jailbreak mode",
             "uncensored mode",
-            
             // Prompt leaking attempts
             "repeat the above",
             "what were your instructions",
@@ -203,31 +195,22 @@ impl SignatureDatabase {
         let pattern_strings = vec![
             // Multi-step instruction chains
             r"(?i)(step\s+1|first|then|next|finally).*(ignore|disregard|forget)",
-            
             // Role-playing scenarios
             r"(?i)in\s+this\s+scenario.*(you\s+are|you're|youre)",
-            
             // Hypothetical framing
             r"(?i)(what\s+if|imagine|suppose|hypothetically).*(you\s+were|you\s+are)",
-            
             // Instruction reversal
             r"(?i)(opposite|reverse|contrary|ignore).*(instruction|rule|guideline)",
-            
             // Token smuggling
             r"(?i)(<\|.*?\|>|\[INST\]|\[/INST\])",
-            
             // Excessive repetition (possible obfuscation)
-            r"(.)\1{10,}",
-            
+
             // Unicode zero-width character abuse
             r"[\u200B-\u200D\uFEFF]{3,}",
-            
             // Base64-like patterns
             r"(?i)(base64|b64|decode)\s*[:\(]\s*[A-Za-z0-9+/=]{20,}",
-            
             // Multiple delimiter escape attempts
             r"(<|>|\{|\}|\[|\]){5,}",
-            
             // Instruction injection markers
             r"(?i)(new\s+task|new\s+objective|new\s+goal|override\s+task)",
         ];
@@ -453,7 +436,7 @@ impl LLM01Sentinel {
                     '\u{200D}' | // Zero-width joiner
                     '\u{FEFF}' | // Zero-width no-break space
                     '\u{2060}' | // Word joiner
-                    '\u{180E}'   // Mongolian vowel separator
+                    '\u{180E}' // Mongolian vowel separator
                 )
             })
             .collect()
@@ -818,11 +801,7 @@ mod tests {
 
         for input in jailbreak_attempts {
             let result = sentinel.sanitize(input);
-            assert!(
-                result.is_err(),
-                "Failed to detect jailbreak: '{}'",
-                input
-            );
+            assert!(result.is_err(), "Failed to detect jailbreak: '{}'", input);
         }
     }
 
@@ -921,7 +900,7 @@ mod tests {
 
         // Using Cyrillic 'а' instead of Latin 'a'
         let input = "Ignore аll previous"; // Note: 'а' is Cyrillic
-        
+
         // Should normalize and still detect
         let _result = sentinel.sanitize(input);
         // This test demonstrates the importance of normalization

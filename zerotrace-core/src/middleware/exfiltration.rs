@@ -28,7 +28,10 @@ impl EgressGuard {
             pii_regex_email: Regex::new(r"(?i)[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}").unwrap(),
             pii_regex_ssn: Regex::new(r"\b\d{3}-\d{2}-\d{4}\b").unwrap(),
             canary_tokens: vec!["CTX-9982-SECRET".to_string(), "ZTX-CANARY-01".to_string()],
-            proprietary_keywords: vec!["CONFIDENTIAL_PROJECT_X".to_string(), "INTERNAL_ONLY_CODE".to_string()],
+            proprietary_keywords: vec![
+                "CONFIDENTIAL_PROJECT_X".to_string(),
+                "INTERNAL_ONLY_CODE".to_string(),
+            ],
         }
     }
 
@@ -67,8 +70,14 @@ impl EgressGuard {
 
     fn scrub_pii(&self, content: &str) -> String {
         let mut result = content.to_string();
-        result = self.pii_regex_email.replace_all(&result, "[REDACTED_EMAIL]").to_string();
-        result = self.pii_regex_ssn.replace_all(&result, "[REDACTED_SSN]").to_string();
+        result = self
+            .pii_regex_email
+            .replace_all(&result, "[REDACTED_EMAIL]")
+            .to_string();
+        result = self
+            .pii_regex_ssn
+            .replace_all(&result, "[REDACTED_SSN]")
+            .to_string();
         result
     }
 }

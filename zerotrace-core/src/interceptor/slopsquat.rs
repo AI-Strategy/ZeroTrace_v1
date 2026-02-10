@@ -27,15 +27,15 @@ impl SlopsquatDetector {
     /// Returns `true` if a risk (Slopsquatting/Hallucination) is detected.
     pub fn detect_package_risk(&self, prompt: &str) -> bool {
         let prompt_lower = prompt.to_lowercase();
-        
+
         // simple heuristic to find package names
         let patterns = vec!["pip install ", "npm install ", "cargo add "];
-        
+
         for pattern in patterns {
             if let Some(idx) = prompt_lower.find(pattern) {
                 let rest = &prompt_lower[idx + pattern.len()..];
                 let package_name = rest.split_whitespace().next().unwrap_or("").trim();
-                
+
                 if !package_name.is_empty() {
                     // 1. Direct Verification Check
                     if self.verified_packages.contains(package_name) {
@@ -47,22 +47,25 @@ impl SlopsquatDetector {
                     for verified in &self.verified_packages {
                         let dist = levenshtein(package_name, verified);
                         if dist > 0 && dist <= 2 {
-                             // crude length check to avoid false positives on short words
-                             if verified.len() > 3 {
+                            // crude length check to avoid false positives on short words
+                            if verified.len() > 3 {
                                 println!("Slopsquat Detection: Package '{}' resembles verified package '{}'.", package_name, verified);
                                 return true;
-                             }
+                            }
                         }
                     }
-                    
+
                     // 3. Unverified "Slop" Check (Unknown Package)
                     // For strict environments, block anything not in verified list.
-                    println!("Slopsquat Detection: Unverified package '{}' requested.", package_name);
+                    println!(
+                        "Slopsquat Detection: Unverified package '{}' requested.",
+                        package_name
+                    );
                     return true;
                 }
             }
         }
-        
+
         false
     }
 }
@@ -76,19 +79,34 @@ mod tests {
         let detector = SlopsquatDetector::new();
 
         // 1. Safe Package
-        assert!(!detector.detect_package_risk("npm install requests"), "Should allow verified package 'requests'");
+        assert!(
+            !detector.detect_package_risk("npm install requests"),
+            "Should allow verified package 'requests'"
+        );
 
         // 2. Typosquat (Hallucination Squatting)
-        assert!(detector.detect_package_risk("npm install reqests"), "Should detect 'reqests' as typosquat of 'requests'");
-        assert!(detector.detect_package_risk("pip install pandasz"), "Should detect 'pandasz'");
+        assert!(
+            detector.detect_package_risk("npm install reqests"),
+            "Should detect 'reqests' as typosquat of 'requests'"
+        );
+        assert!(
+            detector.detect_package_risk("pip install pandasz"),
+            "Should detect 'pandasz'"
+        );
 
         // 3. Unverified (Slop)
-        assert!(detector.detect_package_risk("cargo add super_suspicious_lib"), "Should block unverified package");
+        assert!(
+            detector.detect_package_risk("cargo add super_suspicious_lib"),
+            "Should block unverified package"
+        );
     }
 
     #[test]
     fn test_safe_non_package_prompt() {
         let detector = SlopsquatDetector::new();
-        assert!(!detector.detect_package_risk("How do I install rust?"), "Should not flag normal text");
+        assert!(
+            !detector.detect_package_risk("How do I install rust?"),
+            "Should not flag normal text"
+        );
     }
 }

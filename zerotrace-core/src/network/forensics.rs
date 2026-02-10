@@ -10,7 +10,8 @@ pub struct ForensicMonitor {
 
 impl ForensicMonitor {
     pub fn new() -> Self {
-        let url = env::var("NEO4J_HTTP_URL").unwrap_or_else(|_| "http://localhost:7474/db/neo4j/tx/commit".to_string());
+        let url = env::var("NEO4J_HTTP_URL")
+            .unwrap_or_else(|_| "http://localhost:7474/db/neo4j/tx/commit".to_string());
         let user = env::var("NEO4J_USER").unwrap_or_else(|_| "neo4j".to_string());
         let pass = env::var("NEO4J_PASS").unwrap_or_else(|_| "password".to_string());
         let auth = base64::encode(format!("{}:{}", user, pass));
@@ -25,7 +26,10 @@ impl ForensicMonitor {
     /// Triggers an immediate forensic investigation for High Severity events.
     /// This is a Fire-and-Forget async call.
     pub async fn trigger_investigation(&self, agent_id: &str, risk_code: &str) {
-        println!("FORENSIC TRIGGER: Analyzing Agent {} for Risk {}", agent_id, risk_code);
+        println!(
+            "FORENSIC TRIGGER: Analyzing Agent {} for Risk {}",
+            agent_id, risk_code
+        );
 
         // Cypher Query to Detect Infection Path (Worm Check)
         let query = r#"
@@ -46,20 +50,22 @@ impl ForensicMonitor {
             ]
         });
 
-        let _ = self.client.post(&self.neo4j_url)
+        let _ = self
+            .client
+            .post(&self.neo4j_url)
             .header("Authorization", format!("Basic {}", self.auth_token))
             .json(&payload)
             .send()
             .await
             .map_err(|e| eprintln!("Neo4j Trigger Error: {}", e));
-            
-        // Note: In a real system, we would parse the result. 
+
+        // Note: In a real system, we would parse the result.
         // If a chain is found, we would auto-block the 'origin' agent in Redis.
     }
 }
 
-use tokio_postgres::NoTls;
 use futures::StreamExt;
+use tokio_postgres::NoTls;
 
 pub struct ForensicSentinel {
     db_url: String,

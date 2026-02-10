@@ -20,11 +20,7 @@
 //! idna = "0.5"
 //! blake3 = "1"
 
-use std::{
-    collections::HashMap,
-    num::{NonZeroUsize},
-    sync::OnceLock,
-};
+use std::{collections::HashMap, num::NonZeroUsize, sync::OnceLock};
 
 use idna::{domain_to_ascii, domain_to_unicode};
 use strsim::levenshtein;
@@ -154,10 +150,7 @@ impl TyposquatEngine {
     /// Why:
     /// - Normalizes and validates all protected domains at startup (fail early, not at runtime).
     /// - Builds indexes to reduce CPU blowups later.
-    pub fn new(
-        protected_domains: Vec<String>,
-        policy: TyposquatPolicy,
-    ) -> Result<Self, ScanError> {
+    pub fn new(protected_domains: Vec<String>, policy: TyposquatPolicy) -> Result<Self, ScanError> {
         validate_policy(&policy)?;
 
         if protected_domains.len() > policy.max_protected_domains.get() {
@@ -239,7 +232,8 @@ impl TyposquatEngine {
             // Mixed-script detection (homograph signal).
             // Must convert back to Unicode because 'domain' is Punycode ASCII here.
             let (domain_unicode, _errors) = domain_to_unicode(&domain);
-            if self.policy.enable_mixed_script_detection && has_mixed_script_label(&domain_unicode) {
+            if self.policy.enable_mixed_script_detection && has_mixed_script_label(&domain_unicode)
+            {
                 warn!(
                     event = "typosquat_mixed_script_detected",
                     input_hash = %input_hash,
@@ -299,9 +293,9 @@ impl TyposquatEngine {
     /// - Still allows typos like `goog1e.com` to be flagged.
     fn is_authorized(&self, candidate: &str) -> bool {
         // Exact match or subdomain match (candidate ends with ".protected")
-        self.protected.iter().any(|p| {
-            candidate == p.full || candidate.ends_with(&format!(".{}", p.full))
-        })
+        self.protected
+            .iter()
+            .any(|p| candidate == p.full || candidate.ends_with(&format!(".{}", p.full)))
     }
 
     fn check_candidate_against_protected(&self, candidate_base: &str) -> Vec<ProtectedMatch> {
@@ -635,7 +629,21 @@ fn trim_wrapping_punct(s: &str) -> &str {
     s.trim_matches(|c: char| {
         matches!(
             c,
-            '(' | ')' | '[' | ']' | '{' | '}' | '<' | '>' | '"' | '\'' | ',' | ';' | ':' | '!' | '?' | '.'
+            '(' | ')'
+                | '['
+                | ']'
+                | '{'
+                | '}'
+                | '<'
+                | '>'
+                | '"'
+                | '\''
+                | ','
+                | ';'
+                | ':'
+                | '!'
+                | '?'
+                | '.'
         )
     })
 }

@@ -66,7 +66,9 @@ pub enum SecurityError {
         limit: Decimal,
     },
 
-    #[error("Spend velocity exceeded: ${spend_in_window} in {elapsed_secs}s (limit: ${threshold}/min)")]
+    #[error(
+        "Spend velocity exceeded: ${spend_in_window} in {elapsed_secs}s (limit: ${threshold}/min)"
+    )]
     SpendVelocityExceeded {
         spend_in_window: Decimal,
         elapsed_secs: u64,
@@ -103,28 +105,28 @@ pub enum SecurityError {
 pub struct SpendingMetrics {
     /// Estimated cost for this request
     pub estimated_cost: Decimal,
-    
+
     /// Current daily spend before this request
     pub current_daily_spend: Decimal,
-    
+
     /// Projected daily spend after this request
     pub projected_daily_spend: Decimal,
-    
+
     /// Daily budget limit
     pub daily_limit: Decimal,
-    
+
     /// Remaining budget after this request
     pub remaining_budget: Decimal,
-    
+
     /// Percentage of budget consumed (0-100)
     pub budget_utilization_percent: Decimal,
-    
+
     /// Whether this was a cache hit (zero cost)
     pub is_cache_hit: bool,
-    
+
     /// Current velocity (spend per minute)
     pub current_velocity: Decimal,
-    
+
     /// Velocity threshold
     pub velocity_threshold: Decimal,
 }
@@ -177,18 +179,19 @@ impl VelocityMonitor {
 
                 if elapsed >= VELOCITY_WINDOW {
                     // Window expired - reset
-                    debug!(
-                        elapsed_secs = elapsed.as_secs(),
-                        "Velocity window reset"
-                    );
+                    debug!(elapsed_secs = elapsed.as_secs(), "Velocity window reset");
                     self.spend_in_window = cost;
                     self.window_start = Some(now);
                 } else {
                     // Accumulate in current window
-                    self.spend_in_window = self.spend_in_window
-                        .checked_add(cost)
-                        .ok_or_else(|| SecurityError::NumericalOverflow {
-                            operation: format!("velocity accumulation: {} + {}", self.spend_in_window, cost),
+                    self.spend_in_window =
+                        self.spend_in_window.checked_add(cost).ok_or_else(|| {
+                            SecurityError::NumericalOverflow {
+                                operation: format!(
+                                    "velocity accumulation: {} + {}",
+                                    self.spend_in_window, cost
+                                ),
+                            }
                         })?;
 
                     if self.spend_in_window > self.threshold_per_minute {
@@ -350,7 +353,10 @@ impl FinancialGuard {
         let projected_spend = current_daily_spend
             .checked_add(estimated_cost)
             .ok_or_else(|| SecurityError::NumericalOverflow {
-                operation: format!("budget projection: {} + {}", current_daily_spend, estimated_cost),
+                operation: format!(
+                    "budget projection: {} + {}",
+                    current_daily_spend, estimated_cost
+                ),
             })?;
 
         if projected_spend > self.daily_limit {
@@ -427,11 +433,11 @@ impl FinancialGuard {
         let tokens_decimal = Decimal::from(tokens);
         let thousand = Decimal::from(1000);
 
-        let tokens_in_thousands = tokens_decimal
-            .checked_div(thousand)
-            .ok_or_else(|| SecurityError::NumericalOverflow {
+        let tokens_in_thousands = tokens_decimal.checked_div(thousand).ok_or_else(|| {
+            SecurityError::NumericalOverflow {
                 operation: "token division by 1000".to_string(),
-            })?;
+            }
+        })?;
 
         let cost = tokens_in_thousands
             .checked_mul(self.cost_per_1k_tokens)
@@ -496,7 +502,10 @@ fn validate_daily_limit(limit: Decimal) -> Result<(), SecurityError> {
 
     if limit > MAX_DAILY_LIMIT {
         return Err(SecurityError::InvalidConfiguration {
-            reason: format!("Daily limit ${} exceeds maximum ${}", limit, MAX_DAILY_LIMIT),
+            reason: format!(
+                "Daily limit ${} exceeds maximum ${}",
+                limit, MAX_DAILY_LIMIT
+            ),
         });
     }
 
@@ -534,7 +543,10 @@ fn validate_velocity_threshold(threshold: Decimal) -> Result<(), SecurityError> 
 
     if threshold > MAX_VELOCITY_THRESHOLD {
         return Err(SecurityError::InvalidConfiguration {
-            reason: format!("Velocity threshold ${} exceeds maximum ${}", threshold, MAX_VELOCITY_THRESHOLD),
+            reason: format!(
+                "Velocity threshold ${} exceeds maximum ${}",
+                threshold, MAX_VELOCITY_THRESHOLD
+            ),
         });
     }
 
@@ -591,9 +603,7 @@ impl fmt::Display for FinancialGuard {
         write!(
             f,
             "FinancialGuard(limit=${}, cost=${}/1k, velocity=${}/min)",
-            self.daily_limit,
-            self.cost_per_1k_tokens,
-            self.velocity_monitor.threshold_per_minute
+            self.daily_limit, self.cost_per_1k_tokens, self.velocity_monitor.threshold_per_minute
         )
     }
 }

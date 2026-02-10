@@ -15,8 +15,8 @@
 //! - Dwork & Roth (2014): "The Algorithmic Foundations of Differential Privacy"
 //! - NIST SP 800-208: "Recommendation for Stateful Hash-Based Signature Schemes"
 
-use rand::prelude::*;
 use rand::distributions::{Distribution, Uniform};
+use rand::prelude::*;
 use rand_chacha::ChaCha20Rng;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -51,13 +51,25 @@ const MAX_VALUE: f64 = 1e15;
 #[derive(Debug, Error, Serialize)]
 #[non_exhaustive]
 pub enum DPError {
-    #[error("Invalid epsilon: {value} (must be in [{}, {}])", MIN_EPSILON, MAX_EPSILON)]
+    #[error(
+        "Invalid epsilon: {value} (must be in [{}, {}])",
+        MIN_EPSILON,
+        MAX_EPSILON
+    )]
     InvalidEpsilon { value: f64 },
 
-    #[error("Invalid sensitivity: {value} (must be in [{}, {}])", MIN_SENSITIVITY, MAX_SENSITIVITY)]
+    #[error(
+        "Invalid sensitivity: {value} (must be in [{}, {}])",
+        MIN_SENSITIVITY,
+        MAX_SENSITIVITY
+    )]
     InvalidSensitivity { value: f64 },
 
-    #[error("Invalid input value: {value} (must be finite and in [-{}, {}])", MAX_VALUE, MAX_VALUE)]
+    #[error(
+        "Invalid input value: {value} (must be finite and in [-{}, {}])",
+        MAX_VALUE,
+        MAX_VALUE
+    )]
     InvalidValue { value: f64 },
 
     #[error("Privacy budget exhausted: current={current}, requested={requested}, limit={limit}")]
@@ -103,7 +115,7 @@ impl PrivacyBudget {
     /// Result containing the budget tracker or validation error
     pub fn new(total_budget: f64) -> Result<Self, DPError> {
         validate_epsilon(total_budget)?;
-        
+
         Ok(Self {
             total_budget,
             consumed: 0.0,
@@ -123,7 +135,7 @@ impl PrivacyBudget {
         validate_epsilon(epsilon)?;
 
         let new_total = self.consumed + epsilon;
-        
+
         if new_total > self.total_budget {
             error!(
                 consumed = self.consumed,
@@ -131,7 +143,7 @@ impl PrivacyBudget {
                 limit = self.total_budget,
                 "Privacy budget exhaustion attempt"
             );
-            
+
             return Err(DPError::BudgetExhausted {
                 current: self.consumed,
                 requested: epsilon,
@@ -312,11 +324,7 @@ impl DifferentialPrivacy {
     /// let noisy_count = dp.add_laplace_noise(42.0, 1.0)?; // Count query, sensitivity=1
     /// ```
     #[instrument(skip(self), fields(epsilon = self.epsilon))]
-    pub fn add_laplace_noise(
-        &mut self,
-        value: f64,
-        sensitivity: f64,
-    ) -> Result<f64, DPError> {
+    pub fn add_laplace_noise(&mut self, value: f64, sensitivity: f64) -> Result<f64, DPError> {
         // STEP 1: Input validation
         validate_value(value)?;
         validate_sensitivity(sensitivity)?;
@@ -470,10 +478,7 @@ fn validate_epsilon(epsilon: f64) -> Result<(), DPError> {
 /// - Must be finite and positive
 /// - Must be in [MIN_SENSITIVITY, MAX_SENSITIVITY]
 fn validate_sensitivity(sensitivity: f64) -> Result<(), DPError> {
-    if !sensitivity.is_finite()
-        || sensitivity < MIN_SENSITIVITY
-        || sensitivity > MAX_SENSITIVITY
-    {
+    if !sensitivity.is_finite() || sensitivity < MIN_SENSITIVITY || sensitivity > MAX_SENSITIVITY {
         return Err(DPError::InvalidSensitivity { value: sensitivity });
     }
     Ok(())
@@ -584,7 +589,11 @@ mod tests {
 
         // Expected: p = e^1 / (1 + e^1) ≈ 0.731
         let p_truth = truth_count as f64 / trials as f64;
-        assert!((p_truth - 0.731).abs() < 0.05, "Truth probability off: {}", p_truth);
+        assert!(
+            (p_truth - 0.731).abs() < 0.05,
+            "Truth probability off: {}",
+            p_truth
+        );
     }
 
     #[test]
@@ -669,4 +678,3 @@ mod tests {
         assert_eq!(dp.budget().unwrap().query_count(), 2);
     }
 }
-

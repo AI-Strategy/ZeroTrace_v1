@@ -1,5 +1,5 @@
-use regex::Regex;
 use lazy_static::lazy_static;
+use regex::Regex;
 
 lazy_static! {
     static ref MARKDOWN_HEADER: Regex = Regex::new(r"(?m)^#+\s+(.*)$").unwrap();
@@ -14,10 +14,10 @@ impl CfsNormalizer {
     pub fn normalize_content(&self, input: &str) -> String {
         // 1. Flatten Headers (Remove #)
         let no_headers = MARKDOWN_HEADER.replace_all(input, "$1");
-        
+
         // 2. Remove Bolding (Remove **)
         let plain_text = BOLD_TEXT.replace_all(&no_headers, "$1");
-        
+
         plain_text.to_string()
     }
 }

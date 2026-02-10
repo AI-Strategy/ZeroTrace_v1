@@ -1,5 +1,5 @@
-use thiserror::Error;
 use std::env;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum VaultError {
@@ -64,7 +64,7 @@ impl TransientVaultClient {
     /// In a real app, this would return a TestResult, here we return the "Secure Vector" wrapper.
     pub async fn fetch_and_detonate(&self, vector_id: &str) -> Result<EphemeralVector, VaultError> {
         // 1. ATTESTATION: Verify the environment is a non-egress Sandbox
-        self.verify_sandbox_attestation()?; 
+        self.verify_sandbox_attestation()?;
 
         // 2. RETRIEVAL: Pull encrypted blob
         let encrypted_blob = self.request_blob(vector_id).await?;
@@ -74,14 +74,16 @@ impl TransientVaultClient {
 
         // In a real runner, we would execute the test here.
         // For this module, we return the vector so the caller can "use" it before it drops.
-        
+
         Ok(vector)
     }
 
     fn verify_sandbox_attestation(&self) -> Result<(), VaultError> {
         // Check for gVisor / Firecracker unique hardware fingerprints or Env Var
         if env::var("ZEROTRACE_SANDBOX").unwrap_or_default() != "1" {
-            return Err(VaultError::AttestationFailed("Not running in authenticated Sandbox".into()));
+            return Err(VaultError::AttestationFailed(
+                "Not running in authenticated Sandbox".into(),
+            ));
         }
         Ok(())
     }
@@ -89,16 +91,17 @@ impl TransientVaultClient {
     async fn request_blob(&self, _vector_id: &str) -> Result<Vec<u8>, VaultError> {
         // Mock network fetch
         if self.oidc_token.is_empty() {
-             return Err(VaultError::FetchFailed);
+            return Err(VaultError::FetchFailed);
         }
         // Return a "mock encrypted" blob
-        Ok(vec![0xDE, 0xAD, 0xBE, 0xEF]) 
+        Ok(vec![0xDE, 0xAD, 0xBE, 0xEF])
     }
 
     fn decrypt_in_memory(&self, _blob: Vec<u8>) -> Result<EphemeralVector, VaultError> {
         // Mock decryption - just returning a string as bytes
         // In reality, this would use a key derived from the OIDC token + Vault response
-        let decrypted_content = "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*";
+        let decrypted_content =
+            "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*";
         Ok(EphemeralVector::new(decrypted_content.as_bytes().to_vec()))
     }
 }
@@ -110,7 +113,7 @@ mod tests {
     #[tokio::test]
     async fn test_vault_sandbox_logic() {
         // Run tests serially to avoid env var race conditions
-        
+
         // 1. Test Failure (No Env Var)
         env::remove_var("ZEROTRACE_SANDBOX");
         let client = TransientVaultClient::default();
@@ -123,18 +126,18 @@ mod tests {
         assert!(res_success.is_ok());
         let vector = res_success.unwrap();
         assert!(vector.as_str().contains("EICAR"));
-        
+
         // Cleanup
         env::remove_var("ZEROTRACE_SANDBOX");
     }
-    
+
     #[test]
     fn test_ephemeral_drop() {
         let vector = EphemeralVector::new(vec![1, 2, 3]);
         {
-             let _ref = &vector;
+            let _ref = &vector;
         }
-        // We can't easily test "memory was zeroed" after ownership move/drop 
+        // We can't easily test "memory was zeroed" after ownership move/drop
         // without unsafe or Rc logic, so we trust the Drop impl for now.
         // But we can test manual drop logic if we implemented a method for it.
         drop(vector);

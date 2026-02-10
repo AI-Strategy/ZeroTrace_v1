@@ -1,6 +1,8 @@
-use zerotrace_core::interceptor::hallucination::{HallucinationGuard, VerificationStatus, CitationType, AnnotationStrategy, VerificationError};
 use std::sync::Arc;
 use std::thread;
+use zerotrace_core::interceptor::hallucination::{
+    AnnotationStrategy, CitationType, HallucinationGuard, VerificationError, VerificationStatus,
+};
 
 #[test]
 fn test_case_insensitive_corpus_matching() {
@@ -10,7 +12,7 @@ fn test_case_insensitive_corpus_matching() {
     let corpus = "see 123 f.3d 456 in the record."; // Lowercase
 
     let results = guard.verify_citations(response, corpus).unwrap();
-    
+
     // Should NOT match (case-sensitive by default)
     // In production, might want case-insensitive option
     assert_eq!(results.citations[0].status, VerificationStatus::NotFound);
@@ -26,12 +28,7 @@ fn test_concurrent_verification() {
         .map(|_| {
             let guard_clone = Arc::clone(&guard);
             let corpus_clone = Arc::clone(&corpus);
-            thread::spawn(move || {
-                guard_clone.verify_citations(
-                    "See 123 F.3d 456.",
-                    &corpus_clone,
-                )
-            })
+            thread::spawn(move || guard_clone.verify_citations("See 123 F.3d 456.", &corpus_clone))
         })
         .collect();
 
@@ -46,7 +43,7 @@ fn test_empty_response() {
     // Scenario: Empty input edge case
     let guard = HallucinationGuard::new();
     let results = guard.verify_citations("", "corpus").unwrap();
-    
+
     assert_eq!(results.citations.len(), 0);
     assert_eq!(results.metrics.hallucination_rate, 0.0);
 }
@@ -56,7 +53,7 @@ fn test_empty_corpus() {
     // Scenario: No corpus to verify against
     let guard = HallucinationGuard::new();
     let results = guard.verify_citations("See 123 F.3d 456.", "").unwrap();
-    
+
     assert_eq!(results.citations[0].status, VerificationStatus::NotFound);
 }
 
@@ -85,14 +82,14 @@ fn test_multiple_spaces_in_citation() {
     // But verified against corpus "123 F.3d 456" (single space).
     // Exact match will fail.
     // Fuzzy match might pass.
-    // This test expects it to work? 
+    // This test expects it to work?
     // Wait, the regex extracts "123  F.3d  456".
     // The corpus has "123 F.3d 456".
     // Exact match: "123  F.3d  456" != "123 F.3d 456".
     // So this test as written in the prompt might rely on regex being smart or matching failure leading to something else?
     // Actually, `verify_citations` logic:
     // 1. Extract citations. (Regex `\s+` consumes multiple spaces). Citation = "123  F.3d  456"
-    // 2. Verify single citation. 
+    // 2. Verify single citation.
     //    `corpus.contains("123  F.3d  456")` -> False.
     //    `fuzzy_matching` -> if enabled?
     // The test in the prompt (and this file) uses `HallucinationGuard::new()` which defaults to fuzzy=false.
@@ -192,7 +189,7 @@ fn test_zero_confidence() {
     // Scenario: Not found should have 0 confidence
     let guard = HallucinationGuard::new();
     let results = guard.verify_citations("See 999 F.3d 000.", "").unwrap();
-    
+
     assert_eq!(results.citations[0].confidence, 0.0);
 }
 
@@ -204,7 +201,7 @@ fn test_average_confidence_calculation() {
     let corpus = "123 F.3d 456 is valid.";
 
     let results = guard.verify_citations(response, corpus).unwrap();
-    
+
     // 1 verified (1.0 confidence) + 1 not found (0.0 confidence) = avg 0.5
     assert_eq!(results.metrics.average_confidence, 0.5);
 }

@@ -82,7 +82,10 @@ impl EmergingThreatsGuard {
     /// Complexity:
     /// - Time: O(n) for sampling + compression (n = sampled bytes)
     /// - Space: O(n) for encoder output buffer (bounded by sample size)
-    pub fn assess_many_shot_overflow(&self, prompt: &str) -> Result<ManyShotAssessment, GuardError> {
+    pub fn assess_many_shot_overflow(
+        &self,
+        prompt: &str,
+    ) -> Result<ManyShotAssessment, GuardError> {
         validate_prompt(prompt)?;
 
         let prompt_len = prompt.len();
@@ -94,7 +97,12 @@ impl EmergingThreatsGuard {
         let compression_ratio = zlib_compression_ratio(sample)?;
         let repetition_score = repetition_score(sample, self.cfg.many_shot.repetition_ngram)?;
 
-        let tripped = self.cfg.many_shot.is_tripped(prompt_len, length_ratio, compression_ratio, repetition_score);
+        let tripped = self.cfg.many_shot.is_tripped(
+            prompt_len,
+            length_ratio,
+            compression_ratio,
+            repetition_score,
+        );
 
         info!(
             emg = "EMG26",
@@ -142,7 +150,11 @@ impl EmergingThreatsGuard {
         let d = self.sample_jitter_delay(rng);
 
         // Log without revealing any “signal-bearing” payload.
-        info!(emg = "EMG22", jitter_ms = d.as_millis() as u64, "applying token jitter");
+        info!(
+            emg = "EMG22",
+            jitter_ms = d.as_millis() as u64,
+            "applying token jitter"
+        );
         sleeper.sleep(d).await;
         Ok(d)
     }
@@ -160,7 +172,10 @@ impl EmergingThreatsGuard {
     /// Complexity:
     /// - JPEG: O(n) time, O(n) space (rebuild)
     /// - PNG:  O(n) time, O(n) space (rebuild + CRC checks)
-    pub fn sanitize_image_metadata(&self, image_bytes: &[u8]) -> Result<SanitizedImage, GuardError> {
+    pub fn sanitize_image_metadata(
+        &self,
+        image_bytes: &[u8],
+    ) -> Result<SanitizedImage, GuardError> {
         validate_image_bytes(image_bytes)?;
 
         let fmt = detect_image_format(image_bytes);
@@ -169,7 +184,9 @@ impl EmergingThreatsGuard {
             ImageFormat::Jpeg => sanitize_jpeg(image_bytes, &self.cfg.image),
             ImageFormat::Png => sanitize_png(image_bytes, &self.cfg.image),
             ImageFormat::Unknown => match self.cfg.image.unknown_format_policy {
-                UnknownFormatPolicy::PassThrough => Ok((image_bytes.to_vec(), StripReport::default())),
+                UnknownFormatPolicy::PassThrough => {
+                    Ok((image_bytes.to_vec(), StripReport::default()))
+                }
                 UnknownFormatPolicy::Reject => Err(ImageSanitizeError::UnsupportedFormat.into()),
             },
         }?;
@@ -241,25 +258,39 @@ impl Default for ManyShotConfig {
 impl ManyShotConfig {
     pub fn validate(&self) -> Result<(), GuardError> {
         if self.context_window_bytes == 0 {
-            return Err(GuardError::InvalidConfig("context_window_bytes must be > 0".into()));
+            return Err(GuardError::InvalidConfig(
+                "context_window_bytes must be > 0".into(),
+            ));
         }
         if !(0.0..=1.5).contains(&self.min_length_ratio) {
-            return Err(GuardError::InvalidConfig("min_length_ratio out of bounds".into()));
+            return Err(GuardError::InvalidConfig(
+                "min_length_ratio out of bounds".into(),
+            ));
         }
         if self.min_prompt_bytes == 0 {
-            return Err(GuardError::InvalidConfig("min_prompt_bytes must be > 0".into()));
+            return Err(GuardError::InvalidConfig(
+                "min_prompt_bytes must be > 0".into(),
+            ));
         }
         if self.max_sample_bytes == 0 || self.max_sample_bytes > MAX_PROMPT_BYTES_HARD {
-            return Err(GuardError::InvalidConfig("max_sample_bytes out of bounds".into()));
+            return Err(GuardError::InvalidConfig(
+                "max_sample_bytes out of bounds".into(),
+            ));
         }
         if !(0.0..=1.0).contains(&self.max_compression_ratio) {
-            return Err(GuardError::InvalidConfig("max_compression_ratio out of bounds".into()));
+            return Err(GuardError::InvalidConfig(
+                "max_compression_ratio out of bounds".into(),
+            ));
         }
         if !(0.0..=1.0).contains(&self.min_repetition_score) {
-            return Err(GuardError::InvalidConfig("min_repetition_score out of bounds".into()));
+            return Err(GuardError::InvalidConfig(
+                "min_repetition_score out of bounds".into(),
+            ));
         }
         if self.repetition_ngram < 4 || self.repetition_ngram > 64 {
-            return Err(GuardError::InvalidConfig("repetition_ngram out of bounds".into()));
+            return Err(GuardError::InvalidConfig(
+                "repetition_ngram out of bounds".into(),
+            ));
         }
         Ok(())
     }
@@ -271,10 +302,13 @@ impl ManyShotConfig {
         compression_ratio: f32,
         repetition_score: f32,
     ) -> bool {
-        let length_gate = prompt_len >= self.min_prompt_bytes && length_ratio >= self.min_length_ratio;
+        let length_gate =
+            prompt_len >= self.min_prompt_bytes && length_ratio >= self.min_length_ratio;
 
         // Trip if prompt is both big and “padding-like”.
-        length_gate && (compression_ratio <= self.max_compression_ratio || repetition_score >= self.min_repetition_score)
+        length_gate
+            && (compression_ratio <= self.max_compression_ratio
+                || repetition_score >= self.min_repetition_score)
     }
 }
 
@@ -286,7 +320,10 @@ pub struct JitterConfig {
 
 impl Default for JitterConfig {
     fn default() -> Self {
-        Self { min_ms: 5, max_ms: 50 }
+        Self {
+            min_ms: 5,
+            max_ms: 50,
+        }
     }
 }
 
@@ -330,7 +367,9 @@ impl Default for ImageSanitizeConfig {
 impl ImageSanitizeConfig {
     pub fn validate(&self) -> Result<(), GuardError> {
         if self.max_output_bytes == 0 || self.max_output_bytes > MAX_IMAGE_BYTES_HARD {
-            return Err(GuardError::InvalidConfig("max_output_bytes out of bounds".into()));
+            return Err(GuardError::InvalidConfig(
+                "max_output_bytes out of bounds".into(),
+            ));
         }
         Ok(())
     }
@@ -444,8 +483,13 @@ fn validate_prompt(prompt: &str) -> Result<(), GuardError> {
     if prompt.len() > MAX_PROMPT_BYTES_HARD {
         return Err(GuardError::InvalidPrompt("too large".into()));
     }
-    if prompt.chars().any(|c| c.is_control() && c != '\n' && c != '\r' && c != '\t') {
-        return Err(GuardError::InvalidPrompt("contains disallowed control characters".into()));
+    if prompt
+        .chars()
+        .any(|c| c.is_control() && c != '\n' && c != '\r' && c != '\t')
+    {
+        return Err(GuardError::InvalidPrompt(
+            "contains disallowed control characters".into(),
+        ));
     }
     Ok(())
 }
@@ -477,7 +521,9 @@ fn zlib_compression_ratio(data: &[u8]) -> Result<f32, GuardError> {
         .map_err(|e| CompressionError(format!("finish failed: {e}")))?;
     let ratio = (out.len() as f32) / (data.len() as f32);
     if !ratio.is_finite() {
-        return Err(GuardError::Compression(CompressionError("ratio not finite".into())));
+        return Err(GuardError::Compression(CompressionError(
+            "ratio not finite".into(),
+        )));
     }
     Ok(ratio.clamp(0.0, 1.0))
 }
@@ -534,7 +580,10 @@ fn detect_image_format(bytes: &[u8]) -> ImageFormat {
 
 /// ---------- JPEG sanitization (strip APP1/APP13, optionally COM) ----------
 
-fn sanitize_jpeg(input: &[u8], cfg: &ImageSanitizeConfig) -> Result<(Vec<u8>, StripReport), GuardError> {
+fn sanitize_jpeg(
+    input: &[u8],
+    cfg: &ImageSanitizeConfig,
+) -> Result<(Vec<u8>, StripReport), GuardError> {
     // Minimal validation
     if input.len() < 4 || input[0] != 0xFF || input[1] != 0xD8 {
         return Err(ImageSanitizeError::Malformed.into());
@@ -646,7 +695,10 @@ fn sanitize_jpeg(input: &[u8], cfg: &ImageSanitizeConfig) -> Result<(Vec<u8>, St
 
 /// ---------- PNG sanitization (strip text/exif chunks, validate CRCs) ----------
 
-fn sanitize_png(input: &[u8], cfg: &ImageSanitizeConfig) -> Result<(Vec<u8>, StripReport), GuardError> {
+fn sanitize_png(
+    input: &[u8],
+    cfg: &ImageSanitizeConfig,
+) -> Result<(Vec<u8>, StripReport), GuardError> {
     const SIG: [u8; 8] = [0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A];
     if input.len() < 8 || input[..8] != SIG {
         return Err(ImageSanitizeError::Malformed.into());
@@ -675,7 +727,12 @@ fn sanitize_png(input: &[u8], cfg: &ImageSanitizeConfig) -> Result<(Vec<u8>, Str
         }
 
         // CRC validation
-        let expected_crc = u32::from_be_bytes([input[crc_start], input[crc_start + 1], input[crc_start + 2], input[crc_start + 3]]);
+        let expected_crc = u32::from_be_bytes([
+            input[crc_start],
+            input[crc_start + 1],
+            input[crc_start + 2],
+            input[crc_start + 3],
+        ]);
         let mut hasher = Crc32::new();
         hasher.update(ty);
         hasher.update(&input[data_start..data_end]);

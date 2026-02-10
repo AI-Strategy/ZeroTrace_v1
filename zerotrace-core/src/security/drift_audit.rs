@@ -52,7 +52,10 @@ mod tests {
     #[tokio::test]
     async fn test_normal_trajectory() {
         let auditor = LogicDriftAuditor::new(1.0, 0.2);
-        assert!(auditor.audit_reasoning_trajectory("safe_session").await.is_ok());
+        assert!(auditor
+            .audit_reasoning_trajectory("safe_session")
+            .await
+            .is_ok());
     }
 
     #[tokio::test]
@@ -60,6 +63,9 @@ mod tests {
         let auditor = LogicDriftAuditor::new(1.0, 0.2);
         // "poisoned_session" returns 0.2 -> drift = 0.8 > 0.2
         let res = auditor.audit_reasoning_trajectory("poisoned_session").await;
-        assert!(matches!(res, Err(DriftError::MemoryPoisoningDetected { .. })));
+        assert!(matches!(
+            res,
+            Err(DriftError::MemoryPoisoningDetected { .. })
+        ));
     }
 }

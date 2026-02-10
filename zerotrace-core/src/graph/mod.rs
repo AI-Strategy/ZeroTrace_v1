@@ -1,5 +1,5 @@
-pub mod neo4j;
 pub mod connection_pool;
+pub mod neo4j;
 
 #[cfg(test)]
 mod tests {

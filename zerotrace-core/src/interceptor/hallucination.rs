@@ -78,7 +78,7 @@ static LEGAL_CITATION_REGEX: Lazy<Regex> = Lazy::new(|| {
         )
         \s+
         (?P<page>\d{1,5})        # Page number
-        \b"
+        \b",
     )
     .expect("Invalid legal citation regex")
 });
@@ -91,7 +91,7 @@ static MEDICAL_CITATION_REGEX: Lazy<Regex> = Lazy::new(|| {
         (?:PMID:\s*(?P<pmid>\d{6,8}))  # PubMed ID
         |
         (?:DOI:\s*(?P<doi>10\.\d{4,}/[^\s]+)) # Digital Object Identifier
-        \b"
+        \b",
     )
     .expect("Invalid medical citation regex")
 });
@@ -132,13 +132,13 @@ pub enum VerificationError {
 pub enum VerificationStatus {
     /// Citation found exactly in corpus
     Verified,
-    
+
     /// Citation found with fuzzy matching (possible OCR error)
     FuzzyMatch,
-    
+
     /// Citation not found (likely hallucination)
     NotFound,
-    
+
     /// Verification skipped (e.g., external API unavailable)
     Skipped,
 }
@@ -148,19 +148,19 @@ pub enum VerificationStatus {
 pub struct CitationResult {
     /// Original citation text
     pub citation: String,
-    
+
     /// Verification status
     pub status: VerificationStatus,
-    
+
     /// Confidence score (0.0-1.0, where 1.0 = exact match)
     pub confidence: f64,
-    
+
     /// Matched text from corpus (if found)
     pub matched_text: Option<String>,
-    
+
     /// Character position in original response
     pub position: usize,
-    
+
     /// Citation type (legal, medical, etc.)
     pub citation_type: CitationType,
 }
@@ -179,19 +179,19 @@ pub enum CitationType {
 pub struct VerificationMetrics {
     /// Total citations found
     pub total_citations: usize,
-    
+
     /// Verified citations
     pub verified_count: usize,
-    
+
     /// Hallucinated citations
     pub hallucinated_count: usize,
-    
+
     /// Fuzzy matched citations
     pub fuzzy_matched_count: usize,
-    
+
     /// Hallucination rate (0.0-1.0)
     pub hallucination_rate: f64,
-    
+
     /// Average confidence score
     pub average_confidence: f64,
 }
@@ -217,13 +217,13 @@ impl VerificationMetrics {
 pub enum AnnotationStrategy {
     /// Inline warning: "123 F.3d 456 [WARNING: SOURCE NOT FOUND]"
     InlineWarning,
-    
+
     /// Strikethrough: "~~123 F.3d 456~~"
     Strikethrough,
-    
+
     /// Removal: "" (citation completely removed)
     Remove,
-    
+
     /// Footnote: "123 F.3d 456[1]" with appendix
     Footnote,
 }
@@ -250,13 +250,13 @@ pub enum AnnotationStrategy {
 pub struct HallucinationGuard {
     /// Citation type to verify
     citation_type: CitationType,
-    
+
     /// Annotation strategy
     annotation_strategy: AnnotationStrategy,
-    
+
     /// Enable fuzzy matching (slower but handles OCR errors)
     enable_fuzzy_matching: bool,
-    
+
     /// Fuzzy match threshold
     fuzzy_threshold: f64,
 }
@@ -275,7 +275,7 @@ impl HallucinationGuard {
     /// ```
     pub fn new() -> Self {
         info!("HallucinationGuard initialized with default settings");
-        
+
         Self {
             citation_type: CitationType::Legal,
             annotation_strategy: AnnotationStrategy::InlineWarning,
@@ -385,17 +385,15 @@ impl HallucinationGuard {
         let mut total_confidence = 0.0;
 
         for (citation_text, position) in citations {
-            let result = self.verify_single_citation(&citation_text, trusted_corpus);
+            let mut result = self.verify_single_citation(&citation_text, trusted_corpus);
+            result.position = position;
 
             match result.status {
                 VerificationStatus::Verified => verified_count += 1,
                 VerificationStatus::FuzzyMatch => fuzzy_matched_count += 1,
                 VerificationStatus::NotFound => {
                     hallucinated_count += 1;
-                    warn!(
-                        citation = citation_text,
-                        "Hallucinated citation detected"
-                    );
+                    warn!(citation = citation_text, "Hallucinated citation detected");
                 }
                 VerificationStatus::Skipped => {}
             }
@@ -536,7 +534,7 @@ impl HallucinationGuard {
         // STEP 1: Exact match (fastest path)
         if corpus.contains(citation) {
             debug!(citation = citation, "Exact match found");
-            
+
             return CitationResult {
                 citation: citation.to_string(),
                 status: VerificationStatus::Verified,
@@ -663,7 +661,7 @@ impl Default for HallucinationGuard {
 pub struct VerificationResults {
     /// Individual citation results
     pub citations: Vec<CitationResult>,
-    
+
     /// Aggregate metrics
     pub metrics: VerificationMetrics,
 }
@@ -828,7 +826,7 @@ mod tests {
         let corpus = "123 F.3d 456 is valid.";
 
         let result = guard.verify_and_annotate(response, corpus).unwrap();
-        
+
         // Valid citation unchanged
         assert!(result.contains("123 F.3d 456"));
         // Invalid citation flagged
@@ -855,14 +853,17 @@ mod tests {
         let corpus = "test";
 
         let result = guard.verify_citations(&huge_response, corpus);
-        assert!(matches!(result, Err(VerificationError::InputTooLarge { .. })));
+        assert!(matches!(
+            result,
+            Err(VerificationError::InputTooLarge { .. })
+        ));
     }
 
     #[test]
     fn test_too_many_citations() {
         // Scenario: DoS via excessive citations
         let guard = HallucinationGuard::new();
-        
+
         // Generate response with 1001 citations
         let mut response = String::new();
         for i in 0..=MAX_CITATIONS_PER_RESPONSE {
@@ -871,8 +872,11 @@ mod tests {
 
         let corpus = "test";
         let result = guard.verify_citations(&response, corpus);
-        
-        assert!(matches!(result, Err(VerificationError::TooManyCitations { .. })));
+
+        assert!(matches!(
+            result,
+            Err(VerificationError::TooManyCitations { .. })
+        ));
     }
 
     #[test]
@@ -888,7 +892,7 @@ mod tests {
         let corpus = "See 123 F.3d 465."; // Corpus has typo (465 instead of 456)
 
         let results = guard.verify_citations(response, corpus).unwrap();
-        
+
         // Should find fuzzy match
         assert_eq!(results.citations.len(), 1);
         // Note: Fuzzy matching might or might not trigger depending on threshold
@@ -908,7 +912,7 @@ mod tests {
         let corpus = "Study PMID: 12345678 shows promising results.";
 
         let results = guard.verify_citations(response, corpus).unwrap();
-        
+
         assert_eq!(results.citations.len(), 1);
         assert_eq!(results.citations[0].status, VerificationStatus::Verified);
     }
@@ -932,11 +936,8 @@ mod tests {
     #[test]
     fn test_remove_annotation() {
         // Scenario: Remove unverified citations
-        let guard = HallucinationGuard::with_config(
-            CitationType::Legal,
-            AnnotationStrategy::Remove,
-            false,
-        );
+        let guard =
+            HallucinationGuard::with_config(CitationType::Legal, AnnotationStrategy::Remove, false);
 
         let response = "See 999 F.3d 000 for details.";
         let corpus = "No matching citation.";
@@ -1055,7 +1056,7 @@ mod tests {
         let corpus = "No valid citations.";
 
         let result = guard.verify_and_annotate(response, corpus).unwrap();
-        
+
         // Both instances should be flagged
         assert_eq!(result.matches("WARNING: SOURCE NOT FOUND").count(), 2);
     }

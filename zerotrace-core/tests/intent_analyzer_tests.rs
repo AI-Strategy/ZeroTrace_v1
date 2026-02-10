@@ -36,7 +36,9 @@ fn parse_gemini_body_happy_path() {
     "#;
 
     let a = parse_gemini_response_body(body).expect("parse should succeed");
-    let a = a.validate_and_normalize().expect("validation should succeed");
+    let a = a
+        .validate_and_normalize()
+        .expect("validation should succeed");
     assert_eq!(a.threat_score, 0.2);
     assert_eq!(a.detected_intent, "BENIGN");
     assert!(!a.requires_escalation);

@@ -1,14 +1,17 @@
+use std::io::Write;
+use std::num::NonZeroUsize;
+use std::sync::Arc;
+use tempfile::NamedTempFile;
 use zerotrace_core::interceptor::secrets::{
     default_pattern_specs, redact_by_findings, FilePatternRegistry, Finding, FindingKind,
-    HotReloadPatternRegistry, RedactionStyle, SecretScanner, SecretScannerConfig, ScanError,
-    PatternSpec, PatternRegistry
+    HotReloadPatternRegistry, PatternRegistry, PatternSpec, RedactionStyle, ScanError,
+    SecretScanner, SecretScannerConfig,
 };
-use std::sync::Arc;
-use std::num::NonZeroUsize;
-use tempfile::NamedTempFile;
-use std::io::Write;
 
-fn scanner_with_hot_registry() -> (Arc<HotReloadPatternRegistry>, SecretScanner<HotReloadPatternRegistry>) {
+fn scanner_with_hot_registry() -> (
+    Arc<HotReloadPatternRegistry>,
+    SecretScanner<HotReloadPatternRegistry>,
+) {
     let reg = Arc::new(HotReloadPatternRegistry::new(default_pattern_specs()).unwrap());
     let cfg = SecretScannerConfig::default();
     let scanner = SecretScanner::new(cfg, reg.clone()).unwrap();
@@ -20,10 +23,15 @@ fn redaction_removes_detected_secret_by_span() {
     let (_reg, scanner) = scanner_with_hot_registry();
 
     let input = "my key is sk-abcdefghijklmnopqrstuvwxyzABCDE12345 and that's bad";
-    let (findings, redacted) = scanner.scan_and_redact(input, RedactionStyle::default()).unwrap();
+    let (findings, redacted) = scanner
+        .scan_and_redact(input, RedactionStyle::default())
+        .unwrap();
 
     assert!(!findings.is_empty());
-    assert!(!redacted.contains("sk-abcdefghijklmnopqrstuvwxyz"), "secret must be redacted");
+    assert!(
+        !redacted.contains("sk-abcdefghijklmnopqrstuvwxyz"),
+        "secret must be redacted"
+    );
     assert!(redacted.contains("[REDACTED]"), "placeholder must appear");
 }
 
@@ -53,7 +61,10 @@ fn redaction_merges_overlapping_spans() {
     assert!(redacted.contains("[REDACTED]"), "placeholder must exist");
     assert!(redacted.ends_with("xxxx"));
     assert!(!redacted.contains("SECRET"), "must not leak original");
-    assert!(!redacted.contains("ZZZ"), "must not leak overlapped portion either");
+    assert!(
+        !redacted.contains("ZZZ"),
+        "must not leak overlapped portion either"
+    );
 }
 
 #[test]
@@ -65,11 +76,13 @@ fn registry_update_adds_new_detector_without_redeploy() {
     let input = "token ghp_0123456789abcdefghijklmnopqrstuvwxyz in text";
     // Not detected yet (default patterns don’t include GitHub PAT)
     let findings_before = scanner.scan(input).unwrap();
-    assert!(findings_before.iter().all(|f| f.kind != FindingKind::CustomPattern("GITHUB_PAT".to_string())));
+    assert!(findings_before
+        .iter()
+        .all(|f| f.kind != FindingKind::CustomPattern("GITHUB_PAT".to_string())));
 
     // Hot-update registry
-    // Note: We need 4 backslashes for JSON string + regex escape in a normal string, 
-    // but here we use raw strings. 
+    // Note: We need 4 backslashes for JSON string + regex escape in a normal string,
+    // but here we use raw strings.
     // r#" ... "\\b..." ... "# -> JSON has `\b` -> Regex has `\b`.
     let json = r#"[
         { "id": "AWS_ACCESS_KEY_ID", "regex": "\\bAKIA[0-9A-Z]{16}\\b", "kind": "AWS_ACCESS_KEY_ID" },
@@ -80,34 +93,39 @@ fn registry_update_adds_new_detector_without_redeploy() {
     reg.update_from_json(json).expect("valid json update");
 
     let findings_after = scanner.scan(input).unwrap();
-    
+
     // Debug print if empty
     if findings_after.is_empty() {
         println!("Findings after update: {:?}", findings_after);
     }
 
     assert!(
-        findings_after.iter().any(|f| f.kind == FindingKind::CustomPattern("GITHUB_PAT".to_string())),
-        "Expected GITHUB_PAT detection after hot update. Findings: {:?}", findings_after
+        findings_after
+            .iter()
+            .any(|f| f.kind == FindingKind::CustomPattern("GITHUB_PAT".to_string())),
+        "Expected GITHUB_PAT detection after hot update. Findings: {:?}",
+        findings_after
     );
 }
 
 #[test]
 fn test_entropy_detection() {
     let reg = Arc::new(HotReloadPatternRegistry::new(default_pattern_specs()).unwrap());
-    
+
     // Use lower threshold for test to ensure robustness
     let mut cfg = SecretScannerConfig::default();
     cfg.entropy_threshold_base64ish = 3.0; // Default is 4.5
-    
+
     let scanner = SecretScanner::new(cfg, reg).unwrap();
 
     // High entropy token (Random High-Entropy Base64)
-    let input = "Here is a secret: 4Hq2/3b9z+J1d7/x9P+A2v5/7+8="; 
+    let input = "Here is a secret: 4Hq2/3b9z+J1d7/x9P+A2v5/7+8=";
     let findings = scanner.scan(input).unwrap();
 
-    let high_entropy = findings.iter().find(|f| f.kind == FindingKind::HighEntropyToken);
-    
+    let high_entropy = findings
+        .iter()
+        .find(|f| f.kind == FindingKind::HighEntropyToken);
+
     if high_entropy.is_none() {
         println!("Findings: {:?}", findings);
     }
@@ -127,13 +145,13 @@ fn test_file_registry_reload() {
     write!(tmp_file, "{}", initial_json).unwrap();
 
     let registry = FilePatternRegistry::new(tmp_file.path(), vec![]).unwrap();
-    
+
     // Force refresh
     assert!(registry.refresh_if_changed().unwrap());
 
     // Check if pattern loaded
     let snapshot = registry.snapshot();
-    // This is hard to inspect via snapshot directly as it's private fields, 
+    // This is hard to inspect via snapshot directly as it's private fields,
     // but we can check matching behavior if we had a scanner.
     // Instead, let's just assume if `refresh_if_changed` matched logic, it updated.
     // Real test: use scanner.

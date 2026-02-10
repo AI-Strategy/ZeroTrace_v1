@@ -15,12 +15,13 @@ impl Normalizer {
 
 /// Checks for common invisible characters used in prompt injection.
 fn is_invisible(c: char) -> bool {
-    matches!(c, 
+    matches!(
+        c,
         '\u{200B}' | // Zero Width Space
         '\u{200C}' | // Zero Width Non-Joiner
         '\u{200D}' | // Zero Width Joiner
         '\u{2060}' | // Word Joiner
-        '\u{FEFF}'   // Zero Width No-Break Space
-        // Add more control characters as needed
+        '\u{FEFF}' // Zero Width No-Break Space
+                   // Add more control characters as needed
     )
 }

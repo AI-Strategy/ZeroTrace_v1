@@ -1,8 +1,8 @@
-use tokio::sync::mpsc;
-use tokio_postgres::{NoTls, Client};
 use serde_json::Value;
-use uuid::Uuid;
 use std::sync::Arc;
+use tokio::sync::mpsc;
+use tokio_postgres::{Client, NoTls};
+use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct AuditEvent {
@@ -45,30 +45,35 @@ impl AuditLogger {
 
             while let Some(event) = rx.recv().await {
                 // Batching could be implemented here for even higher throughput.
-                let _ = client.execute(
-                    "INSERT INTO zerotrace_audit.event_logs (
+                let _ = client
+                    .execute(
+                        "INSERT INTO zerotrace_audit.event_logs (
                         risk_domain, risk_code, severity, user_id, agent_id, session_id,
                         input_prompt, intervention_type, deterministic_rule_id, metadata
                     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
-                    &[
-                        &event.risk_domain,
-                        &event.risk_code,
-                        &event.severity,
-                        &event.user_id,
-                        &event.agent_id,
-                        &event.session_id,
-                        &event.input_prompt,
-                        &event.intervention_type,
-                        &event.rule_id,
-                        &event.metadata,
-                    ],
-                ).await.map_err(|e| eprintln!("Audit Log Error: {}", e));
+                        &[
+                            &event.risk_domain,
+                            &event.risk_code,
+                            &event.severity,
+                            &event.user_id,
+                            &event.agent_id,
+                            &event.session_id,
+                            &event.input_prompt,
+                            &event.intervention_type,
+                            &event.rule_id,
+                            &event.metadata,
+                        ],
+                    )
+                    .await
+                    .map_err(|e| eprintln!("Audit Log Error: {}", e));
 
                 // TRIGGER FORENSICS for High Severity (4 or 5)
                 if event.severity >= 4 {
                     if let Some(agent_id) = &event.agent_id {
                         let monitor = crate::network::forensics::ForensicMonitor::new();
-                        monitor.trigger_investigation(agent_id, &event.risk_code).await;
+                        monitor
+                            .trigger_investigation(agent_id, &event.risk_code)
+                            .await;
                     }
                 }
             }

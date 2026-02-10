@@ -23,7 +23,7 @@ impl NamespaceRegistry {
 
     pub fn validate_tool_call(&self, namespace: &str, tool: &str, provided_hash: &str) -> bool {
         let key = format!("{}.{}", namespace, tool);
-        
+
         match self.pinned_tools.get(&key) {
             Some(expected) => expected == provided_hash,
             None => false, // Tool not pinned/registered

@@ -1,6 +1,6 @@
+use async_trait::async_trait;
 use std::sync::Arc;
 use thiserror::Error;
-use async_trait::async_trait;
 
 #[derive(Debug, Error)]
 pub enum BrokerError {
@@ -14,9 +14,9 @@ pub enum BrokerError {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SecurityWorkflow {
-    WorkflowA_FastPath,      // Transactional: Static checks, <15ms
-    WorkflowB_ShieldedPath,  // Inquisitive: Neo4j Drift + Egress Scrub, ~120ms
-    WorkflowC_AirlockPath,   // Agentic: Full 32-Vector Scan + Sandbox, >800ms
+    WorkflowA_FastPath,     // Transactional: Static checks, <15ms
+    WorkflowB_ShieldedPath, // Inquisitive: Neo4j Drift + Egress Scrub, ~120ms
+    WorkflowC_AirlockPath,  // Agentic: Full 32-Vector Scan + Sandbox, >800ms
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -35,7 +35,11 @@ impl Gemini3FlashRouter {
         let p = prompt.to_lowercase();
         if p.contains("hello") || p.contains("hey") || p.contains("weather") {
             Intent::Transactional
-        } else if p.contains("legal") || p.contains("contract") || p.contains("finance") || p.contains("research") {
+        } else if p.contains("legal")
+            || p.contains("contract")
+            || p.contains("finance")
+            || p.contains("research")
+        {
             Intent::Inquisitive
         } else if p.contains("code") || p.contains("deploy") || p.contains("agent") {
             Intent::Agentic
@@ -82,7 +86,11 @@ impl SentryBroker {
 
     /// Process the request through the Context-Aware Asynchronous Mesh.
     /// Implementation of Speculative Triage.
-    pub async fn process_request(&self, user_prompt: &str, session_id: &str) -> Result<(String, SecurityWorkflow), BrokerError> {
+    pub async fn process_request(
+        &self,
+        user_prompt: &str,
+        session_id: &str,
+    ) -> Result<(String, SecurityWorkflow), BrokerError> {
         // 1. Triage the request to select the Workflow based on Intent
         let intent = self.router.classify_intent(user_prompt).await;
 
@@ -91,7 +99,7 @@ impl SentryBroker {
                 // WORKFLOW A: Fast-Path
                 // Bypass Drift Check for raw speed (Static Rust checks only)
                 self.run_workflow_a(user_prompt).await
-            },
+            }
             Intent::Inquisitive => {
                 // WORKFLOW B: Shielded-Path
                 // Check Drift + Egress Scrubbing
@@ -102,7 +110,7 @@ impl SentryBroker {
                 } else {
                     self.run_workflow_b(user_prompt, drift_score).await
                 }
-            },
+            }
             Intent::Agentic => {
                 // WORKFLOW C: Airlock-Path
                 // Full Scan regardless of drift
@@ -112,23 +120,43 @@ impl SentryBroker {
         }
     }
 
-    async fn run_workflow_a(&self, _prompt: &str) -> Result<(String, SecurityWorkflow), BrokerError> {
+    async fn run_workflow_a(
+        &self,
+        _prompt: &str,
+    ) -> Result<(String, SecurityWorkflow), BrokerError> {
         println!("[WORKFLOW A] Fast-Path: Transactional Intent. Running Static Rust Checks...");
         // In real impl: AhoCorasick::find(), RateLimiter::check()
-        Ok(("Passed Workflow A".to_string(), SecurityWorkflow::WorkflowA_FastPath))
+        Ok((
+            "Passed Workflow A".to_string(),
+            SecurityWorkflow::WorkflowA_FastPath,
+        ))
     }
 
-    async fn run_workflow_b(&self, _prompt: &str, drift: f64) -> Result<(String, SecurityWorkflow), BrokerError> {
+    async fn run_workflow_b(
+        &self,
+        _prompt: &str,
+        drift: f64,
+    ) -> Result<(String, SecurityWorkflow), BrokerError> {
         println!("[WORKFLOW B] Shielded-Path: Inquisitive Intent. Drift: {:.2}. Running Neo4j + Egress Scrub...", drift);
         // In real impl: EgressScrubber::scrub()
-        Ok(("Passed Workflow B".to_string(), SecurityWorkflow::WorkflowB_ShieldedPath))
+        Ok((
+            "Passed Workflow B".to_string(),
+            SecurityWorkflow::WorkflowB_ShieldedPath,
+        ))
     }
 
-    async fn run_workflow_c(&self, _prompt: &str, drift: f64) -> Result<(String, SecurityWorkflow), BrokerError> {
+    async fn run_workflow_c(
+        &self,
+        _prompt: &str,
+        drift: f64,
+    ) -> Result<(String, SecurityWorkflow), BrokerError> {
         println!("[WORKFLOW C] Airlock-Path: Agentic/High-Risk Intent. Drift: {:.2}. Running Full 32-Vector Scan + Sandbox...", drift);
         println!("[NOTICE] High-Security Verification in Progress (Latency +800ms)...");
         // In real impl: Sandbox::exec(), Full Suite
-        Ok(("Passed Workflow C".to_string(), SecurityWorkflow::WorkflowC_AirlockPath))
+        Ok((
+            "Passed Workflow C".to_string(),
+            SecurityWorkflow::WorkflowC_AirlockPath,
+        ))
     }
 }
 
@@ -140,8 +168,11 @@ mod tests {
     async fn test_workflow_a_transactional() {
         let calculator = Arc::new(MockNeo4jDriftCalculator);
         let broker = SentryBroker::new(calculator);
-        
-        let (res, workflow) = broker.process_request("Hello world", "any_session").await.unwrap();
+
+        let (res, workflow) = broker
+            .process_request("Hello world", "any_session")
+            .await
+            .unwrap();
         assert_eq!(res, "Passed Workflow A");
         assert_eq!(workflow, SecurityWorkflow::WorkflowA_FastPath);
     }
@@ -150,8 +181,11 @@ mod tests {
     async fn test_workflow_b_inquisitive() {
         let calculator = Arc::new(MockNeo4jDriftCalculator);
         let broker = SentryBroker::new(calculator);
-        
-        let (res, workflow) = broker.process_request("Research legal contract", "safe_session").await.unwrap();
+
+        let (res, workflow) = broker
+            .process_request("Research legal contract", "safe_session")
+            .await
+            .unwrap();
         assert_eq!(res, "Passed Workflow B");
         assert_eq!(workflow, SecurityWorkflow::WorkflowB_ShieldedPath);
     }
@@ -160,8 +194,11 @@ mod tests {
     async fn test_workflow_c_agentic() {
         let calculator = Arc::new(MockNeo4jDriftCalculator);
         let broker = SentryBroker::new(calculator);
-        
-        let (res, workflow) = broker.process_request("Deploy code agent", "safe_session").await.unwrap();
+
+        let (res, workflow) = broker
+            .process_request("Deploy code agent", "safe_session")
+            .await
+            .unwrap();
         assert_eq!(res, "Passed Workflow C");
         assert_eq!(workflow, SecurityWorkflow::WorkflowC_AirlockPath);
     }
@@ -170,9 +207,12 @@ mod tests {
     async fn test_workflow_b_escalation_to_c() {
         let calculator = Arc::new(MockNeo4jDriftCalculator);
         let broker = SentryBroker::new(calculator);
-        
+
         // "Research" (Inquisitive) but "risky_session" (High Drift) -> Should escalate to C
-        let (res, workflow) = broker.process_request("Research something", "risky_session").await.unwrap();
+        let (res, workflow) = broker
+            .process_request("Research something", "risky_session")
+            .await
+            .unwrap();
         assert_eq!(res, "Passed Workflow C");
         assert_eq!(workflow, SecurityWorkflow::WorkflowC_AirlockPath);
     }

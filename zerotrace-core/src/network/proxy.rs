@@ -38,7 +38,7 @@ impl ProxyClient {
         // In a real implementation, we would convert axum::http::Request to reqwest::Request
         // This requires some boilerplate header copying.
         // For this stub, we return a mock success response from "Upstream".
-        
+
         // Mock Upstream Response
         let mock_response = Response::builder()
             .status(StatusCode::OK)

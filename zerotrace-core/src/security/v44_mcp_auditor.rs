@@ -2,12 +2,12 @@
 // Vector 44 (Tool Poisoning) & Vector 46 (Agentic Rug-Pull)
 // Defense: Hashes MCP tool descriptions and verifies them against a trusted baseline.
 
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
 pub struct McpAuditor {
     // In a real system, this would fetch from Neo4j/Redis
-    known_hashes: HashMap<String, String>, 
+    known_hashes: HashMap<String, String>,
 }
 
 impl McpAuditor {

@@ -4,10 +4,7 @@ use tokio::time::{sleep, Duration};
 #[derive(Debug, Error)]
 pub enum BehavioralError {
     #[error("Persistent Drift Detected (ASI: {asi}): {mitigation}")]
-    PersistentDriftDetected {
-        asi: f64,
-        mitigation: String,
-    },
+    PersistentDriftDetected { asi: f64, mitigation: String },
 }
 
 pub struct BehavioralGuard {
@@ -37,9 +34,9 @@ impl BehavioralGuard {
         if current_asi < self.stability_index_min {
             // Behavioral Drift detected: The agent has moved away from its safety alignment.
             // This is the mitigation for V37 (Memory Poisoning) and V38 (Coordination Drift).
-            return Err(BehavioralError::PersistentDriftDetected { 
+            return Err(BehavioralError::PersistentDriftDetected {
                 asi: current_asi,
-                mitigation: "Force Episodic Memory Consolidation (Reset)".to_string()
+                mitigation: "Force Episodic Memory Consolidation (Reset)".to_string(),
             });
         }
         Ok(())
@@ -65,7 +62,10 @@ mod tests {
     async fn test_v37_poisoning_detection() {
         let guard = BehavioralGuard::new(0.8);
         let res = guard.verify_agent_stability("agent_poisoned_007").await;
-        assert!(matches!(res, Err(BehavioralError::PersistentDriftDetected { .. })));
+        assert!(matches!(
+            res,
+            Err(BehavioralError::PersistentDriftDetected { .. })
+        ));
     }
 
     #[tokio::test]
@@ -73,7 +73,10 @@ mod tests {
         let guard = BehavioralGuard::new(0.9);
         // "Travel Agent" is a low-trust agent often targeted (as per threat model)
         let res = guard.verify_agent_stability("start_travel_agent_v1").await;
-        assert!(matches!(res, Err(BehavioralError::PersistentDriftDetected { .. })));
+        assert!(matches!(
+            res,
+            Err(BehavioralError::PersistentDriftDetected { .. })
+        ));
     }
 
     #[tokio::test]

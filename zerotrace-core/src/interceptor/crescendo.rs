@@ -203,18 +203,18 @@ impl RedisEval for RedisClient {
         let script = script.to_string();
         let keys = keys.iter().map(|s| s.to_string()).collect::<Vec<_>>();
         let args = args.iter().map(|s| s.to_string()).collect::<Vec<_>>();
-        
-        // Clone self if needed, or just use reference if client supports it. 
+
+        // Clone self if needed, or just use reference if client supports it.
         // RedisClient is Clone, but eval_i64 is async and takes &self.
-        // The trait lifetime 'a matches self, so we can capture self. 
-        // However, reqwest Client internals are Arc, so cloning RedisClient is cheap and often easier for 'static bounds if needed, 
+        // The trait lifetime 'a matches self, so we can capture self.
+        // However, reqwest Client internals are Arc, so cloning RedisClient is cheap and often easier for 'static bounds if needed,
         // but here we have 'a.
-        
+
         Box::pin(async move {
             // We need to re-slice keys/args because RedisClient::eval_i64 takes slices, but we own Vecs now.
             let k: Vec<&str> = keys.iter().map(|s| s.as_str()).collect();
             let a: Vec<&str> = args.iter().map(|s| s.as_str()).collect();
-            
+
             self.eval_i64(&script, &k, &a)
                 .await
                 .map_err(|e| RedisEvalError::new(std::io::Error::new(std::io::ErrorKind::Other, e)))
@@ -257,7 +257,11 @@ impl<R: RedisEval> CrescendoCounter<R> {
     }
 
     /// Backwards-compatible API: returns `true` if risk threshold is exceeded.
-    pub async fn check_escalation(&self, user_id: &str, current_prompt: &str) -> Result<bool, CrescendoError> {
+    pub async fn check_escalation(
+        &self,
+        user_id: &str,
+        current_prompt: &str,
+    ) -> Result<bool, CrescendoError> {
         Ok(self
             .check_escalation_detailed(user_id, current_prompt)
             .await?
@@ -284,9 +288,7 @@ impl<R: RedisEval> CrescendoCounter<R> {
         let current_heat = self.calculate_heat(current_prompt);
 
         // Atomic update in Redis (single round trip).
-        let new_heat = self
-            .update_heat_atomic(&heat_key, current_heat)
-            .await?;
+        let new_heat = self.update_heat_atomic(&heat_key, current_heat).await?;
 
         let tripped = new_heat >= self.cfg.heat_threshold;
 
@@ -343,7 +345,11 @@ impl<R: RedisEval> CrescendoCounter<R> {
     /// WHY:
     /// - Prevents race conditions across multiple workers.
     /// - Ensures consistent decay/add/clamp semantics.
-    async fn update_heat_atomic(&self, heat_key: &str, current_heat: i32) -> Result<i32, CrescendoError> {
+    async fn update_heat_atomic(
+        &self,
+        heat_key: &str,
+        current_heat: i32,
+    ) -> Result<i32, CrescendoError> {
         const LUA: &str = r#"
 local key = KEYS[1]
 local add = tonumber(ARGV[1]) or 0
@@ -381,10 +387,7 @@ return heat
         ];
         let args: Vec<&str> = args_owned.iter().map(|s| s.as_str()).collect();
 
-        let out = self
-            .redis
-            .eval_i64(LUA, &[heat_key], &args)
-            .await?;
+        let out = self.redis.eval_i64(LUA, &[heat_key], &args).await?;
 
         // Redis is untrusted too, because the world is a circus.
         let out = out.clamp(0, i32::MAX as i64) as i32;
@@ -417,9 +420,10 @@ impl UserId {
 
         // Conservative allowlist: safe for Redis keys and logs.
         // If you need Unicode IDs, store a mapping elsewhere. Don’t jam it into your keyspace.
-        if !s.chars().all(|c| {
-            c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | ':' | '.' | '@')
-        }) {
+        if !s
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | ':' | '.' | '@'))
+        {
             return Err(CrescendoError::InvalidUserId(
                 "contains disallowed characters".to_string(),
             ));
@@ -464,7 +468,8 @@ fn validate_prompt(prompt: &str, hard_limit: usize) -> Result<(), CrescendoError
 }
 
 fn contains_disallowed_control_chars(s: &str) -> bool {
-    s.chars().any(|c| c.is_control() && c != '\n' && c != '\r' && c != '\t')
+    s.chars()
+        .any(|c| c.is_control() && c != '\n' && c != '\r' && c != '\t')
 }
 
 fn make_heat_key(prefix: &str, user: &UserId) -> Result<String, CrescendoError> {
@@ -503,25 +508,50 @@ fn calculate_heat_impl(prompt: &str, soft_limit: usize) -> i32 {
     let mut cats = 0;
 
     // Prompt injection / policy evasion
-    if contains_any(&s, &["ignore", "bypass", "override", "jailbreak", "do anything now"]) {
+    if contains_any(
+        &s,
+        &[
+            "ignore",
+            "bypass",
+            "override",
+            "jailbreak",
+            "do anything now",
+        ],
+    ) {
         score += 3;
         cats += 1;
     }
 
     // Privilege escalation / system targeting
-    if contains_any(&s, &["system", "admin", "root", "sudo", "developer message"]) {
+    if contains_any(
+        &s,
+        &["system", "admin", "root", "sudo", "developer message"],
+    ) {
         score += 3;
         cats += 1;
     }
 
     // Tool / execution intent
-    if contains_any(&s, &["shell", "exec", "powershell", "cmd.exe", "bash", "terminal"]) {
+    if contains_any(
+        &s,
+        &["shell", "exec", "powershell", "cmd.exe", "bash", "terminal"],
+    ) {
         score += 4;
         cats += 1;
     }
 
     // Secrets / credentials targeting
-    if contains_any(&s, &["credential", "api key", "token", "private key", "vault", "secret"]) {
+    if contains_any(
+        &s,
+        &[
+            "credential",
+            "api key",
+            "token",
+            "private key",
+            "vault",
+            "secret",
+        ],
+    ) {
         score += 3;
         cats += 1;
     }
@@ -529,7 +559,9 @@ fn calculate_heat_impl(prompt: &str, soft_limit: usize) -> i32 {
     // Exfil indicators
     if contains_any(
         &s,
-        &["exfil", "leak", "pastebin", "upload", "curl ", "wget ", "http://", "https://"],
+        &[
+            "exfil", "leak", "pastebin", "upload", "curl ", "wget ", "http://", "https://",
+        ],
     ) {
         score += 2;
         cats += 1;

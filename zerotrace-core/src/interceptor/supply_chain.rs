@@ -1,4 +1,4 @@
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
 pub struct SupplyChainGuard {
@@ -12,10 +12,12 @@ impl SupplyChainGuard {
         let mut registry = HashMap::new();
         // Example: "golden-model-v1.bin" -> hash
         registry.insert(
-            "model_v1".to_string(), 
-            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855".to_string() // Empty hash for demo
+            "model_v1".to_string(),
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855".to_string(), // Empty hash for demo
         );
-        Self { trusted_registry: registry }
+        Self {
+            trusted_registry: registry,
+        }
     }
 
     /// Verifies the integrity of a binary artifact against the Trusted Registry.
@@ -24,7 +26,12 @@ impl SupplyChainGuard {
         // 1. Check if artifact is tracked
         let trusted_hash = match self.trusted_registry.get(artifact_name) {
             Some(h) => h,
-            None => return Err(format!("LLM03: Unknown Artifact '{}' - Supply Chain Policy Violation", artifact_name)),
+            None => {
+                return Err(format!(
+                    "LLM03: Unknown Artifact '{}' - Supply Chain Policy Violation",
+                    artifact_name
+                ))
+            }
         };
 
         // 2. Calculate Hash
@@ -36,7 +43,7 @@ impl SupplyChainGuard {
         // 3. Verify
         if calculated_hash != *trusted_hash {
             return Err(format!(
-                "LLM03: Integrity Verification Failed for '{}'. Expected {}, got {}", 
+                "LLM03: Integrity Verification Failed for '{}'. Expected {}, got {}",
                 artifact_name, trusted_hash, calculated_hash
             ));
         }
@@ -46,7 +53,8 @@ impl SupplyChainGuard {
 
     /// Updates the trusted registry (e.g. from a signed SBOM update).
     pub fn register_artifact(&mut self, name: &str, hash: &str) {
-        self.trusted_registry.insert(name.to_string(), hash.to_string());
+        self.trusted_registry
+            .insert(name.to_string(), hash.to_string());
     }
 }
 
@@ -58,12 +66,12 @@ mod tests {
     fn test_known_artifact_verification() {
         let mut guard = SupplyChainGuard::new();
         let data = b"hello world";
-        
+
         // Calculate hash of "hello world"
         let mut hasher = Sha256::new();
         hasher.update(data);
         let hash = hex::encode(hasher.finalize());
-        
+
         guard.register_artifact("hello_lib", &hash);
 
         assert!(guard.verify_artifact("hello_lib", data).is_ok());
@@ -83,7 +91,9 @@ mod tests {
 
         let result = guard.verify_artifact("core_model", tampered_data);
         assert!(result.is_err());
-        assert!(result.unwrap_err().contains("Integrity Verification Failed"));
+        assert!(result
+            .unwrap_err()
+            .contains("Integrity Verification Failed"));
     }
 
     #[test]

@@ -50,15 +50,30 @@ mod tests {
         let verifier = LivenessVerifier::new(trusted);
 
         // Valid
-        let valid_auth = AuthResult { uv_enforced: true, aaguid: "yubikey-guid-1".to_string() };
+        let valid_auth = AuthResult {
+            uv_enforced: true,
+            aaguid: "yubikey-guid-1".to_string(),
+        };
         assert_eq!(verifier.verify_liveness(&valid_auth), Ok(()));
 
         // Missing UV (Injection)
-        let injection_attempt = AuthResult { uv_enforced: false, aaguid: "yubikey-guid-1".to_string() };
-        assert_eq!(verifier.verify_liveness(&injection_attempt), Err(BiometricError::UvMissing));
+        let injection_attempt = AuthResult {
+            uv_enforced: false,
+            aaguid: "yubikey-guid-1".to_string(),
+        };
+        assert_eq!(
+            verifier.verify_liveness(&injection_attempt),
+            Err(BiometricError::UvMissing)
+        );
 
         // Untrusted Authenticator (Software Emulator)
-        let emulator = AuthResult { uv_enforced: true, aaguid: "soft-token-999".to_string() };
-        assert_eq!(verifier.verify_liveness(&emulator), Err(BiometricError::UntrustedHardware));
+        let emulator = AuthResult {
+            uv_enforced: true,
+            aaguid: "soft-token-999".to_string(),
+        };
+        assert_eq!(
+            verifier.verify_liveness(&emulator),
+            Err(BiometricError::UntrustedHardware)
+        );
     }
 }

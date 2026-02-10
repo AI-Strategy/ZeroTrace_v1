@@ -27,11 +27,14 @@ pub struct TenantRouter;
 impl TenantRouter {
     pub fn register_cell(org_id: &str, shard: &str) {
         let mut registry = CELL_REGISTRY.write().unwrap();
-        registry.insert(org_id.to_string(), SecurityCell {
-            org_id: org_id.to_string(),
-            shard_endpoint: shard.to_string(),
-            active: true,
-        });
+        registry.insert(
+            org_id.to_string(),
+            SecurityCell {
+                org_id: org_id.to_string(),
+                shard_endpoint: shard.to_string(),
+                active: true,
+            },
+        );
     }
 
     pub fn get_cell(org_id: &str) -> Option<SecurityCell> {
@@ -50,16 +53,13 @@ where
     type Rejection = Response;
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
-        let org_id_header = parts
-            .headers
-            .get("X-Organization-ID")
-            .ok_or_else(|| {
-                (
-                    StatusCode::BAD_REQUEST,
-                    Json(json!({ "error": "Missing X-Organization-ID header" })),
-                )
-                    .into_response()
-            })?;
+        let org_id_header = parts.headers.get("X-Organization-ID").ok_or_else(|| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(json!({ "error": "Missing X-Organization-ID header" })),
+            )
+                .into_response()
+        })?;
 
         let org_id = org_id_header.to_str().map_err(|_| {
             (
@@ -89,12 +89,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use axum::{
-        body::Body,
-        http::Request,
-        routing::post,
-        Router,
-    };
+    use axum::{body::Body, http::Request, routing::post, Router};
     use tower::util::ServiceExt; // Fixed path: tower::util::ServiceExt for oneshot
 
     async fn mock_handler(ValidatedTenant(cell): ValidatedTenant) -> Json<serde_json::Value> {
@@ -141,17 +136,17 @@ mod tests {
 
         assert_eq!(response.status(), StatusCode::BAD_REQUEST);
     }
-    
+
     #[tokio::test]
     async fn test_tenant_not_found() {
-         let app = Router::new().route("/execute", post(mock_handler));
+        let app = Router::new().route("/execute", post(mock_handler));
 
         let response = app
             .oneshot(
                 Request::builder()
                     .method("POST")
                     .uri("/execute")
-                     .header("X-Organization-ID", "org_unknown")
+                    .header("X-Organization-ID", "org_unknown")
                     .body(Body::empty())
                     .unwrap(),
             )

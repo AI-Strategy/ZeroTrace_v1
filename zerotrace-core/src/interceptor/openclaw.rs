@@ -139,13 +139,13 @@ pub enum Script {
     Greek,
     Arabic,
     Hebrew,
-    Han,       // Chinese
+    Han, // Chinese
     Hiragana,
     Katakana,
-    Hangul,    // Korean
+    Hangul, // Korean
     Devanagari,
     Thai,
-    Common,    // Punctuation, numbers, etc.
+    Common, // Punctuation, numbers, etc.
     Unknown,
 }
 
@@ -291,21 +291,21 @@ fn is_combining(c: char) -> bool {
 fn get_script(c: char) -> Script {
     let code = c as u32;
     match code {
-        0x0000..=0x007F => Script::Latin,        // Basic Latin
-        0x0080..=0x00FF => Script::Latin,        // Latin-1 Supplement
-        0x0100..=0x017F => Script::Latin,        // Latin Extended-A
-        0x0180..=0x024F => Script::Latin,        // Latin Extended-B
-        0x0400..=0x04FF => Script::Cyrillic,     // Cyrillic
-        0x0370..=0x03FF => Script::Greek,        // Greek
-        0x0600..=0x06FF => Script::Arabic,       // Arabic
-        0x0590..=0x05FF => Script::Hebrew,       // Hebrew
-        0x4E00..=0x9FFF => Script::Han,          // CJK Unified Ideographs
-        0x3040..=0x309F => Script::Hiragana,     // Hiragana
-        0x30A0..=0x30FF => Script::Katakana,     // Katakana
-        0xAC00..=0xD7AF => Script::Hangul,       // Hangul Syllables
-        0x0900..=0x097F => Script::Devanagari,   // Devanagari
-        0x0E00..=0x0E7F => Script::Thai,         // Thai
-        0x0020..=0x0040 => Script::Common,       // Punctuation, numbers
+        0x0000..=0x007F => Script::Latin,      // Basic Latin
+        0x0080..=0x00FF => Script::Latin,      // Latin-1 Supplement
+        0x0100..=0x017F => Script::Latin,      // Latin Extended-A
+        0x0180..=0x024F => Script::Latin,      // Latin Extended-B
+        0x0400..=0x04FF => Script::Cyrillic,   // Cyrillic
+        0x0370..=0x03FF => Script::Greek,      // Greek
+        0x0600..=0x06FF => Script::Arabic,     // Arabic
+        0x0590..=0x05FF => Script::Hebrew,     // Hebrew
+        0x4E00..=0x9FFF => Script::Han,        // CJK Unified Ideographs
+        0x3040..=0x309F => Script::Hiragana,   // Hiragana
+        0x30A0..=0x30FF => Script::Katakana,   // Katakana
+        0xAC00..=0xD7AF => Script::Hangul,     // Hangul Syllables
+        0x0900..=0x097F => Script::Devanagari, // Devanagari
+        0x0E00..=0x0E7F => Script::Thai,       // Thai
+        0x0020..=0x0040 => Script::Common,     // Punctuation, numbers
         _ => Script::Unknown,
     }
 }
@@ -626,10 +626,7 @@ impl Normalizer {
 
     /// Simple static normalization without configuration.
     pub fn normalize_simple(input: &str) -> String {
-        input
-            .nfkc()
-            .filter(|c| !is_invisible(*c))
-            .collect()
+        input.nfkc().filter(|c| !is_invisible(*c)).collect()
     }
 }
 

@@ -1,7 +1,7 @@
-use unicode_normalization::UnicodeNormalization;
-use regex::Regex;
 use lazy_static::lazy_static;
+use regex::Regex;
 use thiserror::Error;
+use unicode_normalization::UnicodeNormalization;
 
 #[derive(Debug, Error)]
 pub enum SteganographyError {
@@ -25,7 +25,7 @@ lazy_static! {
 
 impl SteganographyGuard {
     /// Cleans and validates input against steganographic attacks.
-    /// 
+    ///
     /// 1. Normalizes Unicode (NFKC) to resolve homoglyphs.
     /// 2. Strips invisible control characters.
     /// 3. Checks for suspicious length reduction (Payload Smuggling).
@@ -39,13 +39,13 @@ impl SteganographyGuard {
         let stripped = INVISIBLE_CHARS.replace_all(&normalized, "");
 
         // 3. Length/Semantic Ratio Check
-        // If the character count significantly differs from normalized length, 
+        // If the character count significantly differs from normalized length,
         // it indicates hidden payload smuggling (e.g., massive transparent text blocks).
         // Threshold: If stripped length is less than 50% of input, likely an attack.
         // We use mismatched byte/char lengths as a heuristic.
         // Simple check: significantly fewer characters after stripping suggests hidden junk.
         if stripped.len() * 2 < input.len() {
-             return Err(SteganographyError::PayloadDetected);
+            return Err(SteganographyError::PayloadDetected);
         }
 
         Ok(stripped.to_string())
@@ -67,7 +67,7 @@ mod tests {
     #[test]
     fn test_homoglyph_normalization() {
         // "ℍello" (Double-Struck Capital H) -> "Hello"
-        let input = "\u{210D}ello"; 
+        let input = "\u{210D}ello";
         let cleaned = SteganographyGuard::clean_and_validate(input).unwrap();
         assert_eq!(cleaned, "Hello");
     }
@@ -79,7 +79,7 @@ mod tests {
         for _ in 0..100 {
             malicious.push('\u{200B}');
         }
-        
+
         let result = SteganographyGuard::clean_and_validate(&malicious);
         assert!(matches!(result, Err(SteganographyError::PayloadDetected)));
     }

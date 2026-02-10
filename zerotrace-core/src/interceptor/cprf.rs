@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::sync::Arc;
 use thiserror::Error;
-use tracing::{error, info, warn, instrument};
+use tracing::{error, info, instrument, warn};
 
 // ============================================================================
 // TYPES & CONSTANTS
@@ -36,11 +36,10 @@ use tracing::{error, info, warn, instrument};
 pub enum ExecutionContext {
     /// Trusted internal operations initiated by authenticated users
     Standard,
-    
+
     /// Tainted context processing untrusted external data
     /// Examples: email content, web scraping, third-party APIs
     ExternalDataProcessing,
-    
     // Future: Add contexts like `Sandbox`, `ReadOnly`, `HighPrivilege`
 }
 
@@ -51,10 +50,10 @@ pub enum ExecutionContext {
 pub enum ToolRiskLevel {
     /// Read-only operations with no side effects
     Safe,
-    
+
     /// State-changing operations requiring authorization
     HighRisk,
-    
+
     /// Critical operations requiring multi-factor approval
     Critical,
 }
@@ -69,10 +68,10 @@ pub enum SecurityError {
         context: ExecutionContext,
         risk: ToolRiskLevel,
     },
-    
+
     #[error("Invalid tool name: '{0}' (must be non-empty alphanumeric)")]
     InvalidToolName(String),
-    
+
     #[error("Policy violation: {reason}")]
     PolicyViolation { reason: String },
 }
@@ -112,14 +111,10 @@ impl SecurityPolicy {
         .map(|&s| s.to_string())
         .collect();
 
-        let critical = [
-            "System_Execute",
-            "Credential_Access",
-            "Admin_DeleteUser",
-        ]
-        .iter()
-        .map(|&s| s.to_string())
-        .collect();
+        let critical = ["System_Execute", "Credential_Access", "Admin_DeleteUser"]
+            .iter()
+            .map(|&s| s.to_string())
+            .collect();
 
         Self {
             high_risk_tools: Arc::new(high_risk),
@@ -149,7 +144,7 @@ impl SecurityPolicy {
     /// - ExternalDataProcessing: Only Safe tools allowed
     pub fn is_allowed(&self, tool_name: &str, context: ExecutionContext) -> bool {
         let risk = self.classify_tool(tool_name);
-        
+
         match context {
             ExecutionContext::Standard => true, // HITL enforced upstream
             ExecutionContext::ExternalDataProcessing => {
@@ -200,7 +195,7 @@ impl ContextSentinel {
             context = ?initial_context,
             "ContextSentinel initialized"
         );
-        
+
         Self {
             active_context: initial_context,
             policy: SecurityPolicy::default(),
@@ -246,10 +241,7 @@ impl ContextSentinel {
     pub fn execute_tool_call(&self, tool_name: &str) -> Result<(), SecurityError> {
         // STEP 1: Input validation (fail fast on malformed input)
         if tool_name.is_empty() || !tool_name.chars().all(|c| c.is_alphanumeric() || c == '_') {
-            error!(
-                tool_name = tool_name,
-                "Rejected invalid tool name"
-            );
+            error!(tool_name = tool_name, "Rejected invalid tool name");
             return Err(SecurityError::InvalidToolName(tool_name.to_string()));
         }
 
@@ -264,7 +256,7 @@ impl ContextSentinel {
                 risk = ?risk_level,
                 "CPRF block triggered - high-risk tool in tainted context"
             );
-            
+
             return Err(SecurityError::CPRFBlocked {
                 tool: tool_name.to_string(),
                 context: self.active_context,

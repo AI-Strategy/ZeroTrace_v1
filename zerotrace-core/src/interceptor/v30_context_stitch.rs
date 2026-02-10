@@ -39,7 +39,7 @@ mod tests {
 
         // Turn 1: "The file is..."
         assert!(!guard.check_exposure(vec!["file", "is"]));
-        
+
         // Turn 2: "...located in..."
         assert!(!guard.check_exposure(vec!["located", "in"]));
 

@@ -1,10 +1,10 @@
-pub mod interceptor;
-pub mod protocol;
-pub mod graph;
-pub mod network;
-pub mod worker;
-pub mod storage;
-pub mod middleware;
 pub mod config;
+pub mod graph;
+pub mod interceptor;
+pub mod middleware;
+pub mod network;
+pub mod protocol;
+pub mod storage;
+pub mod worker;
 
 pub mod security;

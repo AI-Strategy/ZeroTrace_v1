@@ -2,8 +2,8 @@ use std::num::{NonZeroU64, NonZeroUsize};
 use std::time::Duration;
 use tokio;
 use zerotrace_core::interceptor::consumption::{
-    estimate_cost_usd_micros, ConsumptionGuard, ConsumptionGuardConfig, InMemorySpendStore,
-    RequestContext, RequestId, SecurityError, SubjectId, Clock,
+    estimate_cost_usd_micros, Clock, ConsumptionGuard, ConsumptionGuardConfig, InMemorySpendStore,
+    RequestContext, RequestId, SecurityError, SubjectId,
 };
 
 struct FixedClock {
@@ -20,8 +20,8 @@ fn guard_for_tests() -> ConsumptionGuard {
     let cfg = ConsumptionGuardConfig {
         max_bytes_per_request: NonZeroUsize::new(8 * 1024).unwrap(),
         max_tokens_per_request: NonZeroUsize::new(2000).unwrap(),
-        daily_budget_usd_micros: NonZeroU64::new(5_000_000).unwrap(),      // $5.00
-        usd_per_1k_tokens_micros: NonZeroU64::new(2_000_000).unwrap(),    // $2.00 / 1k tokens
+        daily_budget_usd_micros: NonZeroU64::new(5_000_000).unwrap(), // $5.00
+        usd_per_1k_tokens_micros: NonZeroU64::new(2_000_000).unwrap(), // $2.00 / 1k tokens
         tokenize_timeout: Duration::from_millis(500),
         daily_key_ttl_secs: NonZeroU64::new(36 * 60 * 60).unwrap(),
     };
@@ -52,7 +52,10 @@ async fn happy_path_allows_and_reserves_budget() {
 
     assert!(decision.token_count > 0);
     assert!(decision.estimated_cost_usd_micros > 0);
-    assert_eq!(decision.new_daily_total_usd_micros, decision.estimated_cost_usd_micros);
+    assert_eq!(
+        decision.new_daily_total_usd_micros,
+        decision.estimated_cost_usd_micros
+    );
 }
 
 #[tokio::test]
@@ -70,10 +73,7 @@ async fn rejects_when_token_limit_exceeded() {
 
     let input = "Hello world this is a test of token limits";
     let context = ctx("user_1", input);
-    let err = guard
-        .validate_request(&context, &store)
-        .await
-        .unwrap_err();
+    let err = guard.validate_request(&context, &store).await.unwrap_err();
 
     assert!(matches!(err, SecurityError::PayloadTooLargeTokens));
 }
@@ -91,10 +91,7 @@ async fn rejects_when_byte_limit_exceeded_preflight() {
     let store = InMemorySpendStore::new();
 
     let context = ctx("user_1", "this is way too long");
-    let err = guard
-        .validate_request(&context, &store)
-        .await
-        .unwrap_err();
+    let err = guard.validate_request(&context, &store).await.unwrap_err();
 
     assert!(matches!(err, SecurityError::PayloadTooLargeBytes));
 }
@@ -117,10 +114,7 @@ async fn rejects_when_budget_would_be_exceeded() {
         user_input: "Hello world", // small but non-zero cost
     };
 
-    let err = guard
-        .validate_request(&context, &store)
-        .await
-        .unwrap_err();
+    let err = guard.validate_request(&context, &store).await.unwrap_err();
 
     assert!(matches!(err, SecurityError::BudgetExceeded));
 }

@@ -28,10 +28,7 @@ pub struct CanaryHit<'a> {
 /// record an audit event when a hit occurs.
 ///
 /// Returns a list of `CanaryHit` entries (token + all positions where it appeared).
-pub fn check_for_exfiltration<'a, T>(
-    content: &str,
-    active_canaries: &'a [T],
-) -> Vec<CanaryHit<'a>>
+pub fn check_for_exfiltration<'a, T>(content: &str, active_canaries: &'a [T]) -> Vec<CanaryHit<'a>>
 where
     T: AsRef<str> + 'a, // Removed the lifetime bound on T itself, bound refer to reference
 {
@@ -39,10 +36,7 @@ where
 
     for canary in active_canaries {
         let token = canary.as_ref();
-        let positions: Vec<usize> = content
-            .match_indices(token)
-            .map(|(idx, _)| idx)
-            .collect();
+        let positions: Vec<usize> = content.match_indices(token).map(|(idx, _)| idx).collect();
 
         if !positions.is_empty() {
             hits.push(CanaryHit { token, positions });
@@ -55,7 +49,6 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-
 
     #[test]
     fn detects_canary_and_positions() {
@@ -78,7 +71,7 @@ mod tests {
     fn test_generation_formats() {
         let default_token = generate_canary();
         assert!(default_token.starts_with("ZT-CANARY-"));
-        
+
         let custom_token = generate_canary_with_prefix("SECRET-OPS");
         assert!(custom_token.starts_with("SECRET-OPS-"));
     }

@@ -175,7 +175,9 @@ impl DeepResearchResult {
     ) -> Result<Self, OutputValidationError> {
         // floats must be finite and clamped
         if !self.confidence_score.is_finite() {
-            return Err(OutputValidationError::InvalidFloat("confidence_score".to_string()));
+            return Err(OutputValidationError::InvalidFloat(
+                "confidence_score".to_string(),
+            ));
         }
         if !self.false_positive_risk.is_finite() {
             return Err(OutputValidationError::InvalidFloat(
@@ -187,10 +189,10 @@ impl DeepResearchResult {
         self.false_positive_risk = self.false_positive_risk.clamp(0.0, 1.0);
 
         // analysis must be non-empty and bounded
-        self.technical_analysis =
-            sanitize_text(&self.technical_analysis, cfg.max_analysis_chars).ok_or_else(|| {
-                OutputValidationError::InvalidText("technical_analysis empty/invalid".to_string())
-            })?;
+        self.technical_analysis = sanitize_text(&self.technical_analysis, cfg.max_analysis_chars)
+            .ok_or_else(|| {
+            OutputValidationError::InvalidText("technical_analysis empty/invalid".to_string())
+        })?;
 
         // rule pattern optional, but if present must be bounded and printable
         if let Some(p) = &self.recommended_rule_pattern {
@@ -432,7 +434,10 @@ fn validate_context(context: &str, max_bytes: usize) -> Result<(), DeepResearchE
         ));
     }
     // Disallow dangerous control chars except common whitespace.
-    if context.chars().any(|c| c.is_control() && c != '\n' && c != '\r' && c != '\t') {
+    if context
+        .chars()
+        .any(|c| c.is_control() && c != '\n' && c != '\r' && c != '\t')
+    {
         return Err(DeepResearchError::InvalidInput(
             "context_data contains disallowed control characters".to_string(),
         ));

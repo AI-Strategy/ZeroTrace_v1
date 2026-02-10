@@ -1,6 +1,6 @@
-use tokio::time::{sleep, Duration};
+use crate::security::speculative_router::{SecurityPath, SpeculativeError, SpeculativeRouter};
 use thiserror::Error;
-use crate::security::speculative_router::{SpeculativeRouter, SecurityPath, SpeculativeError};
+use tokio::time::{sleep, Duration};
 
 #[derive(Debug, Error)]
 pub enum MeshError {
@@ -53,34 +53,35 @@ impl ParallelMesh {
         // The Guard: Check Security and Drift concurrently
         let security_guard = async {
             let (sec_res, drift_res) = tokio::join!(security_task, drift_task);
-            
+
             // Check Router
             if let Err(SpeculativeError::ImmediateBlock(msg)) = sec_res {
                 return Err(MeshError::SecurityBlock(msg));
             }
-            
+
             // Check Drift
             if let Err(msg) = drift_res {
-                return Err(MeshError::SecurityBlock(format!("Stateful Audit Failed: {}", msg)));
+                return Err(MeshError::SecurityBlock(format!(
+                    "Stateful Audit Failed: {}",
+                    msg
+                )));
             }
-            
+
             Ok(())
         };
 
-        // Race: Guard vs Inference? 
+        // Race: Guard vs Inference?
         // No, we want Guard to *complete* before we release Inference.
         // But we want Inference to *start* executing.
         // So we join them, but if Guard fails, we return Error (effectively dropping Inference Result).
-        
+
         let (guard_res, inference_res) = tokio::join!(security_guard, inference_task);
 
         match guard_res {
-            Ok(_) => {
-                match inference_res {
-                     Ok(response) => Ok(response),
-                     Err(e) => Err(MeshError::InferenceError(e)),
-                }
-            }
+            Ok(_) => match inference_res {
+                Ok(response) => Ok(response),
+                Err(e) => Err(MeshError::InferenceError(e)),
+            },
             Err(e) => Err(e),
         }
     }
@@ -103,7 +104,9 @@ mod tests {
         let mesh = ParallelMesh::new();
         let res = mesh.secure_execute("deployment poison logic").await;
         // Should block via Drift Check (Task C)
-        assert!(matches!(res, Err(MeshError::SecurityBlock(msg)) if msg.contains("Stateful Audit")));
+        assert!(
+            matches!(res, Err(MeshError::SecurityBlock(msg)) if msg.contains("Stateful Audit"))
+        );
     }
 
     #[tokio::test]

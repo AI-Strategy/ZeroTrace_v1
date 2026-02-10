@@ -24,9 +24,11 @@ impl SamplingGuard {
     }
 
     pub fn check_and_record(&self, requested_tokens: usize) -> Result<(), SecurityError> {
-        let prev = self.current_usage.fetch_add(requested_tokens, Ordering::SeqCst);
+        let prev = self
+            .current_usage
+            .fetch_add(requested_tokens, Ordering::SeqCst);
         let current = prev + requested_tokens;
-        
+
         // V51 Defense: Check if the tool has exceeded its sampling quota
         if current > self.max_tokens_per_session {
             return Err(SecurityError::QuotaExceeded {
@@ -45,16 +47,16 @@ mod tests {
     #[test]
     fn test_quota_enforcement() {
         let guard = SamplingGuard::new(100);
-        
+
         assert!(guard.check_and_record(50).is_ok());
         assert!(guard.check_and_record(40).is_ok()); // Total 90
-        
+
         // Next request (20) brings total to 110 > 100
         match guard.check_and_record(20) {
             Err(SecurityError::QuotaExceeded { limit, attempted }) => {
                 assert_eq!(limit, 100);
                 assert_eq!(attempted, 110);
-            },
+            }
             _ => panic!("Should have failed with QuotaExceeded"),
         }
     }

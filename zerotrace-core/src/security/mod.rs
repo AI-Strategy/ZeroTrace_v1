@@ -1,3 +1,7 @@
+pub mod agent_sentry;
+pub mod broker;
+pub mod cognitive_monitor;
+pub mod drift_audit;
 pub mod emg21;
 pub mod emg22;
 pub mod emg23;
@@ -7,24 +11,20 @@ pub mod emg26;
 pub mod emg27;
 pub mod emg28;
 pub mod emg29;
-pub mod agent_sentry;
-pub mod sandbox;
-pub mod broker;
+pub mod immutable_audit;
 pub mod mcp_registry;
 pub mod mfa_guard;
-pub mod drift_audit;
-pub mod speculative_router;
 pub mod parallel_mesh;
-pub mod v36_entropy_tracker;
+pub mod sandbox;
+pub mod speculative_mesh;
+pub mod speculative_router;
 pub mod stateful_baseline;
+pub mod transient_vault;
+pub mod v36_entropy_tracker;
 pub mod v39_toxic_guard;
 pub mod v40_vibe_scanner;
 pub mod v41_cfs_normalizer;
 pub mod v42_rate_limiter;
-pub mod transient_vault;
-pub mod cognitive_monitor;
-pub mod immutable_audit;
-pub mod speculative_mesh;
 pub mod v43_spectral_monitor;
 pub mod v44_mcp_auditor;
 pub mod v45_unicode_sanitizer;
@@ -36,13 +36,3 @@ pub mod v51_sampling_quota;
 pub mod v52_namespace_pinning;
 pub mod v53_biometric_liveness;
 pub mod v54_nhi_lifecycle;
-
-
-
-
-
-
-
-
-
-

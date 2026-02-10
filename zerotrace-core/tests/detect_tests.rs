@@ -1,5 +1,5 @@
 use std::num::NonZeroUsize;
-use zerotrace_core::interceptor::detect::{TyposquatEngine, TyposquatPolicy, FindingKind};
+use zerotrace_core::interceptor::detect::{FindingKind, TyposquatEngine, TyposquatPolicy};
 
 #[cfg(test)]
 mod tests {
@@ -24,7 +24,10 @@ mod tests {
         let e = engine();
         let input = "Please visit google.com for more info.";
         let findings = e.scan_text(input).unwrap();
-        assert!(findings.is_empty(), "Exact protected domain should be authorized");
+        assert!(
+            findings.is_empty(),
+            "Exact protected domain should be authorized"
+        );
     }
 
     #[test]
@@ -34,7 +37,9 @@ mod tests {
         let findings = e.scan_text(input).unwrap();
 
         assert!(
-            findings.iter().any(|f| f.kind == FindingKind::TyposquatLikely),
+            findings
+                .iter()
+                .any(|f| f.kind == FindingKind::TyposquatLikely),
             "Expected typosquat detection"
         );
 
@@ -52,7 +57,9 @@ mod tests {
         let findings = e.scan_text(input).unwrap();
 
         assert!(
-            findings.iter().any(|f| f.kind == FindingKind::TyposquatLikely),
+            findings
+                .iter()
+                .any(|f| f.kind == FindingKind::TyposquatLikely),
             "Expected typosquat detection from URL host"
         );
     }
@@ -78,7 +85,9 @@ mod tests {
 
         let findings = e.scan_text(&input).unwrap();
         assert!(
-            findings.iter().any(|f| f.kind == FindingKind::MixedScriptDomain),
+            findings
+                .iter()
+                .any(|f| f.kind == FindingKind::MixedScriptDomain),
             "Expected mixed-script homograph detection"
         );
     }

@@ -52,7 +52,7 @@ impl UniversalGuard {
         // Detects Injection Signatures & Normalizes Unicode
         let normalized_prompt = match self.llm01.sanitize(prompt) {
             Ok(p) => p,
-            Err(e) => return Err(e),
+            Err(e) => return Err(e.to_string()),
         };
 
         // 3. Shield: Persistent PII Scrubbing (LLM02)

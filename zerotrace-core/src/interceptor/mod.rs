@@ -34,3 +34,6 @@ pub mod llm01_sentinel;
 pub mod differential_privacy;
 pub mod normalization;
 pub mod v30_context_stitch;
+pub mod audited_registry;
+pub mod training_data_scrubber;
+pub mod model_theft_guard;

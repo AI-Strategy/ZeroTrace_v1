@@ -62,4 +62,39 @@ impl UpstashClient {
         let body: RedisResponse<String> = resp.json().await.ok()?;
         body.result
     }
+
+    /// Sets a key with an expiration time (SETEX equivalent).
+    pub async fn set_with_ttl(&self, key: &str, value: &str, seconds: u64) -> Result<(), String> {
+        // Redis Command: SETEX key seconds value
+        let url = format!("{}/setex/{}/{}/{}", self.base_url, key, seconds, value);
+        
+        let resp = self.client.get(&url) // Upstash REST API uses GET for some commands, or POST. SETEX is typically supported via REST.
+            .header("Authorization", format!("Bearer {}", self.token))
+            .send()
+            .await
+            .map_err(|e| e.to_string())?;
+
+        if resp.status() != StatusCode::OK {
+            return Err(format!("Redis Error: {}", resp.status()));
+        }
+
+        Ok(())
+    }
+
+    /// Gets a value by key.
+    pub async fn get(&self, key: &str) -> Result<Option<String>, String> {
+        let url = format!("{}/get/{}", self.base_url, key);
+        let resp = self.client.get(&url)
+            .header("Authorization", format!("Bearer {}", self.token))
+            .send()
+            .await
+            .map_err(|e| e.to_string())?;
+
+        if resp.status() != StatusCode::OK {
+            return Err(format!("Redis Error: {}", resp.status()));
+        }
+
+        let body: RedisResponse<String> = resp.json().await.map_err(|e| e.to_string())?;
+        Ok(body.result)
+    }
 }

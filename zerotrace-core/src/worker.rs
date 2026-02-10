@@ -1,23 +1,22 @@
 use worker::*;
-use crate::interceptor::sanitize::PiiSanitizer;
-use crate::network::redis::UpstashClient;
+use crate::interceptor::universal_guard::UniversalGuard;
 use serde_json::json;
 
 mod utils {
     pub fn set_panic_hook() {
-        // When the `console_error_panic_hook` feature is enabled, we can call the
-        // `set_panic_hook` function at least once during initialization, and then
-        // we will get better error messages if our code ever panics.
         #[cfg(feature = "console_error_panic_hook")]
         console_error_panic_hook::set_once();
     }
 }
 
 #[event(fetch)]
-pub async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
+pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response> {
     utils::set_panic_hook();
 
-    // 1. Parse Request
+    // 1. Initialize Universal Guard (The "Brain" of the Interceptor)
+    // In production, we would inject Env vars into the Guard's Redis client here.
+    let guard = UniversalGuard::new();
+
     if req.method() != Method::Post {
         return Response::error("Method Not Allowed", 405);
     }
@@ -26,39 +25,42 @@ pub async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response>
         Ok(text) => text,
         Err(_) => return Response::error("Bad Request", 400),
     };
-
-    // 2. Initialize Infrastructure
-    // In a real worker, PiiSanitizer would be initialized once or lazily
-    let sanitizer = PiiSanitizer::new(vec!["password".to_string(), "credit_card".to_string(), "sk-live".to_string()]);
     
-    // Initialize Upstash Client using the helper I added to redis.rs (need to update redis.rs to use worker::Env if generic, or just use env vars)
-    // For this sample, we assume we can get vars from `env`
-    let redis_url = env.var("UPSTASH_REDIS_REST_URL")?.to_string();
-    let redis_token = env.secret("UPSTASH_REDIS_REST_TOKEN")?.to_string();
-    let redis = UpstashClient::new(&redis_url, &redis_token);
-
-    // 3. Security Logic: PII Scrubbing
-    let sanitized_input = sanitizer.redact(&body_text);
+    // 2. REQUEST PHASE: Inbound Inspection & Sanitization
+    // "Fail-Closed" check against all 29 Risk Vectors.
+    let user_id = "user_123"; // Logic would extract from Auth Header
     
-    // 4. Redis Check: Semantic Cache or Blocklist
-    // Hashing the input for cache lookup (simple checksum for demo)
-    let input_hash = format!("{:x}", md5::compute(&sanitized_input)); 
+    let secure_prompt = match guard.evaluate_complete_risk_profile(&body_text, user_id).await {
+        Ok(prompt) => prompt,
+        Err(block_reason) => {
+            console_log!("Blocked Request: {}", block_reason);
+            return Response::from_json(&json!({
+                "status": "blocked",
+                "reason": block_reason,
+                "risk_code": "ZeroTrace-Guard-Block"
+            }));
+        }
+    };
+
+    // 3. UPSTREAM PHASE: Forward to LLM (Simulated)
+    // In a real proxy, we would `reqwest::Client::new().post(llm_url)...`
+    // Here we simulate the LLM responding, potentially using the PII tokens.
+    // E.g. User: "My email is alice@example.com"
+    // Secure Prompt: "My email is [EMAIL-UUID-123...]"
+    // Simulated LLM Response: "Hello, I see your email is [EMAIL-UUID-123...]."
     
-    if let Some(cached_response) = redis.get_semantic_cache(&input_hash).await {
-         return Response::from_json(&json!({
-             "status": "cached",
-             "content": cached_response
-         }));
-    }
+    // Simulating "Echo" behavior of an LLM preserving the tokens
+    let llm_response_simulation = format!("Processed: {}", secure_prompt); 
 
-    // 5. Audit Logging (Async - utilizing ctx.wait_until if needed, but here simple)
-    // definition of "The Trace" would happen here.
+    // 4. RESPONSE PHASE: Re-hydration (Double-Blind)
+    // We swap the tokens back to the original values so the user sees their data,
+    // but the LLM provider never saw it.
+    let final_response = guard.process_secure_response(&llm_response_simulation).await;
 
-    // 6. Return Sanitized Payload (mocking upstream forwarding)
     Response::from_json(&json!({
-        "status": "cleared",
-        "original_length": body_text.len(),
-        "sanitized_content": sanitized_input,
-        "processed_at": "Edge-Data-Center-01"
+        "status": "authorized",
+        "redacted_prompt_sent_to_llm": secure_prompt, // Debug only, remove in prod!
+        "final_response_to_user": final_response,
+        "trace_id": "uuid-gen-here"
     }))
 }

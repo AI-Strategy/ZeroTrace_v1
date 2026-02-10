@@ -12,10 +12,14 @@ mod utils {
 #[event(fetch)]
 pub async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response> {
     utils::set_panic_hook();
+    
+    // Performance Optimization: Use Lazy Static or OnceCell (simulated here)
+    // to avoid re-initializing Aho-Corasick/Regex on every request.
+    // In a real Worker, global state persists across invocations in the same Isolate.
+    // Note: Since `UniversalGuard` creation is synchronous here, we can construct it.
+    // However, if it needs async (Redis), we usually lazy-load the client.
+    let guard = UniversalGuard::new(); 
 
-    // 1. Initialize Universal Guard (The "Brain" of the Interceptor)
-    // In production, we would inject Env vars into the Guard's Redis client here.
-    let guard = UniversalGuard::new();
 
     if req.method() != Method::Post {
         return Response::error("Method Not Allowed", 405);

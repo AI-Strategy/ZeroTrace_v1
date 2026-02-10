@@ -1,12 +1,16 @@
-# ZeroTrace FFI Strategy
+# ZeroTrace FFI Strategy (Legacy Support)
 
-For ultra-low latency applications (Voice/Video), ZeroTrace can be compiled as a dynamic library (`.so`, `.dll`, `.dylib`) and loaded directly into the host process.
+**Governance Note**: The ZeroTrace Backend is **Strictly Rust**. 
+This FFI strategy is documented ONLY for integrating ZeroTrace into *external* legacy systems (e.g., existing C++ or Node.js pipelines) where full Rust migration is impossible.
 
-## Architecture
+**Preferred Integration**: 
+-   **Rust-to-Rust**: Add `zerotrace-core = "0.1"` to your `Cargo.toml`.
+
+## Architecture (External Only)
 
 1.  **Rust Core**: Compile `zerotrace-core` with `crate-type = ["cdylib"]`.
-2.  **C-ABI Exports**: Expose `no_mangle` functions for `scan_input`, `redact`, etc.
-3.  **Host Bindings**: Use `ctypes` (Python), `Fiddle` (Ruby), or `N-API` (Node.js) to call these functions.
+2.  **C-ABI Exports**: Expose `no_mangle` functions.
+3.  **Host Bindings**: C/C++ or other ABI-compatible languages.
 
 ## Example Rust Export
 
@@ -19,7 +23,5 @@ pub extern "C" fn zerotrace_scan(input: *const c_char) -> bool {
 }
 ```
 
-## Benefits
-
--   **Zero Network Overhead**: Function calls take nanoseconds.
--   **Shared Memory**: Pass pointers to large video buffers without copying.
+## Policy
+Internal components (e.g., CLI, API) MUST use the Rust Crate directly. FFI is for **Edge Cases Only**.

@@ -1,20 +1,29 @@
 use axum::{
+    extract::{State, Json},
     routing::{get, post},
-    Router, Json,
+    Router,
 };
 use serde::{Deserialize, Serialize};
-use zerotrace_core::interceptor::{detect, sanitize};
-use zerotrace_core::protocol::dbs::DBSProtocol;
 use std::net::SocketAddr;
+use std::sync::Arc;
+use zerotrace_core::interceptor::universal_guard::UniversalGuard;
+
+struct AppState {
+    guard: UniversalGuard,
+}
 
 #[tokio::main]
 async fn main() {
-    // initialize tracing
     tracing_subscriber::fmt::init();
+
+    // Initialize UniversalGuard (Stubbed Redis by default in dev)
+    let guard = UniversalGuard::new();
+    let shared_state = Arc::new(AppState { guard });
 
     let app = Router::new()
         .route("/health", get(health_check))
-        .route("/scan", post(scan_input));
+        .route("/scan", post(scan_input))
+        .with_state(shared_state);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     println!("ZeroTrace Airlock listening on {}", addr);
@@ -29,6 +38,7 @@ async fn health_check() -> &'static str {
 #[derive(Deserialize)]
 struct ScanRequest {
     request_id: String,
+    user_id: String,
     content: String,
 }
 
@@ -40,46 +50,22 @@ struct ScanResponse {
     warnings: Vec<String>,
 }
 
-async fn scan_input(Json(payload): Json<ScanRequest>) -> Json<ScanResponse> {
-    // 0. Normalize Input (Invisible character stripping)
-    let normalized_content = zerotrace_core::interceptor::normalization::Normalizer::normalize(&payload.content);
-
-    // 1. Check DBS Protocol
-    // For general text scan, we don't have a structured tool action yet, so passing None.
-    // In a future /execute endpoint, we would pass Some((user_id, tool_name)).
-    if !DBSProtocol::enforce(&normalized_content, None) {
-        return Json(ScanResponse {
+async fn scan_input(
+    State(state): State<Arc<AppState>>,
+    Json(payload): Json<ScanRequest>,
+) -> Json<ScanResponse> {
+    match state.guard.evaluate_complete_risk_profile(&payload.content, &payload.user_id).await {
+        Ok(sanitized) => Json(ScanResponse {
+            request_id: payload.request_id,
+            authorized: true,
+            sanitized_content: sanitized,
+            warnings: vec![],
+        }),
+        Err(block_reason) => Json(ScanResponse {
             request_id: payload.request_id,
             authorized: false,
-            authorized: false,
             sanitized_content: "".to_string(),
-            warnings: vec!["DBS_VIOLATION".to_string()],
-        });
+            warnings: vec![block_reason],
+        }),
     }
-
-    // 2. Scan for anomalies
-    let mut anomalies = detect::scan_for_anomalies(&normalized_content);
-    
-    // 2.1 Scan for Secrets (Entropy)
-    let secret_warnings = zerotrace_core::interceptor::entropy::scan_for_secrets(&normalized_content);
-    anomalies.extend(secret_warnings);
-
-    // 2.2 Scan for Canary Exfiltration
-    let test_canaries = vec!["ZT-CANARY-TEST".to_string()]; 
-    let canary_leaks = zerotrace_core::interceptor::canary::check_for_exfiltration(&normalized_content, &test_canaries);
-    if !canary_leaks.is_empty() {
-        anomalies.push("DATA_EXFILTRATION:CANARY_DETECTED".to_string());
-    }
-    
-    // 3. Sanitize content (Advanced PII)
-    // In a real app, the sanitizer would be a long-lived state in 'app', not recreated per request
-    let sanitizer = sanitize::PiiSanitizer::new(vec!["password".to_string(), "credit_card".to_string()]);
-    let sanitized = sanitizer.redact(&normalized_content);
-
-    Json(ScanResponse {
-        request_id: payload.request_id,
-        authorized: anomalies.is_empty(),
-        sanitized_content: if anomalies.is_empty() { sanitized } else { "".to_string() },
-        warnings: anomalies,
-    })
 }

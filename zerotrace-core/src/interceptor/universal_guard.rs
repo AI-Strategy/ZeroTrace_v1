@@ -1,11 +1,10 @@
-use crate::interceptor::detect::SecurityShield;
 use crate::interceptor::sanitize::PiiSanitizer;
 use crate::interceptor::slopsquat::SlopsquatDetector;
 use crate::interceptor::crescendo::CrescendoCounter;
 use crate::interceptor::emerging::EmergingThreatsGuard;
 use crate::interceptor::llm01_sentinel::LLM01Sentinel;
 use crate::protocol::dbs::DBSProtocol;
-use crate::network::redis::UpstashClient;
+use crate::network::redis::RedisClient;
 use std::sync::Arc;
 
 pub struct UniversalGuard {
@@ -21,8 +20,8 @@ impl UniversalGuard {
         // Stubbed Redis for Universal Guard (Env vars would be loaded here in main)
         // In real main.rs, we'd pass this client in.
         // For this baseline, we construct a default client attempting env vars or stub.
-        let redis = Arc::new(UpstashClient::from_env().unwrap_or(
-            UpstashClient::new("http://stub", "stub")
+        let redis = Arc::new(RedisClient::from_env().unwrap_or(
+            RedisClient::new("http://stub", "stub")
         ));
 
         Self {

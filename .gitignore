@@ -1,0 +1,19 @@
+# Rust
+/target
+/zerotrace-core/target
+**/*.rs.bk
+
+# Windows Build Artifacts
+*.exe
+*.pdb
+*.dll
+*.lib
+
+# Editors
+.vscode
+.idea
+*.swp
+
+# Environment
+.env
+.env.local

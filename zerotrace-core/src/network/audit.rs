@@ -27,7 +27,7 @@ impl AuditLogger {
     /// Spawns a background task to handle logging asynchronously.
     /// This ensures the critical path remains <5ms.
     pub fn new(connection_string: String) -> Self {
-        let (tx, mut rx) = mpsc::unbounded_channel();
+        let (tx, mut rx) = mpsc::unbounded_channel::<AuditEvent>();
 
         tokio::spawn(async move {
             // In a real implementation, we'd handle connection retry/backoff here.

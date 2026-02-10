@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Integration tests for ZeroTrace",
   "scripts": {
-    "test": "node test.mjs"
+    "test": "node tests/verify_dbs.mjs"
   },
   "dependencies": {
     "miniflare": "^3.0.0"

@@ -14,7 +14,7 @@ ZeroTrace is a "Bulletproof" AI Security Middleware designed to mitigate the **2
 *   **Edge**: Cloudflare Workers.
 *   **State**: Upstash Redis (Rate Limiting, PII Vault), Postgres (Audit Logs).
 *   **Forensics**: Neo4j (Graph Database).
-*   **Orchestration**: Python (Phase 2).
+*   **Utilities**: Rust Native (CLI, Axum, Tokio). **NO PYTHON allowed for backend logic.**
 
 ---
 
@@ -23,6 +23,7 @@ ZeroTrace is a "Bulletproof" AI Security Middleware designed to mitigate the **2
 ### 3.1 SOFTWARE CURRENCY & VERIFICATION
 *   **Trust No Training Data**: Always verify version numbers via Web Search.
 *   **Latest Stable**: Use the latest stable releases for Rust crates and Node packages.
+*   **RUST ONLY**: The backend must be 100% Rust. Python is strictly forbidden unless explicitly authorized by the User.
 
 ### 3.2 DATA PERSISTENCE
 *   **No SQLite**: SQLite is BANNED. Use Postgres or Redis.
@@ -57,6 +58,11 @@ ZeroTrace is a "Bulletproof" AI Security Middleware designed to mitigate the **2
 ### 3.10 COMPLEX PARSING & REGEX
 *   **Regex Discipline**: Use Regex for PII patterns, but Aho-Corasick for high-speed signature matching.
 *   **Parsing**: Use parsers (e.g., `serde_json`), not Regex, for structured data.
+
+### 3.11 RATIONALE & CONTEXT
+*   **Explain Why**: All complex logic must be documented with *why* it exists, citing specific risk vectors (e.g., LLM01) or business requirements.
+*   **Location**: Use inline comments for code-level decisions and `*.md` files (like `implementation_plan.md`) for architectural decisions.
+*   **Traceability**: Link code to requirements (e.g., `// See LLM04`).
 
 ---
 

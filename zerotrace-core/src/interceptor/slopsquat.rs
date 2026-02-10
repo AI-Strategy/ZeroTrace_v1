@@ -21,7 +21,7 @@ impl SlopsquatDetector {
 
         SlopsquatDetector {
             verified_packages: verified.clone(),
-            typosquat_engine: TyposquatEngine::new(verified.into_iter().collect()),
+            typosquat_engine: TyposquatEngine::new(verified.into_iter().collect(), 2),
         }
     }
 
@@ -60,5 +60,31 @@ impl SlopsquatDetector {
         }
         
         false
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_slopsquat_detection() {
+        let detector = SlopsquatDetector::new();
+
+        // 1. Safe Package
+        assert!(!detector.detect_package_risk("npm install requests"), "Should allow verified package 'requests'");
+
+        // 2. Typosquat (Hallucination Squatting)
+        assert!(detector.detect_package_risk("npm install reqests"), "Should detect 'reqests' as typosquat of 'requests'");
+        assert!(detector.detect_package_risk("pip install pandasz"), "Should detect 'pandasz'");
+
+        // 3. Unverified (Slop)
+        assert!(detector.detect_package_risk("cargo add super_suspicious_lib"), "Should block unverified package");
+    }
+
+    #[test]
+    fn test_safe_non_package_prompt() {
+        let detector = SlopsquatDetector::new();
+        assert!(!detector.detect_package_risk("How do I install rust?"), "Should not flag normal text");
     }
 }

@@ -51,6 +51,10 @@ impl TyposquatEngine {
         detections
     }
 
+    pub fn is_typosquat(&self, input: &str) -> bool {
+        !self.check(input).is_empty()
+    }
+
     /// Placeholder for homoglyph detection (e.g. Cyrillic 'a' vs Latin 'a')
     pub fn check_homoglyphs(&self, input: &str) -> Vec<String> {
         // This requires a crate like `unicode-security` or a custom map.

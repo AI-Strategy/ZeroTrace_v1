@@ -54,6 +54,15 @@ impl AgencyGate {
 pub struct DBSProtocol;
 
 impl DBSProtocol {
+    pub fn new() -> Self {
+        DBSProtocol
+    }
+
+    /// Validates an input against DBS rules. Returns true if safe.
+    pub fn validate(&self, input: &str) -> bool {
+        Self::enforce(input, None)
+    }
+
     /// Enforces DBS Rules. 
     /// `action_context`: Optional tuple of (user_id, action_name) if available (e.g. from tool call).
     pub fn enforce(input: &str, action_context: Option<(&str, &str)>) -> bool {

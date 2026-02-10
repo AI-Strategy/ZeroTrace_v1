@@ -138,3 +138,26 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trigger_high_severity_alert
 AFTER INSERT ON zerotrace_audit.event_logs
 FOR EACH ROW EXECUTE FUNCTION notify_high_severity_event();
+
+-- 8. LLM08: Vector & Embedding Weakness (RLS Isolation)
+-- Enforces strict client isolation for vector data.
+
+CREATE TABLE IF NOT EXISTS client_embeddings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    client_id UUID NOT NULL REFERENCES users(id),
+    content TEXT, -- Encrypted
+    embedding vector(1536), -- ADA-002 / Generic 1536 dim
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE client_embeddings ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Only allow access if client_id matches the session variable
+CREATE POLICY client_isolation_policy ON client_embeddings
+    USING (client_id = current_setting('app.current_client_id')::uuid);
+
+-- Secure Index (HNSW)
+CREATE INDEX IF NOT EXISTS idx_embeddings_hnsw 
+    ON client_embeddings USING hnsw (embedding vector_cosine_ops);
+

@@ -35,3 +35,25 @@ impl EmergingThreatsGuard {
         image_bytes.to_vec() 
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_many_shot_overflow() {
+        // Create a prompt larger than threshold (25000 chars)
+        let large_prompt = "A".repeat(25001);
+        assert!(EmergingThreatsGuard::detect_many_shot_overflow(&large_prompt));
+
+        let small_prompt = "Hello world";
+        assert!(!EmergingThreatsGuard::detect_many_shot_overflow(small_prompt));
+    }
+
+    #[test]
+    fn test_disarm_image() {
+        let data = vec![1, 2, 3, 4];
+        let result = EmergingThreatsGuard::disarm_image_metadata(&data);
+        assert_eq!(result, data); // Stub behavior pass-through
+    }
+}

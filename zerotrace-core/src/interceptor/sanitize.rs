@@ -1,4 +1,4 @@
-use crate::network::redis::UpstashClient;
+use crate::network::redis::RedisClient;
 use regex::Regex;
 use uuid::Uuid;
 use std::sync::Arc;
@@ -9,14 +9,16 @@ lazy_static! {
     static ref SSN_REGEX: Regex = Regex::new(r"\b\d{3}-\d{2}-\d{4}\b").unwrap();
     static ref IPV4_REGEX: Regex = Regex::new(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b").unwrap();
     static ref KEY_REGEX: Regex = Regex::new(r"(?i)(sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{20,})").unwrap();
+    static ref PHONE_REGEX: Regex = Regex::new(r"\b\+?1?\s*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b").unwrap(); // Basic US Phone
+    static ref DATE_REGEX: Regex = Regex::new(r"\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b").unwrap(); // Basic Dates
 }
 
 pub struct PiiSanitizer {
-    redis: Arc<UpstashClient>,
+    redis: Arc<RedisClient>,
 }
 
 impl PiiSanitizer {
-    pub fn new(redis: Arc<UpstashClient>) -> Self {
+    pub fn new(redis: Arc<RedisClient>) -> Self {
         Self { redis }
     }
 
@@ -36,6 +38,8 @@ impl PiiSanitizer {
         self.collect_matches(&SSN_REGEX, &result, "SSN", &mut replacements);
         self.collect_matches(&IPV4_REGEX, &result, "IP", &mut replacements);
         self.collect_matches(&KEY_REGEX, &result, "SECRET_KEY", &mut replacements);
+        self.collect_matches(&PHONE_REGEX, &result, "PHONE", &mut replacements);
+        self.collect_matches(&DATE_REGEX, &result, "DATE", &mut replacements);
 
         // 2. Async Store in Redis
         for (token, original) in &replacements {

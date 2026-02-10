@@ -27,6 +27,7 @@ pub mod memorization;
 pub mod model_inversion;
 pub mod shadow_ai;
 pub mod insecure_code;
+pub mod secrets;
 
 pub mod universal_guard;
 pub mod llm01_sentinel;

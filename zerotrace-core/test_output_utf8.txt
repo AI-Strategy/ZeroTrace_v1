@@ -1,0 +1,3934 @@
+﻿C:\Users\HP\.cargo\bin\cargo.exe : warning: unused imports: `Deserialize` and `Serialize`
+At line:1 char:1
++ C:\Users\HP\.cargo\bin\cargo.exe test interceptor::differential_priva ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: unused...and `Serialize`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ --> src\interceptor\openclaw.rs:1:13
+  |
+1 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `rust_decimal::prelude::ToPrimitive`
+ --> src\interceptor\financial.rs:2:5
+  |
+2 | use rust_decimal::prelude::ToPrimitive;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `neo4rs::*`
+ --> src\graph\neo4j.rs:1:5
+  |
+1 | use neo4rs::*;
+  |     ^^^^^^^^^
+
+warning: unused import: `anyhow`
+ --> src\graph\connection_pool.rs:4:22
+  |
+4 | use anyhow::{Result, anyhow};
+  |                      ^^^^^^
+
+warning: unused import: `response::IntoResponse`
+ --> src\network\proxy.rs:4:5
+  |
+4 |     response::IntoResponse,
+  |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Client`
+ --> src\network\audit.rs:2:29
+  |
+2 | use tokio_postgres::{NoTls, Client};
+  |                             ^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\network\audit.rs:5:5
+  |
+5 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `tokio_postgres::NoTls`
+  --> src\network\forensics.rs:61:5
+   |
+61 | use tokio_postgres::NoTls;
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `futures::StreamExt`
+  --> src\network\forensics.rs:62:5
+   |
+62 | use futures::StreamExt;
+   |     ^^^^^^^^^^^^^^^^^^
+
+warning: unexpected `cfg` condition value: `console_error_panic_hook`
+ --> src\worker.rs:7:15
+  |
+7 |         #[cfg(feature = "console_error_panic_hook")]
+  |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+  |
+  = note: no expected values for `feature`
+  = help: consider adding `console_error_panic_hook` as a feature in `Cargo.toml`
+  = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about 
+checking conditional configuration
+  = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unused imports: `Context` and `Result`
+ --> src\storage\rls.rs:1:14
+  |
+1 | use anyhow::{Result, Context};
+  |              ^^^^^^  ^^^^^^^
+
+warning: unused import: `Arc`
+  --> src\middleware\multi_tenant.rs:10:17
+   |
+10 | use std::sync::{Arc, RwLock};
+   |                 ^^^
+
+warning: unused imports: `SystemTime` and `UNIX_EPOCH`
+ --> src\security\agent_sentry.rs:1:26
+  |
+1 | use std::time::{Instant, SystemTime, UNIX_EPOCH};
+  |                          ^^^^^^^^^^  ^^^^^^^^^^
+
+warning: variant `WorkflowA_FastPath` should have an upper camel case name
+  --> src\security\broker.rs:17:5
+   |
+17 |     WorkflowA_FastPath,      // Transactional: Static checks, <15ms
+   |     ^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `WorkflowAFastPath`
+   |
+   = note: `#[warn(non_camel_case_types)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: variant `WorkflowB_ShieldedPath` should have an upper camel case name
+  --> src\security\broker.rs:18:5
+   |
+18 |     WorkflowB_ShieldedPath,  // Inquisitive: Neo4j Drift + Egress Scrub, ~120ms
+   |     ^^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `WorkflowBShieldedPath`
+
+warning: variant `WorkflowC_AirlockPath` should have an upper camel case name
+  --> src\security\broker.rs:19:5
+   |
+19 |     WorkflowC_AirlockPath,   // Agentic: Full 32-Vector Scan + Sandbox, >800ms
+   |     ^^^^^^^^^^^^^^^^^^^^^ help: convert the identifier to upper camel case: `WorkflowCAirlockPath`
+
+warning: unused import: `hex`
+ --> src\security\mcp_registry.rs:4:5
+  |
+4 | use hex;
+  |     ^^^
+
+warning: unused import: `SecurityPath`
+ --> src\security\parallel_mesh.rs:3:62
+  |
+3 | use crate::security::speculative_router::{SpeculativeRouter, SecurityPath, SpeculativeError};
+  |                                                              ^^^^^^^^^^^^
+
+warning: unused import: `std::collections::HashMap`
+ --> src\security\cognitive_monitor.rs:1:5
+  |
+1 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `tokio::select`
+ --> src\security\speculative_mesh.rs:2:5
+  |
+2 | use tokio::select;
+  |     ^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\security\v51_sampling_quota.rs:6:5
+  |
+6 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `Duration`
+ --> src\security\v54_nhi_lifecycle.rs:5:29
+  |
+5 | use chrono::{DateTime, Utc, Duration};
+  |                             ^^^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+  --> src\network\forensics.rs:16:28
+   |
+16 |         let auth = base64::encode(format!("{}:{}", user, pass));
+   |                            ^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: unused variable: `jitter_ms`
+  --> src\interceptor\emerging.rs:24:13
+   |
+24 |         let jitter_ms = rng.gen_range(5..50);
+   |             ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_jitter_ms`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `client` is never read
+  --> src\network\proxy.rs:11:5
+   |
+10 | pub struct ProxyClient {
+   |            ----------- field in this struct
+11 |     client: Client,
+   |     ^^^^^^
+   |
+   = note: `ProxyClient` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code 
+analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `db_url` and `monitor` are never read
+  --> src\network\forensics.rs:65:5
+   |
+64 | pub struct ForensicSentinel {
+   |            ---------------- fields in this struct
+65 |     db_url: String,
+   |     ^^^^^^
+66 |     monitor: ForensicMonitor,
+   |     ^^^^^^^
+
+warning: field `max_text_entropy` is never read
+  --> src\security\emg21.rs:37:5
+   |
+29 | pub struct MultiModalGuard<S, E>
+   |            --------------- field in this struct
+...
+37 |     max_text_entropy: f64, 
+   |     ^^^^^^^^^^^^^^^^
+
+warning: `zerotrace-core` (lib) generated 27 warnings (run `cargo fix --lib -p zerotrace-core` to apply 19 suggestions)
+warning: unused import: `neo4rs::*`
+ --> src\graph\neo4j.rs:1:5
+  |
+1 | use neo4rs::*;
+  |     ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> src\interceptor\openclaw.rs:1:13
+  |
+1 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: struct `GraphClient` is never constructed
+ --> src\graph\neo4j.rs:3:12
+  |
+3 | pub struct GraphClient {
+  |            ^^^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `log_trace` is never used
+ --> src\graph\neo4j.rs:8:18
+  |
+7 | impl GraphClient {
+  | ---------------- associated function in this implementation
+8 |     pub async fn log_trace(trace_id: &str, user: &str, action: &str) {
+  |                  ^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\graph\connection_pool.rs:7:10
+  |
+7 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: field `drivers` is never read
+  --> src\graph\connection_pool.rs:16:5
+   |
+14 | pub struct TenantPooler {
+   |            ------------ field in this struct
+15 |     // DashMap for high-concurrency, lock-free access to tenant drivers
+16 |     drivers: DashMap<String, Arc<Graph>>,
+   |     ^^^^^^^
+
+warning: method `get_driver` is never used
+  --> src\graph\connection_pool.rs:24:18
+   |
+19 | impl TenantPooler {
+   | ----------------- method in this implementation
+...
+24 |     pub async fn get_driver(&self, org_id: &str, uri: &str, user: &str, pass: &str) -> Result<Arc<Graph>, 
+SecurityError> {
+   |                  ^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\security\emg21.rs:5:10
+  |
+5 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: trait `MetadataScrubber` is never used
+  --> src\security\emg21.rs:19:11
+   |
+19 | pub trait MetadataScrubber: Send + Sync {
+   |           ^^^^^^^^^^^^^^^^
+
+warning: trait `ContentExtractor` is never used
+  --> src\security\emg21.rs:25:11
+   |
+25 | pub trait ContentExtractor: Send + Sync {
+   |           ^^^^^^^^^^^^^^^^
+
+warning: struct `MultiModalGuard` is never constructed
+  --> src\security\emg21.rs:29:12
+   |
+29 | pub struct MultiModalGuard<S, E>
+   |            ^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `sanitize_evidence_asset`, and `sanitize_raw_text` are never used
+  --> src\security\emg21.rs:45:12
+   |
+40 | / impl<S, E> MultiModalGuard<S, E>
+41 | | where
+42 | |     S: MetadataScrubber,
+43 | |     E: ContentExtractor,
+   | |________________________- associated items in this implementation
+44 |   {
+45 |       pub fn new(scrubber: S, extractor: E, max_text_entropy: f64) -> Self {
+   |              ^^^
+...
+58 |       pub async fn sanitize_evidence_asset(
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^
+...
+81 |       fn sanitize_raw_text(&self, text: &str) -> Result<String, SecurityError> {
+   |          ^^^^^^^^^^^^^^^^^
+
+warning: struct `SideChannelGuard` is never constructed
+ --> src\security\emg22.rs:9:12
+  |
+9 | pub struct SideChannelGuard {
+  |            ^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `execute_secure_response`, and `pad_content` are never used
+  --> src\security\emg22.rs:19:12
+   |
+14 | impl SideChannelGuard {
+   | --------------------- associated items in this implementation
+...
+19 |     pub fn new(min_response_time_ms: u64, padding_block_size: usize) -> Self {
+   |            ^^^
+...
+33 |     pub async fn execute_secure_response(&self, content: String) -> String {
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^
+...
+50 |     fn pad_content(&self, mut content: String) -> String {
+   |        ^^^^^^^^^^^
+
+warning: enum `IngestionError` is never used
+ --> src\security\emg23.rs:6:10
+  |
+6 | pub enum IngestionError {
+  |          ^^^^^^^^^^^^^^
+
+warning: enum `AuthorityLevel` is never used
+  --> src\security\emg23.rs:18:10
+   |
+18 | pub enum AuthorityLevel {
+   |          ^^^^^^^^^^^^^^
+
+warning: trait `ConsensusEngine` is never used
+  --> src\security\emg23.rs:27:11
+   |
+27 | pub trait ConsensusEngine: Send + Sync {
+   |           ^^^^^^^^^^^^^^^
+
+warning: struct `IngestionGuard` is never constructed
+  --> src\security\emg23.rs:32:12
+   |
+32 | pub struct IngestionGuard<C> 
+   |            ^^^^^^^^^^^^^^
+
+warning: associated items `new`, `register_source`, and `validate_ingestion_source` are never used
+  --> src\security\emg23.rs:42:12
+   |
+39 | / impl<C> IngestionGuard<C>
+40 | | where C: ConsensusEngine
+   | |________________________- associated items in this implementation
+41 |   {
+42 |       pub fn new(consensus_engine: C) -> Self {
+   |              ^^^
+...
+49 |       pub fn register_source(&mut self, source_id: String, level: AuthorityLevel) {
+   |              ^^^^^^^^^^^^^^^
+...
+59 |       pub async fn validate_ingestion_source(&self, source_id: &str, data_payload: &str) -> Result<(), 
+IngestionError> {
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `ReasoningError` is never used
+ --> src\security\emg24.rs:5:10
+  |
+5 | pub enum ReasoningError {
+  |          ^^^^^^^^^^^^^^
+
+warning: struct `ReasoningGuard` is never constructed
+  --> src\security\emg24.rs:14:12
+   |
+14 | pub struct ReasoningGuard {
+   |            ^^^^^^^^^^^^^^
+
+warning: associated items `new` and `check_step` are never used
+  --> src\security\emg24.rs:23:12
+   |
+19 | impl ReasoningGuard {
+   | ------------------- associated items in this implementation
+...
+23 |     pub fn new(max_recursion_depth: usize, similarity_threshold: f32) -> Self {
+   |            ^^^
+...
+35 |     pub fn check_step(
+   |            ^^^^^^^^^^
+
+warning: function `cosine_similarity` is never used
+  --> src\security\emg24.rs:62:4
+   |
+62 | fn cosine_similarity(a: &Array1<f32>, b: &Array1<f32>) -> Result<f32, ReasoningError> {
+   |    ^^^^^^^^^^^^^^^^^
+
+warning: enum `SteganographyError` is never used
+ --> src\security\emg25.rs:7:10
+  |
+7 | pub enum SteganographyError {
+  |          ^^^^^^^^^^^^^^^^^^
+
+warning: struct `SteganographyGuard` is never constructed
+  --> src\security\emg25.rs:14:12
+   |
+14 | pub struct SteganographyGuard;
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: associated function `clean_and_validate` is never used
+  --> src\security\emg25.rs:32:12
+   |
+26 | impl SteganographyGuard {
+   | ----------------------- associated function in this implementation
+...
+32 |     pub fn clean_and_validate(input: &str) -> Result<String, SteganographyError> {
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: enum `TokenSmugglingError` is never used
+ --> src\security\emg26.rs:7:10
+  |
+7 | pub enum TokenSmugglingError {
+  |          ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TokenSmugglingGuard` is never constructed
+  --> src\security\emg26.rs:16:12
+   |
+16 | pub struct TokenSmugglingGuard;
+   |            ^^^^^^^^^^^^^^^^^^^
+
+warning: methods `check`, `validate_content`, and `normalize_leetspeak` are never used
+  --> src\security\emg26.rs:39:12
+   |
+37 | impl TokenSmugglingGuard {
+   | ------------------------ methods in this implementation
+38 |     /// Intercepts traffic, aggressively decodes potentials encodings, and normalizes intent.
+39 |     pub fn check(&self, input: &str) -> Result<String, TokenSmugglingError> {
+   |            ^^^^^
+...
+62 |     fn validate_content(&self, content: &str) -> Result<(), TokenSmugglingError> {
+   |        ^^^^^^^^^^^^^^^^
+...
+72 |     fn normalize_leetspeak(&self, text: &str) -> String {
+   |        ^^^^^^^^^^^^^^^^^^^
+
+warning: enum `AuthError` is never used
+ --> src\security\emg27.rs:4:10
+  |
+4 | pub enum AuthError {
+  |          ^^^^^^^^^
+
+warning: struct `UserClaims` is never constructed
+  --> src\security\emg27.rs:17:12
+   |
+17 | pub struct UserClaims {
+   |            ^^^^^^^^^^
+
+warning: trait `PermissionService` is never used
+  --> src\security\emg27.rs:25:11
+   |
+25 | pub trait PermissionService: Send + Sync {
+   |           ^^^^^^^^^^^^^^^^^
+
+warning: struct `ARSGuard` is never constructed
+  --> src\security\emg27.rs:29:12
+   |
+29 | pub struct ARSGuard<P: PermissionService> {
+   |            ^^^^^^^^
+
+warning: associated items `new` and `authorize_action` are never used
+  --> src\security\emg27.rs:35:12
+   |
+34 | impl<P: PermissionService> ARSGuard<P> {
+   | -------------------------------------- associated items in this implementation
+35 |     pub fn new(claims: UserClaims, permission_service: P) -> Self {
+   |            ^^^
+...
+45 |     pub async fn authorize_action(&self, action: &str, resource: &str) -> Result<(), AuthError> {
+   |                  ^^^^^^^^^^^^^^^^
+
+warning: enum `IntegrityError` is never used
+ --> src\security\emg28.rs:4:10
+  |
+4 | pub enum IntegrityError {
+  |          ^^^^^^^^^^^^^^
+
+warning: struct `ModelHandle` is never constructed
+  --> src\security\emg28.rs:15:12
+   |
+15 | pub struct ModelHandle {
+   |            ^^^^^^^^^^^
+
+warning: trait `AttestationProvider` is never used
+  --> src\security\emg28.rs:22:11
+   |
+22 | pub trait AttestationProvider: Send + Sync {
+   |           ^^^^^^^^^^^^^^^^^^^
+
+warning: trait `KeyManager` is never used
+  --> src\security\emg28.rs:29:11
+   |
+29 | pub trait KeyManager: Send + Sync {
+   |           ^^^^^^^^^^
+
+warning: struct `WeightIntegrityGuard` is never constructed
+  --> src\security\emg28.rs:35:12
+   |
+35 | pub struct WeightIntegrityGuard<A, K>
+   |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `verify_and_load` are never used
+  --> src\security\emg28.rs:49:12
+   |
+44 | / impl<A, K> WeightIntegrityGuard<A, K>
+45 | | where
+46 | |     A: AttestationProvider,
+47 | |     K: KeyManager,
+   | |__________________- associated items in this implementation
+48 |   {
+49 |       pub fn new(attestation_provider: A, key_manager: K) -> Self {
+   |              ^^^
+...
+59 |       pub async fn verify_and_load(&self, model_id: &str) -> Result<ModelHandle, IntegrityError> {
+   |                    ^^^^^^^^^^^^^^^
+
+warning: enum `CrescendoError` is never used
+ --> src\security\emg29.rs:4:10
+  |
+4 | pub enum CrescendoError {
+  |          ^^^^^^^^^^^^^^
+
+warning: struct `InteractionNode` is never constructed
+  --> src\security\emg29.rs:13:12
+   |
+13 | pub struct InteractionNode {
+   |            ^^^^^^^^^^^^^^^
+
+warning: trait `DriftMonitor` is never used
+  --> src\security\emg29.rs:21:11
+   |
+21 | pub trait DriftMonitor: Send + Sync {
+   |           ^^^^^^^^^^^^
+
+warning: struct `CrescendoGuard` is never constructed
+  --> src\security\emg29.rs:26:12
+   |
+26 | pub struct CrescendoGuard<M: DriftMonitor> {
+   |            ^^^^^^^^^^^^^^
+
+warning: associated items `new` and `evaluate_drift` are never used
+  --> src\security\emg29.rs:32:12
+   |
+31 | impl<M: DriftMonitor> CrescendoGuard<M> {
+   | --------------------------------------- associated items in this implementation
+32 |     pub fn new(drift_monitor: M, risk_threshold: f64) -> Self {
+   |            ^^^
+...
+42 |     pub async fn evaluate_drift(&self, session_id: &str, _current_prompt: &str) -> Result<(), CrescendoError> {
+   |                  ^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\security\agent_sentry.rs:6:10
+  |
+6 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: struct `AgentDirective` is never constructed
+  --> src\security\agent_sentry.rs:14:12
+   |
+14 | pub struct AgentDirective {
+   |            ^^^^^^^^^^^^^^
+
+warning: associated function `new` is never used
+  --> src\security\agent_sentry.rs:25:12
+   |
+24 | impl AgentDirective {
+   | ------------------- associated function in this implementation
+25 |     pub fn new(primary_goal: String, constraints: Vec<String>) -> Self {
+   |            ^^^
+
+warning: struct `ZeroTraceOrchestrator` is never constructed
+  --> src\security\agent_sentry.rs:35:12
+   |
+35 | pub struct ZeroTraceOrchestrator {
+   |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `prepare_next_turn`, `broker_agent_message`, and `verify_user_authority` are never 
+used
+  --> src\security\agent_sentry.rs:41:12
+   |
+40 | impl ZeroTraceOrchestrator {
+   | -------------------------- associated items in this implementation
+41 |     pub fn new(session_id: Uuid, user_token: String) -> Self {
+   |            ^^^
+...
+50 |     pub fn prepare_next_turn(&mut self, directive: &mut AgentDirective) -> String {
+   |            ^^^^^^^^^^^^^^^^^
+...
+71 |     pub fn broker_agent_message(&self, sender_id: &str, receiver_id: &str, message: &str) -> Result<(), 
+SecurityError> {
+   |            ^^^^^^^^^^^^^^^^^^^^
+...
+92 |     fn verify_user_authority(&self, agent_id: &str) -> bool {
+   |        ^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `SandboxError` is never used
+ --> src\security\sandbox.rs:4:10
+  |
+4 | pub enum SandboxError {
+  |          ^^^^^^^^^^^^
+
+warning: struct `SkillSandbox` is never constructed
+ --> src\security\sandbox.rs:9:12
+  |
+9 | pub struct SkillSandbox;
+  |            ^^^^^^^^^^^^
+
+warning: associated function `execute_mcp_tool` is never used
+  --> src\security\sandbox.rs:14:12
+   |
+11 | impl SkillSandbox {
+   | ----------------- associated function in this implementation
+...
+14 |     pub fn execute_mcp_tool(tool_path: &str, _args: Vec<String>) -> Result<String, SandboxError> {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: enum `BrokerError` is never used
+ --> src\security\broker.rs:6:10
+  |
+6 | pub enum BrokerError {
+  |          ^^^^^^^^^^^
+
+warning: enum `SecurityWorkflow` is never used
+  --> src\security\broker.rs:16:10
+   |
+16 | pub enum SecurityWorkflow {
+   |          ^^^^^^^^^^^^^^^^
+
+warning: enum `Intent` is never used
+  --> src\security\broker.rs:23:10
+   |
+23 | pub enum Intent {
+   |          ^^^^^^
+
+warning: struct `Gemini3FlashRouter` is never constructed
+  --> src\security\broker.rs:30:12
+   |
+30 | pub struct Gemini3FlashRouter;
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: method `classify_intent` is never used
+  --> src\security\broker.rs:33:18
+   |
+32 | impl Gemini3FlashRouter {
+   | ----------------------- method in this implementation
+33 |     pub async fn classify_intent(&self, prompt: &str) -> Intent {
+   |                  ^^^^^^^^^^^^^^^
+
+warning: trait `DriftCalculator` is never used
+  --> src\security\broker.rs:50:11
+   |
+50 | pub trait DriftCalculator: Send + Sync {
+   |           ^^^^^^^^^^^^^^^
+
+warning: struct `MockNeo4jDriftCalculator` is never constructed
+  --> src\security\broker.rs:54:12
+   |
+54 | pub struct MockNeo4jDriftCalculator;
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `SentryBroker` is never constructed
+  --> src\security\broker.rs:68:12
+   |
+68 | pub struct SentryBroker {
+   |            ^^^^^^^^^^^^
+
+warning: associated items `new`, `process_request`, `run_workflow_a`, `run_workflow_b`, and `run_workflow_c` are never 
+used
+   --> src\security\broker.rs:75:12
+    |
+ 74 | impl SentryBroker {
+    | ----------------- associated items in this implementation
+ 75 |     pub fn new(drift_calculator: Arc<dyn DriftCalculator>) -> Self {
+    |            ^^^
+...
+ 85 |     pub async fn process_request(&self, user_prompt: &str, session_id: &str) -> Result<(String, 
+SecurityWorkflow), BrokerError> {
+    |                  ^^^^^^^^^^^^^^^
+...
+115 |     async fn run_workflow_a(&self, _prompt: &str) -> Result<(String, SecurityWorkflow), BrokerError> {
+    |              ^^^^^^^^^^^^^^
+...
+121 |     async fn run_workflow_b(&self, _prompt: &str, drift: f64) -> Result<(String, SecurityWorkflow), BrokerError> 
+{
+    |              ^^^^^^^^^^^^^^
+...
+127 |     async fn run_workflow_c(&self, _prompt: &str, drift: f64) -> Result<(String, SecurityWorkflow), BrokerError> 
+{
+    |              ^^^^^^^^^^^^^^
+
+warning: enum `McpError` is never used
+ --> src\security\mcp_registry.rs:7:10
+  |
+7 | pub enum McpError {
+  |          ^^^^^^^^
+
+warning: struct `McpRegistry` is never constructed
+  --> src\security\mcp_registry.rs:12:12
+   |
+12 | pub struct McpRegistry {
+   |            ^^^^^^^^^^^
+
+warning: associated items `new` and `verify_and_register` are never used
+  --> src\security\mcp_registry.rs:24:12
+   |
+23 | impl McpRegistry {
+   | ---------------- associated items in this implementation
+24 |     pub fn new() -> Self {
+   |            ^^^
+...
+38 |     pub fn verify_and_register(&self, tool_name: &str, manifest_content: &str) -> Result<(), McpError> {
+   |            ^^^^^^^^^^^^^^^^^^^
+
+warning: enum `MfaError` is never used
+ --> src\security\mfa_guard.rs:5:10
+  |
+5 | pub enum MfaError {
+  |          ^^^^^^^^
+
+warning: struct `MfaGuard` is never constructed
+  --> src\security\mfa_guard.rs:12:12
+   |
+12 | pub struct MfaGuard {
+   |            ^^^^^^^^
+
+warning: associated items `new` and `authorize_high_privilege_action` are never used
+  --> src\security\mfa_guard.rs:17:12
+   |
+16 | impl MfaGuard {
+   | ------------- associated items in this implementation
+17 |     pub fn new(public_key_bytes: [u8; 32]) -> Result<Self, MfaError> {
+   |            ^^^
+...
+24 |     pub fn authorize_high_privilege_action(
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `DriftError` is never used
+ --> src\security\drift_audit.rs:4:10
+  |
+4 | pub enum DriftError {
+  |          ^^^^^^^^^^
+
+warning: struct `LogicDriftAuditor` is never constructed
+ --> src\security\drift_audit.rs:9:12
+  |
+9 | pub struct LogicDriftAuditor {
+  |            ^^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `fetch_current_logic_score`, and `audit_reasoning_trajectory` are never used
+  --> src\security\drift_audit.rs:15:12
+   |
+14 | impl LogicDriftAuditor {
+   | ---------------------- associated items in this implementation
+15 |     pub fn new(baseline: f64, threshold: f64) -> Self {
+   |            ^^^
+...
+23 |     async fn fetch_current_logic_score(&self, session_id: &str) -> f64 {
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+32 |     pub async fn audit_reasoning_trajectory(&self, session_id: &str) -> Result<(), DriftError> {
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `SpeculativeError` is never used
+ --> src\security\speculative_router.rs:6:10
+  |
+6 | pub enum SpeculativeError {
+  |          ^^^^^^^^^^^^^^^^
+
+warning: enum `SecurityPath` is never used
+  --> src\security\speculative_router.rs:12:10
+   |
+12 | pub enum SecurityPath {
+   |          ^^^^^^^^^^^^
+
+warning: enum `MinimalIntent` is never used
+  --> src\security\speculative_router.rs:19:10
+   |
+19 | pub enum MinimalIntent {
+   |          ^^^^^^^^^^^^^
+
+warning: struct `Gemini3Sentry` is never constructed
+  --> src\security\speculative_router.rs:26:12
+   |
+26 | pub struct Gemini3Sentry;
+   |            ^^^^^^^^^^^^^
+
+warning: method `classify_intent_minimal` is never used
+  --> src\security\speculative_router.rs:29:18
+   |
+28 | impl Gemini3Sentry {
+   | ------------------ method in this implementation
+29 |     pub async fn classify_intent_minimal(&self, prompt: &str) -> MinimalIntent {
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `SpeculativeRouter` is never constructed
+  --> src\security\speculative_router.rs:41:12
+   |
+41 | pub struct SpeculativeRouter {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `triage_request` are never used
+  --> src\security\speculative_router.rs:57:12
+   |
+56 | impl SpeculativeRouter {
+   | ---------------------- associated items in this implementation
+57 |     pub fn new() -> Self {
+   |            ^^^
+...
+75 |     pub async fn triage_request(&self, prompt: &str) -> Result<SecurityPath, SpeculativeError> {
+   |                  ^^^^^^^^^^^^^^
+
+warning: enum `MeshError` is never used
+ --> src\security\parallel_mesh.rs:6:10
+  |
+6 | pub enum MeshError {
+  |          ^^^^^^^^^
+
+warning: struct `ParallelMesh` is never constructed
+  --> src\security\parallel_mesh.rs:13:12
+   |
+13 | pub struct ParallelMesh {
+   |            ^^^^^^^^^^^^
+
+warning: associated items `new` and `secure_execute` are never used
+  --> src\security\parallel_mesh.rs:24:12
+   |
+23 | impl ParallelMesh {
+   | ----------------- associated items in this implementation
+24 |     pub fn new() -> Self {
+   |            ^^^
+...
+32 |     pub async fn secure_execute(&self, prompt: &str) -> Result<String, MeshError> {
+   |                  ^^^^^^^^^^^^^^
+
+warning: enum `EntropyError` is never used
+ --> src\security\v36_entropy_tracker.rs:4:10
+  |
+4 | pub enum EntropyError {
+  |          ^^^^^^^^^^^^
+
+warning: struct `EntropyTracker` is never constructed
+ --> src\security\v36_entropy_tracker.rs:9:12
+  |
+9 | pub struct EntropyTracker {
+  |            ^^^^^^^^^^^^^^
+
+warning: associated items `new`, `calculate_cumulative_risk`, and `compute_shannon_entropy` are never used
+  --> src\security\v36_entropy_tracker.rs:20:12
+   |
+19 | impl EntropyTracker {
+   | ------------------- associated items in this implementation
+20 |     pub fn new(threshold: f64) -> Self {
+   |            ^^^
+...
+26 |     pub fn calculate_cumulative_risk(&self, session_outputs: &[String]) -> Result<f64, EntropyError> {
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+44 |     fn compute_shannon_entropy(&self, s: &str) -> f64 {
+   |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `BehavioralError` is never used
+ --> src\security\stateful_baseline.rs:5:10
+  |
+5 | pub enum BehavioralError {
+  |          ^^^^^^^^^^^^^^^
+
+warning: struct `BehavioralGuard` is never constructed
+  --> src\security\stateful_baseline.rs:13:12
+   |
+13 | pub struct BehavioralGuard {
+   |            ^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `verify_agent_stability`, and `mock_get_asi_score` are never used
+  --> src\security\stateful_baseline.rs:24:12
+   |
+23 | impl BehavioralGuard {
+   | -------------------- associated items in this implementation
+24 |     pub fn new(min_stability: f64) -> Self {
+   |            ^^^
+...
+31 |     pub async fn verify_agent_stability(&self, agent_id: &str) -> Result<(), BehavioralError> {
+   |                  ^^^^^^^^^^^^^^^^^^^^^^
+...
+48 |     async fn mock_get_asi_score(&self, agent_id: &str) -> f64 {
+   |              ^^^^^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\security\v39_toxic_guard.rs:5:10
+  |
+5 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: struct `ToxicCombinationGuard` is never constructed
+  --> src\security\v39_toxic_guard.rs:10:12
+   |
+10 | pub struct ToxicCombinationGuard {
+   |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `validate_handoff`, and `contains_executable_intent` are never used
+  --> src\security\v39_toxic_guard.rs:29:12
+   |
+28 | impl ToxicCombinationGuard {
+   | -------------------------- associated items in this implementation
+29 |     pub fn new(registry: HashMap<String, u8>) -> Self {
+   |            ^^^
+...
+35 |     pub fn validate_handoff(&self, sender_id: &str, receiver_id: &str, payload: &str) -> Result<(), 
+SecurityError> {
+   |            ^^^^^^^^^^^^^^^^
+...
+50 |     fn contains_executable_intent(&self, payload: &str) -> bool {
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\security\v40_vibe_scanner.rs:4:10
+  |
+4 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: struct `VibeScanner` is never constructed
+ --> src\security\v40_vibe_scanner.rs:9:12
+  |
+9 | pub struct VibeScanner;
+  |            ^^^^^^^^^^^
+
+warning: methods `scan_ai_generated_code` and `detect_logical_anomaly` are never used
+  --> src\security\v40_vibe_scanner.rs:14:12
+   |
+11 | impl VibeScanner {
+   | ---------------- methods in this implementation
+...
+14 |     pub fn scan_ai_generated_code(&self, code: &str, _language: &str) -> Result<(), SecurityError> {
+   |            ^^^^^^^^^^^^^^^^^^^^^^
+...
+23 |     fn detect_logical_anomaly(&self, code: &str) -> bool {
+   |        ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CfsNormalizer` is never constructed
+ --> src\security\v41_cfs_normalizer.rs:9:12
+  |
+9 | pub struct CfsNormalizer;
+  |            ^^^^^^^^^^^^^
+
+warning: method `normalize_content` is never used
+  --> src\security\v41_cfs_normalizer.rs:14:12
+   |
+11 | impl CfsNormalizer {
+   | ------------------ method in this implementation
+...
+14 |     pub fn normalize_content(&self, input: &str) -> String {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `ProbabilisticRateLimiter` is never constructed
+ --> src\security\v42_rate_limiter.rs:4:12
+  |
+4 | pub struct ProbabilisticRateLimiter {
+  |            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `check_rate_limit`, and `refill` are never used
+  --> src\security\v42_rate_limiter.rs:20:12
+   |
+19 | impl ProbabilisticRateLimiter {
+   | ----------------------------- associated items in this implementation
+20 |     pub fn new(max_tokens: usize, refill_rate: usize) -> Self {
+   |            ^^^
+...
+30 |     pub fn check_rate_limit(&self) -> bool {
+   |            ^^^^^^^^^^^^^^^^
+...
+47 |     fn refill(&self) {
+   |        ^^^^^^
+
+warning: enum `VaultError` is never used
+ --> src\security\transient_vault.rs:5:10
+  |
+5 | pub enum VaultError {
+  |          ^^^^^^^^^^
+
+warning: struct `EphemeralVector` is never constructed
+  --> src\security\transient_vault.rs:15:12
+   |
+15 | pub struct EphemeralVector {
+   |            ^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `as_str` are never used
+  --> src\security\transient_vault.rs:20:12
+   |
+19 | impl EphemeralVector {
+   | -------------------- associated items in this implementation
+20 |     pub fn new(data: Vec<u8>) -> Self {
+   |            ^^^
+...
+24 |     pub fn as_str(&self) -> &str {
+   |            ^^^^^^
+
+warning: struct `TransientVaultClient` is never constructed
+  --> src\security\transient_vault.rs:39:12
+   |
+39 | pub struct TransientVaultClient {
+   |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `fetch_and_detonate`, `verify_sandbox_attestation`, `request_blob`, and 
+`decrypt_in_memory` are never used
+  --> src\security\transient_vault.rs:56:12
+   |
+55 | impl TransientVaultClient {
+   | ------------------------- associated items in this implementation
+56 |     pub fn new(api: &str, token: &str) -> Self {
+   |            ^^^
+...
+65 |     pub async fn fetch_and_detonate(&self, vector_id: &str) -> Result<EphemeralVector, VaultError> {
+   |                  ^^^^^^^^^^^^^^^^^^
+...
+81 |     fn verify_sandbox_attestation(&self) -> Result<(), VaultError> {
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+89 |     async fn request_blob(&self, _vector_id: &str) -> Result<Vec<u8>, VaultError> {
+   |              ^^^^^^^^^^^^
+...
+98 |     fn decrypt_in_memory(&self, _blob: Vec<u8>) -> Result<EphemeralVector, VaultError> {
+   |        ^^^^^^^^^^^^^^^^^
+
+warning: struct `ToolAction` is never constructed
+ --> src\security\cognitive_monitor.rs:4:12
+  |
+4 | pub struct ToolAction {
+  |            ^^^^^^^^^^
+
+warning: struct `CognitiveGuard` is never constructed
+ --> src\security\cognitive_monitor.rs:9:12
+  |
+9 | pub struct CognitiveGuard {
+  |            ^^^^^^^^^^^^^^
+
+warning: associated items `new`, `monitor_tool_synergy`, `calculate_combination_risk`, and `freeze_agent_state` are 
+never used
+  --> src\security\cognitive_monitor.rs:22:12
+   |
+21 | impl CognitiveGuard {
+   | ------------------- associated items in this implementation
+22 |     pub fn new(threshold: f64) -> Self {
+   |            ^^^
+...
+29 |     pub async fn monitor_tool_synergy(&self, agent_id: &str, tool_actions: &[ToolAction]) -> Result<(), String> {
+   |                  ^^^^^^^^^^^^^^^^^^^^
+...
+47 |     fn calculate_combination_risk(&self, actions: &[ToolAction]) -> f64 {
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+79 |     async fn freeze_agent_state(&self, agent_id: &str) {
+   |              ^^^^^^^^^^^^^^^^^^
+
+warning: struct `AuditEntry` is never constructed
+ --> src\security\immutable_audit.rs:5:12
+  |
+5 | pub struct AuditEntry {
+  |            ^^^^^^^^^^
+
+warning: struct `WormLedger` is never constructed
+  --> src\security\immutable_audit.rs:19:12
+   |
+19 | pub struct WormLedger;
+   |            ^^^^^^^^^^
+
+warning: associated functions `create_entry` and `commit` are never used
+  --> src\security\immutable_audit.rs:22:12
+   |
+21 | impl WormLedger {
+   | --------------- associated functions in this implementation
+22 |     pub fn create_entry(vector_id: &str, payload: &[u8], result: &str) -> AuditEntry {
+   |            ^^^^^^^^^^^^
+...
+35 |     pub fn commit(entry: &AuditEntry) {
+   |            ^^^^^^
+
+warning: struct `SentryBroker` is never constructed
+ --> src\security\speculative_mesh.rs:6:12
+  |
+6 | pub struct SentryBroker;
+  |            ^^^^^^^^^^^^
+
+warning: method `triage_intent` is never used
+ --> src\security\speculative_mesh.rs:8:18
+  |
+7 | impl SentryBroker {
+  | ----------------- method in this implementation
+8 |     pub async fn triage_intent(&self, _prompt: &str) -> Result<(), String> {
+  |                  ^^^^^^^^^^^^^
+
+warning: struct `Neo4jGuard` is never constructed
+  --> src\security\speculative_mesh.rs:15:12
+   |
+15 | pub struct Neo4jGuard;
+   |            ^^^^^^^^^^
+
+warning: method `check_drift` is never used
+  --> src\security\speculative_mesh.rs:17:18
+   |
+16 | impl Neo4jGuard {
+   | --------------- method in this implementation
+17 |     pub async fn check_drift(&self) -> Result<(), String> {
+   |                  ^^^^^^^^^^^
+
+warning: struct `StaticScrubber` is never constructed
+  --> src\security\speculative_mesh.rs:24:12
+   |
+24 | pub struct StaticScrubber;
+   |            ^^^^^^^^^^^^^^
+
+warning: methods `scan` and `scrub_token` are never used
+  --> src\security\speculative_mesh.rs:26:18
+   |
+25 | impl StaticScrubber {
+   | ------------------- methods in this implementation
+26 |     pub async fn scan(&self, _prompt: &str) -> Result<(), String> {
+   |                  ^^^^
+...
+32 |     pub fn scrub_token(&self, token: String) -> String {
+   |            ^^^^^^^^^^^
+
+warning: struct `LLMEngine` is never constructed
+  --> src\security\speculative_mesh.rs:38:12
+   |
+38 | pub struct LLMEngine;
+   |            ^^^^^^^^^
+
+warning: method `stream_inference` is never used
+  --> src\security\speculative_mesh.rs:40:18
+   |
+39 | impl LLMEngine {
+   | -------------- method in this implementation
+40 |     pub async fn stream_inference(&self, _prompt: &str) -> Result<std::pin::Pin<Box<dyn futures::Stream<Item = 
+String> + Send>>, String> {
+   |                  ^^^^^^^^^^^^^^^^
+
+warning: struct `SpeculativeMesh` is never constructed
+  --> src\security\speculative_mesh.rs:61:12
+   |
+61 | pub struct SpeculativeMesh {
+   |            ^^^^^^^^^^^^^^^
+
+warning: method `execute_protected_stream` is never used
+  --> src\security\speculative_mesh.rs:80:18
+   |
+79 | impl SpeculativeMesh {
+   | -------------------- method in this implementation
+80 |     pub async fn execute_protected_stream(
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `SpectralMonitor` is never constructed
+ --> src\security\v43_spectral_monitor.rs:8:12
+  |
+8 | pub struct SpectralMonitor {
+  |            ^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `is_anomalous` are never used
+  --> src\security\v43_spectral_monitor.rs:13:12
+   |
+12 | impl SpectralMonitor {
+   | -------------------- associated items in this implementation
+13 |     pub fn new(threshold: f64) -> Self {
+   |            ^^^
+...
+18 |     pub fn is_anomalous(&self, activation_magnitude: f64) -> bool {
+   |            ^^^^^^^^^^^^
+
+warning: struct `McpAuditor` is never constructed
+ --> src\security\v44_mcp_auditor.rs:8:12
+  |
+8 | pub struct McpAuditor {
+  |            ^^^^^^^^^^
+
+warning: associated items `new`, `load_baseline`, `verify_tool_integrity`, and `hash_description` are never used
+  --> src\security\v44_mcp_auditor.rs:14:12
+   |
+13 | impl McpAuditor {
+   | --------------- associated items in this implementation
+14 |     pub fn new() -> Self {
+   |            ^^^
+...
+21 |     pub fn load_baseline(&mut self, tool_id: &str, description: &str) {
+   |            ^^^^^^^^^^^^^
+...
+28 |     pub fn verify_tool_integrity(&self, tool_id: &str, current_desc: &str) -> bool {
+   |            ^^^^^^^^^^^^^^^^^^^^^
+...
+38 |     fn hash_description(desc: &str) -> String {
+   |        ^^^^^^^^^^^^^^^^
+
+warning: struct `UnicodeSanitizer` is never constructed
+ --> src\security\v45_unicode_sanitizer.rs:5:12
+  |
+5 | pub struct UnicodeSanitizer;
+  |            ^^^^^^^^^^^^^^^^
+
+warning: associated functions `sanitize`, `is_covert_tag`, and `is_invisible_formatting` are never used
+  --> src\security\v45_unicode_sanitizer.rs:9:12
+   |
+ 7 | impl UnicodeSanitizer {
+   | --------------------- associated functions in this implementation
+ 8 |     /// Strips covert channels (Tag Characters U+E0000 - U+E007F) and other invisible ranges.
+ 9 |     pub fn sanitize(input: &str) -> String {
+   |            ^^^^^^^^
+...
+16 |     fn is_covert_tag(c: char) -> bool {
+   |        ^^^^^^^^^^^^^
+...
+21 |     fn is_invisible_formatting(c: char) -> bool {
+   |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `RagSanitizer` is never constructed
+ --> src\security\v47_rag_poisoning.rs:5:12
+  |
+5 | pub struct RagSanitizer;
+  |            ^^^^^^^^^^^^
+
+warning: associated function `scrub_document` is never used
+  --> src\security\v47_rag_poisoning.rs:10:12
+   |
+ 7 | impl RagSanitizer {
+   | ----------------- associated function in this implementation
+...
+10 |     pub fn scrub_document(content: &str) -> String {
+   |            ^^^^^^^^^^^^^^
+
+warning: struct `SalienceFlattener` is never constructed
+ --> src\security\v48_linguistic_flattening.rs:5:12
+  |
+5 | pub struct SalienceFlattener;
+  |            ^^^^^^^^^^^^^^^^^
+
+warning: associated function `flatten` is never used
+ --> src\security\v48_linguistic_flattening.rs:9:12
+  |
+7 | impl SalienceFlattener {
+  | ---------------------- associated function in this implementation
+8 |     /// Removes formatting that artificially inflates the importance of a command.
+9 |     pub fn flatten(input: &str) -> String {
+  |            ^^^^^^^
+
+warning: struct `NihTokenManager` is never constructed
+ --> src\security\v49_nhi_rotation.rs:7:12
+  |
+7 | pub struct NihTokenManager {
+  |            ^^^^^^^^^^^^^^^
+
+warning: enum `TokenStatus` is never used
+  --> src\security\v49_nhi_rotation.rs:12:10
+   |
+12 | pub enum TokenStatus {
+   |          ^^^^^^^^^^^
+
+warning: associated items `new`, `generate_token`, and `validate_token` are never used
+  --> src\security\v49_nhi_rotation.rs:19:12
+   |
+18 | impl NihTokenManager {
+   | -------------------- associated items in this implementation
+19 |     pub fn new(vm_id: &str) -> Self {
+   |            ^^^
+...
+27 |     pub fn generate_token(&self) -> String {
+   |            ^^^^^^^^^^^^^^
+...
+33 |     pub fn validate_token(&self, token: &str) -> TokenStatus {
+   |            ^^^^^^^^^^^^^^
+
+warning: struct `AstAuditor` is never constructed
+ --> src\security\v50_ast_auditor.rs:5:12
+  |
+5 | pub struct AstAuditor;
+  |            ^^^^^^^^^^
+
+warning: associated function `audit_script` is never used
+ --> src\security\v50_ast_auditor.rs:9:12
+  |
+7 | impl AstAuditor {
+  | --------------- associated function in this implementation
+8 |     /// Scans a script (simulated AST analysis) for forbidden operations.
+9 |     pub fn audit_script(script_content: &str) -> Result<(), String> {
+  |            ^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\security\v51_sampling_quota.rs:9:10
+  |
+9 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: struct `SamplingGuard` is never constructed
+  --> src\security\v51_sampling_quota.rs:13:12
+   |
+13 | pub struct SamplingGuard {
+   |            ^^^^^^^^^^^^^
+
+warning: associated items `new` and `check_and_record` are never used
+  --> src\security\v51_sampling_quota.rs:19:12
+   |
+18 | impl SamplingGuard {
+   | ------------------ associated items in this implementation
+19 |     pub fn new(limit: usize) -> Self {
+   |            ^^^
+...
+26 |     pub fn check_and_record(&self, requested_tokens: usize) -> Result<(), SecurityError> {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: struct `NamespaceRegistry` is never constructed
+ --> src\security\v52_namespace_pinning.rs:7:12
+  |
+7 | pub struct NamespaceRegistry {
+  |            ^^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `register_tool`, and `validate_tool_call` are never used
+  --> src\security\v52_namespace_pinning.rs:13:12
+   |
+12 | impl NamespaceRegistry {
+   | ---------------------- associated items in this implementation
+13 |     pub fn new() -> Self {
+   |            ^^^
+...
+19 |     pub fn register_tool(&mut self, namespace: &str, tool: &str, expected_hash: &str) {
+   |            ^^^^^^^^^^^^^
+...
+24 |     pub fn validate_tool_call(&self, namespace: &str, tool: &str, provided_hash: &str) -> bool {
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `AuthResult` is never constructed
+ --> src\security\v53_biometric_liveness.rs:6:12
+  |
+6 | pub struct AuthResult {
+  |            ^^^^^^^^^^
+
+warning: enum `BiometricError` is never used
+  --> src\security\v53_biometric_liveness.rs:12:10
+   |
+12 | pub enum BiometricError {
+   |          ^^^^^^^^^^^^^^
+
+warning: struct `LivenessVerifier` is never constructed
+  --> src\security\v53_biometric_liveness.rs:17:12
+   |
+17 | pub struct LivenessVerifier {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `verify_liveness` are never used
+  --> src\security\v53_biometric_liveness.rs:22:12
+   |
+21 | impl LivenessVerifier {
+   | --------------------- associated items in this implementation
+22 |     pub fn new(trusted_guids: Vec<String>) -> Self {
+   |            ^^^
+...
+28 |     pub fn verify_liveness(&self, result: &AuthResult) -> Result<(), BiometricError> {
+   |            ^^^^^^^^^^^^^^^
+
+warning: struct `NhiToken` is never constructed
+ --> src\security\v54_nhi_lifecycle.rs:7:12
+  |
+7 | pub struct NhiToken {
+  |            ^^^^^^^^
+
+warning: enum `TokenState` is never used
+  --> src\security\v54_nhi_lifecycle.rs:14:10
+   |
+14 | pub enum TokenState {
+   |          ^^^^^^^^^^
+
+warning: associated items `new` and `check_status` are never used
+  --> src\security\v54_nhi_lifecycle.rs:20:12
+   |
+19 | impl NhiToken {
+   | ------------- associated items in this implementation
+20 |     pub fn new(id: &str, last_attested: DateTime<Utc>, ttl_days: i64) -> Self {
+   |            ^^^
+...
+28 |     pub fn check_status(&self) -> TokenState {
+   |            ^^^^^^^^^^^^
+
+warning: function `init_json_logging` is never used
+  --> src\interceptor\detect.rs:41:8
+   |
+41 | pub fn init_json_logging() {
+   |        ^^^^^^^^^^^^^^^^^
+
+warning: struct `ProtectedDomain` is never constructed
+  --> src\interceptor\detect.rs:52:12
+   |
+52 | pub struct ProtectedDomain(String);
+   |            ^^^^^^^^^^^^^^^
+
+warning: method `as_str` is never used
+  --> src\interceptor\detect.rs:55:12
+   |
+54 | impl ProtectedDomain {
+   | -------------------- method in this implementation
+55 |     pub fn as_str(&self) -> &str {
+   |            ^^^^^^
+
+warning: struct `TyposquatPolicy` is never constructed
+  --> src\interceptor\detect.rs:66:12
+   |
+66 | pub struct TyposquatPolicy {
+   |            ^^^^^^^^^^^^^^^
+
+warning: struct `Finding` is never constructed
+  --> src\interceptor\detect.rs:97:12
+   |
+97 | pub struct Finding {
+   |            ^^^^^^^
+
+warning: enum `FindingKind` is never used
+   --> src\interceptor\detect.rs:109:10
+    |
+109 | pub enum FindingKind {
+    |          ^^^^^^^^^^^
+
+warning: enum `ScanError` is never used
+   --> src\interceptor\detect.rs:119:10
+    |
+119 | pub enum ScanError {
+    |          ^^^^^^^^^
+
+warning: struct `ProtectedEntry` is never constructed
+   --> src\interceptor\detect.rs:132:8
+    |
+132 | struct ProtectedEntry {
+    |        ^^^^^^^^^^^^^^
+
+warning: struct `TyposquatEngine` is never constructed
+   --> src\interceptor\detect.rs:144:12
+    |
+144 | pub struct TyposquatEngine {
+    |            ^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `scan_text`, `is_typosquat`, `is_authorized`, and `check_candidate_against_protected` 
+are never used
+   --> src\interceptor\detect.rs:157:12
+    |
+151 | impl TyposquatEngine {
+    | -------------------- associated items in this implementation
+...
+157 |     pub fn new(
+    |            ^^^
+...
+205 |     pub fn scan_text(&self, input: &str) -> Result<Vec<Finding>, ScanError> {
+    |            ^^^^^^^^^
+...
+291 |     pub fn is_typosquat(&self, input: &str) -> Result<bool, ScanError> {
+    |            ^^^^^^^^^^^^
+...
+300 |     fn is_authorized(&self, candidate: &str) -> bool {
+    |        ^^^^^^^^^^^^^
+...
+307 |     fn check_candidate_against_protected(&self, candidate_base: &str) -> Vec<ProtectedMatch> {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ProtectedMatch` is never constructed
+   --> src\interceptor\detect.rs:351:8
+    |
+351 | struct ProtectedMatch {
+    |        ^^^^^^^^^^^^^^
+
+warning: function `scan_for_anomalies` is never used
+   --> src\interceptor\detect.rs:362:8
+    |
+362 | pub fn scan_for_anomalies(input: &str) -> Vec<String> {
+    |        ^^^^^^^^^^^^^^^^^^
+
+warning: function `validate_policy` is never used
+   --> src\interceptor\detect.rs:424:4
+    |
+424 | fn validate_policy(policy: &TyposquatPolicy) -> Result<(), ScanError> {
+    |    ^^^^^^^^^^^^^^^
+
+warning: function `extract_domain_candidates` is never used
+   --> src\interceptor\detect.rs:442:4
+    |
+442 | fn extract_domain_candidates(input: &str, max: usize) -> Vec<DomainCandidate> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DomainCandidate` is never constructed
+   --> src\interceptor\detect.rs:483:8
+    |
+483 | struct DomainCandidate {
+    |        ^^^^^^^^^^^^^^^
+
+warning: function `normalize_domain_candidate` is never used
+   --> src\interceptor\detect.rs:496:4
+    |
+496 | fn normalize_domain_candidate(raw: &str) -> Option<String> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `base_domain_heuristic` is never used
+   --> src\interceptor\detect.rs:562:4
+    |
+562 | fn base_domain_heuristic(domain: &str) -> String {
+    |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `has_mixed_script_label` is never used
+   --> src\interceptor\detect.rs:576:4
+    |
+576 | fn has_mixed_script_label(domain_ascii_or_unicode: &str) -> bool {
+    |    ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `looks_like_domain` is never used
+   --> src\interceptor\detect.rs:600:4
+    |
+600 | fn looks_like_domain(token: &str) -> bool {
+    |    ^^^^^^^^^^^^^^^^^
+
+warning: function `extract_host_from_url` is never used
+   --> src\interceptor\detect.rs:608:4
+    |
+608 | fn extract_host_from_url(token: &str) -> Option<String> {
+    |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `extract_host_from_email` is never used
+   --> src\interceptor\detect.rs:622:4
+    |
+622 | fn extract_host_from_email(token: &str) -> Option<String> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `trim_wrapping_punct` is never used
+   --> src\interceptor\detect.rs:634:4
+    |
+634 | fn trim_wrapping_punct(s: &str) -> &str {
+    |    ^^^^^^^^^^^^^^^^^^^
+
+warning: function `contains_case_insensitive` is never used
+   --> src\interceptor\detect.rs:644:4
+    |
+644 | fn contains_case_insensitive(haystack: &str, needle: &str) -> bool {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `hash_for_logs` is never used
+   --> src\interceptor\detect.rs:656:4
+    |
+656 | fn hash_for_logs(input: &str) -> String {
+    |    ^^^^^^^^^^^^^
+
+warning: function `dedup_findings` is never used
+   --> src\interceptor\detect.rs:661:4
+    |
+661 | fn dedup_findings(mut findings: Vec<Finding>) -> Vec<Finding> {
+    |    ^^^^^^^^^^^^^^
+
+warning: function `safe_snip` is never used
+   --> src\interceptor\detect.rs:686:4
+    |
+686 | fn safe_snip(s: &str) -> String {
+    |    ^^^^^^^^^
+
+warning: struct `PiiSanitizer` is never constructed
+  --> src\interceptor\sanitize.rs:16:12
+   |
+16 | pub struct PiiSanitizer {
+   |            ^^^^^^^^^^^^
+
+warning: associated items `new`, `redact`, `collect_matches`, and `rehydrate` are never used
+  --> src\interceptor\sanitize.rs:21:12
+   |
+20 | impl PiiSanitizer {
+   | ----------------- associated items in this implementation
+21 |     pub fn new(redis: Arc<RedisClient>) -> Self {
+   |            ^^^
+...
+27 |     pub async fn redact(&self, input: &str) -> String {
+   |                  ^^^^^^
+...
+63 |     fn collect_matches(&self, re: &Regex, text: &str, pii_type: &str, acc: &mut Vec<(String, String)>) {
+   |        ^^^^^^^^^^^^^^^
+...
+73 |     pub async fn rehydrate(&self, input: &str) -> String {
+   |                  ^^^^^^^^^
+
+warning: function `calculate_shannon_entropy` is never used
+ --> src\interceptor\entropy.rs:5:8
+  |
+5 | pub fn calculate_shannon_entropy(s: &str) -> f64 {
+  |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `scan_for_secrets` is never used
+  --> src\interceptor\entropy.rs:21:8
+   |
+21 | pub fn scan_for_secrets(input: &str) -> Vec<String> {
+   |        ^^^^^^^^^^^^^^^^
+
+warning: constant `DEFAULT_CANARY_PREFIX` is never used
+ --> src\interceptor\canary.rs:4:11
+  |
+4 | pub const DEFAULT_CANARY_PREFIX: &str = "ZT-CANARY";
+  |           ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `generate_canary` is never used
+ --> src\interceptor\canary.rs:7:8
+  |
+7 | pub fn generate_canary() -> String {
+  |        ^^^^^^^^^^^^^^^
+
+warning: function `generate_canary_with_prefix` is never used
+  --> src\interceptor\canary.rs:14:8
+   |
+14 | pub fn generate_canary_with_prefix(prefix: &str) -> String {
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `CanaryHit` is never constructed
+  --> src\interceptor\canary.rs:20:12
+   |
+20 | pub struct CanaryHit<'a> {
+   |            ^^^^^^^^^
+
+warning: function `check_for_exfiltration` is never used
+  --> src\interceptor\canary.rs:31:8
+   |
+31 | pub fn check_for_exfiltration<'a, T>(
+   |        ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `MAX_PROMPT_BYTES` is never used
+  --> src\interceptor\cognitive.rs:25:7
+   |
+25 | const MAX_PROMPT_BYTES: usize = 16 * 1024; // 16 KiB
+   |       ^^^^^^^^^^^^^^^^
+
+warning: constant `MAX_REASONING_CHARS` is never used
+  --> src\interceptor\cognitive.rs:26:7
+   |
+26 | const MAX_REASONING_CHARS: usize = 2_000;
+   |       ^^^^^^^^^^^^^^^^^^^
+
+warning: constant `MAX_INTENT_CHARS` is never used
+  --> src\interceptor\cognitive.rs:27:7
+   |
+27 | const MAX_INTENT_CHARS: usize = 64;
+   |       ^^^^^^^^^^^^^^^^
+
+warning: constant `MAX_LOG_BODY_BYTES` is never used
+  --> src\interceptor\cognitive.rs:28:7
+   |
+28 | const MAX_LOG_BODY_BYTES: usize = 4 * 1024;
+   |       ^^^^^^^^^^^^^^^^^^
+
+warning: static `REQ_COUNTER` is never used
+  --> src\interceptor\cognitive.rs:30:8
+   |
+30 | static REQ_COUNTER: AtomicU64 = AtomicU64::new(1);
+   |        ^^^^^^^^^^^
+
+warning: enum `FailureMode` is never used
+  --> src\interceptor\cognitive.rs:36:10
+   |
+36 | pub enum FailureMode {
+   |          ^^^^^^^^^^^
+
+warning: struct `GeminiConfig` is never constructed
+  --> src\interceptor\cognitive.rs:56:12
+   |
+56 | pub struct GeminiConfig {
+   |            ^^^^^^^^^^^^
+
+warning: associated function `from_env` is never used
+  --> src\interceptor\cognitive.rs:70:12
+   |
+64 | impl GeminiConfig {
+   | ----------------- associated function in this implementation
+...
+70 |     pub fn from_env() -> Result<Self, IntentError> {
+   |            ^^^^^^^^
+
+warning: struct `SecretString` is never constructed
+  --> src\interceptor\cognitive.rs:93:12
+   |
+93 | pub struct SecretString(String);
+   |            ^^^^^^^^^^^^
+
+warning: associated items `new` and `expose` are never used
+  --> src\interceptor\cognitive.rs:96:12
+   |
+95 | impl SecretString {
+   | ----------------- associated items in this implementation
+96 |     pub fn new(s: String) -> Self {
+   |            ^^^
+...
+99 |     pub fn expose(&self) -> &str {
+   |            ^^^^^^
+
+warning: struct `ThreatAssessment` is never constructed
+   --> src\interceptor\cognitive.rs:117:12
+    |
+117 | pub struct ThreatAssessment {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: associated items `fallback` and `validate_and_normalize` are never used
+   --> src\interceptor\cognitive.rs:128:12
+    |
+125 | impl ThreatAssessment {
+    | --------------------- associated items in this implementation
+...
+128 |     pub fn fallback(reason: impl Into<String>) -> Self {
+    |            ^^^^^^^^
+...
+142 |     pub fn validate_and_normalize(mut self) -> Result<Self, ValidationError> {
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `IntentError` is never used
+   --> src\interceptor\cognitive.rs:171:10
+    |
+171 | pub enum IntentError {
+    |          ^^^^^^^^^^^
+
+warning: enum `ValidationError` is never used
+   --> src\interceptor\cognitive.rs:195:10
+    |
+195 | pub enum ValidationError {
+    |          ^^^^^^^^^^^^^^^
+
+warning: struct `GeminiThreatAnalyzer` is never constructed
+   --> src\interceptor\cognitive.rs:225:12
+    |
+225 | pub struct GeminiThreatAnalyzer {
+    |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `analyze_intent`, and `handle_failure` are never used
+   --> src\interceptor\cognitive.rs:231:12
+    |
+230 | impl GeminiThreatAnalyzer {
+    | ------------------------- associated items in this implementation
+231 |     pub fn new(cfg: GeminiConfig) -> Result<Self, IntentError> {
+    |            ^^^
+...
+251 |     pub async fn analyze_intent(&self, prompt: &str) -> Result<ThreatAssessment, IntentError> {
+    |                  ^^^^^^^^^^^^^^
+...
+365 |     fn handle_failure<T>(&self, err: IntentError) -> Result<T, IntentError> {
+    |        ^^^^^^^^^^^^^^
+
+warning: function `parse_gemini_response_body` is never used
+   --> src\interceptor\cognitive.rs:377:8
+    |
+377 | pub fn parse_gemini_response_body(body: &str) -> Result<ThreatAssessment, IntentError> {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `GenerateContentRequest` is never constructed
+   --> src\interceptor\cognitive.rs:390:8
+    |
+390 | struct GenerateContentRequest<'a> {
+    |        ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Content` is never constructed
+   --> src\interceptor\cognitive.rs:400:8
+    |
+400 | struct Content<'a> {
+    |        ^^^^^^^
+
+warning: struct `Part` is never constructed
+   --> src\interceptor\cognitive.rs:408:8
+    |
+408 | struct Part<'a> {
+    |        ^^^^
+
+warning: struct `GenerationConfig` is never constructed
+   --> src\interceptor\cognitive.rs:414:8
+    |
+414 | struct GenerationConfig {
+    |        ^^^^^^^^^^^^^^^^
+
+warning: function `build_generate_content_request` is never used
+   --> src\interceptor\cognitive.rs:426:4
+    |
+426 | fn build_generate_content_request(prompt: &str) -> GenerateContentRequest<'_> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `threat_schema` is never used
+   --> src\interceptor\cognitive.rs:453:4
+    |
+453 | fn threat_schema() -> Value {
+    |    ^^^^^^^^^^^^^
+
+warning: function `quick_assess` is never used
+   --> src\interceptor\cognitive.rs:469:8
+    |
+469 | pub fn quick_assess(prompt: &str) -> Option<ThreatAssessment> {
+    |        ^^^^^^^^^^^^
+
+warning: struct `GeminiResponse` is never constructed
+   --> src\interceptor\cognitive.rs:513:8
+    |
+513 | struct GeminiResponse {
+    |        ^^^^^^^^^^^^^^
+
+warning: struct `Candidate` is never constructed
+   --> src\interceptor\cognitive.rs:519:8
+    |
+519 | struct Candidate {
+    |        ^^^^^^^^^
+
+warning: struct `ResponseContent` is never constructed
+   --> src\interceptor\cognitive.rs:524:8
+    |
+524 | struct ResponseContent {
+    |        ^^^^^^^^^^^^^^^
+
+warning: struct `ResponsePart` is never constructed
+   --> src\interceptor\cognitive.rs:530:8
+    |
+530 | struct ResponsePart {
+    |        ^^^^^^^^^^^^
+
+warning: function `extract_candidate_text` is never used
+   --> src\interceptor\cognitive.rs:535:4
+    |
+535 | fn extract_candidate_text(resp: &GeminiResponse) -> Option<String> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `clean_model_json` is never used
+   --> src\interceptor\cognitive.rs:546:4
+    |
+546 | fn clean_model_json(text: &str) -> String {
+    |    ^^^^^^^^^^^^^^^^
+
+warning: function `validate_prompt` is never used
+   --> src\interceptor\cognitive.rs:568:4
+    |
+568 | fn validate_prompt(prompt: &str) -> Result<(), IntentError> {
+    |    ^^^^^^^^^^^^^^^
+
+warning: function `validate_model_name` is never used
+   --> src\interceptor\cognitive.rs:588:4
+    |
+588 | fn validate_model_name(model: &str) -> Result<(), IntentError> {
+    |    ^^^^^^^^^^^^^^^^^^^
+
+warning: function `sanitize_text` is never used
+   --> src\interceptor\cognitive.rs:601:4
+    |
+601 | fn sanitize_text(s: String, max_chars: usize) -> Option<String> {
+    |    ^^^^^^^^^^^^^
+
+warning: function `normalize_intent` is never used
+   --> src\interceptor\cognitive.rs:613:4
+    |
+613 | fn normalize_intent(intent: String) -> Result<String, ValidationError> {
+    |    ^^^^^^^^^^^^^^^^
+
+warning: function `truncate_chars` is never used
+   --> src\interceptor\cognitive.rs:638:4
+    |
+638 | fn truncate_chars(mut s: String, max_chars: usize) -> String {
+    |    ^^^^^^^^^^^^^^
+
+warning: function `truncate_bytes` is never used
+   --> src\interceptor\cognitive.rs:646:4
+    |
+646 | fn truncate_bytes(s: String, max_bytes: usize) -> String {
+    |    ^^^^^^^^^^^^^^
+
+warning: function `contains_disallowed_control_chars` is never used
+   --> src\interceptor\cognitive.rs:656:4
+    |
+656 | fn contains_disallowed_control_chars(s: &str) -> bool {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `looks_like_base64_blob` is never used
+   --> src\interceptor\cognitive.rs:663:4
+    |
+663 | fn looks_like_base64_blob(s: &str) -> bool {
+    |    ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `next_request_id` is never used
+   --> src\interceptor\cognitive.rs:681:4
+    |
+681 | fn next_request_id() -> u64 {
+    |    ^^^^^^^^^^^^^^^
+
+warning: enum `RuleState` is never used
+ --> src\interceptor\immunizer.rs:5:10
+  |
+5 | pub enum RuleState {
+  |          ^^^^^^^^^
+
+warning: struct `ImmunizationRule` is never constructed
+  --> src\interceptor\immunizer.rs:11:12
+   |
+11 | pub struct ImmunizationRule {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: function `generate_rule_from_research` is never used
+  --> src\interceptor\immunizer.rs:23:14
+   |
+23 | pub async fn generate_rule_from_research(threat_type: &str, result: DeepResearchResult) -> 
+Option<ImmunizationRule> {
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `deploy_rule` is never used
+  --> src\interceptor\immunizer.rs:43:14
+   |
+43 | pub async fn deploy_rule(rule: ImmunizationRule) {
+   |              ^^^^^^^^^^^
+
+warning: function `push_to_global_feed` is never used
+  --> src\interceptor\immunizer.rs:55:10
+   |
+55 | async fn push_to_global_feed(rule: &ImmunizationRule) {
+   |          ^^^^^^^^^^^^^^^^^^^
+
+warning: static `REQ_ID` is never used
+  --> src\interceptor\deep_research.rs:37:8
+   |
+37 | static REQ_ID: AtomicU64 = AtomicU64::new(1);
+   |        ^^^^^^
+
+warning: constant `DEFAULT_MAX_SIGNATURE_BYTES` is never used
+  --> src\interceptor\deep_research.rs:39:7
+   |
+39 | const DEFAULT_MAX_SIGNATURE_BYTES: usize = 512;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `DEFAULT_MAX_CONTEXT_BYTES` is never used
+  --> src\interceptor\deep_research.rs:40:7
+   |
+40 | const DEFAULT_MAX_CONTEXT_BYTES: usize = 32 * 1024; // 32 KiB
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `DEFAULT_MAX_ANALYSIS_CHARS` is never used
+  --> src\interceptor\deep_research.rs:41:7
+   |
+41 | const DEFAULT_MAX_ANALYSIS_CHARS: usize = 8 * 1024;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `DEFAULT_MAX_RULE_PATTERN_CHARS` is never used
+  --> src\interceptor\deep_research.rs:42:7
+   |
+42 | const DEFAULT_MAX_RULE_PATTERN_CHARS: usize = 512;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `FailureMode` is never used
+  --> src\interceptor\deep_research.rs:46:10
+   |
+46 | pub enum FailureMode {
+   |          ^^^^^^^^^^^
+
+warning: struct `DeepResearchConfig` is never constructed
+  --> src\interceptor\deep_research.rs:65:12
+   |
+65 | pub struct DeepResearchConfig {
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: method `validate` is never used
+  --> src\interceptor\deep_research.rs:89:12
+   |
+88 | impl DeepResearchConfig {
+   | ----------------------- method in this implementation
+89 |     pub fn validate(&self) -> Result<(), DeepResearchError> {
+   |            ^^^^^^^^
+
+warning: struct `DeepResearchRequest` is never constructed
+   --> src\interceptor\deep_research.rs:116:12
+    |
+116 | pub struct DeepResearchRequest {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: associated function `new` is never used
+   --> src\interceptor\deep_research.rs:127:12
+    |
+121 | impl DeepResearchRequest {
+    | ------------------------ associated function in this implementation
+...
+127 |     pub fn new(
+    |            ^^^
+
+warning: struct `DeepResearchResult` is never constructed
+   --> src\interceptor\deep_research.rs:144:12
+    |
+144 | pub struct DeepResearchResult {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: associated items `fallback` and `validate_and_normalize` are never used
+   --> src\interceptor\deep_research.rs:157:12
+    |
+152 | impl DeepResearchResult {
+    | ----------------------- associated items in this implementation
+...
+157 |     pub fn fallback(reason: impl Into<String>) -> Self {
+    |            ^^^^^^^^
+...
+172 |     pub fn validate_and_normalize(
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: trait `DeepResearchBackend` is never used
+   --> src\interceptor\deep_research.rs:220:11
+    |
+220 | pub trait DeepResearchBackend: Send + Sync + 'static {
+    |           ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BackendError` is never constructed
+   --> src\interceptor\deep_research.rs:227:12
+    |
+227 | pub struct BackendError {
+    |            ^^^^^^^^^^^^
+
+warning: associated functions `new` and `without_source` are never used
+   --> src\interceptor\deep_research.rs:233:12
+    |
+232 | impl BackendError {
+    | ----------------- associated functions in this implementation
+233 |     pub fn new<E>(e: E) -> Self
+    |            ^^^
+...
+242 |     pub fn without_source() -> Self {
+    |            ^^^^^^^^^^^^^^
+
+warning: enum `DeepResearchError` is never used
+   --> src\interceptor\deep_research.rs:249:10
+    |
+249 | pub enum DeepResearchError {
+    |          ^^^^^^^^^^^^^^^^^
+
+warning: enum `OutputValidationError` is never used
+   --> src\interceptor\deep_research.rs:264:10
+    |
+264 | pub enum OutputValidationError {
+    |          ^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `DeepResearchService` is never constructed
+   --> src\interceptor\deep_research.rs:274:12
+    |
+274 | pub struct DeepResearchService<B: DeepResearchBackend> {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `submit_for_analysis` are never used
+   --> src\interceptor\deep_research.rs:280:12
+    |
+279 | impl<B: DeepResearchBackend> DeepResearchService<B> {
+    | --------------------------------------------------- associated items in this implementation
+280 |     pub fn new(backend: Arc<B>, cfg: DeepResearchConfig) -> Result<Self, DeepResearchError> {
+    |            ^^^
+...
+291 |     pub async fn submit_for_analysis(
+    |                  ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `SimulatedBackend` is never constructed
+   --> src\interceptor\deep_research.rs:365:12
+    |
+365 | pub struct SimulatedBackend;
+    |            ^^^^^^^^^^^^^^^^
+
+warning: function `submit_for_analysis` is never used
+   --> src\interceptor\deep_research.rs:394:14
+    |
+394 | pub async fn submit_for_analysis(
+    |              ^^^^^^^^^^^^^^^^^^^
+
+warning: function `validate_signature` is never used
+   --> src\interceptor\deep_research.rs:406:4
+    |
+406 | fn validate_signature(signature: &str, max_bytes: usize) -> Result<(), DeepResearchError> {
+    |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `validate_context` is never used
+   --> src\interceptor\deep_research.rs:427:4
+    |
+427 | fn validate_context(context: &str, max_bytes: usize) -> Result<(), DeepResearchError> {
+    |    ^^^^^^^^^^^^^^^^
+
+warning: function `sanitize_text` is never used
+   --> src\interceptor\deep_research.rs:444:4
+    |
+444 | fn sanitize_text(s: &str, max_chars: usize) -> Option<String> {
+    |    ^^^^^^^^^^^^^
+
+warning: function `truncate_chars` is never used
+   --> src\interceptor\deep_research.rs:456:4
+    |
+456 | fn truncate_chars(mut s: String, max_chars: usize) -> String {
+    |    ^^^^^^^^^^^^^^
+
+warning: function `next_req_id` is never used
+   --> src\interceptor\deep_research.rs:464:4
+    |
+464 | fn next_req_id() -> u64 {
+    |    ^^^^^^^^^^^
+
+warning: struct `SignatureRef` is never constructed
+   --> src\interceptor\deep_research.rs:469:8
+    |
+469 | struct SignatureRef<'a>(&'a str);
+    |        ^^^^^^^^^^^^
+
+warning: struct `SkillManifest` is never constructed
+ --> src\interceptor\openclaw.rs:4:12
+  |
+4 | pub struct SkillManifest {
+  |            ^^^^^^^^^^^^^
+
+warning: struct `OpenClawSentinel` is never constructed
+  --> src\interceptor\openclaw.rs:10:12
+   |
+10 | pub struct OpenClawSentinel;
+   |            ^^^^^^^^^^^^^^^^
+
+warning: associated functions `scan_manifest` and `intercept_call` are never used
+  --> src\interceptor\openclaw.rs:14:12
+   |
+12 | impl OpenClawSentinel {
+   | --------------------- associated functions in this implementation
+13 |     /// Scans a skill manifest for high-risk indicators or known malicious signatures.
+14 |     pub fn scan_manifest(manifest: &SkillManifest) -> Vec<String> {
+   |            ^^^^^^^^^^^^^
+...
+43 |     pub fn intercept_call(tool_name: &str, args: &str) -> bool {
+   |            ^^^^^^^^^^^^^^
+
+warning: struct `VaultProxy` is never constructed
+ --> src\interceptor\vault_proxy.rs:3:12
+  |
+3 | pub struct VaultProxy {
+  |            ^^^^^^^^^^
+
+warning: associated items `new`, `issue_scoped_token`, `resolve_token`, and `access_env` are never used
+  --> src\interceptor\vault_proxy.rs:10:12
+   |
+ 9 | impl VaultProxy {
+   | --------------- associated items in this implementation
+10 |     pub fn new() -> Self {
+   |            ^^^
+...
+18 |     pub fn issue_scoped_token(&mut self, agent_id: &str, secret_name: &str) -> String {
+   |            ^^^^^^^^^^^^^^^^^^
+...
+26 |     pub fn resolve_token(&self, token: &str) -> Option<String> {
+   |            ^^^^^^^^^^^^^
+...
+35 |     pub fn access_env(var_name: &str) -> Option<String> {
+   |            ^^^^^^^^^^
+
+warning: struct `SlopsquatDetector` is never constructed
+ --> src\interceptor\slopsquat.rs:4:12
+  |
+4 | pub struct SlopsquatDetector {
+  |            ^^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `detect_package_risk` are never used
+  --> src\interceptor\slopsquat.rs:9:12
+   |
+ 8 | impl SlopsquatDetector {
+   | ---------------------- associated items in this implementation
+ 9 |     pub fn new() -> Self {
+   |            ^^^
+...
+28 |     pub fn detect_package_risk(&self, prompt: &str) -> bool {
+   |            ^^^^^^^^^^^^^^^^^^^
+
+warning: static `REQ_ID` is never used
+  --> src\interceptor\crescendo.rs:35:8
+   |
+35 | static REQ_ID: AtomicU64 = AtomicU64::new(1);
+   |        ^^^^^^
+
+warning: constant `DEFAULT_PROMPT_SOFT_BYTES` is never used
+  --> src\interceptor\crescendo.rs:38:7
+   |
+38 | const DEFAULT_PROMPT_SOFT_BYTES: usize = 8_000;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `DEFAULT_PROMPT_HARD_BYTES` is never used
+  --> src\interceptor\crescendo.rs:39:7
+   |
+39 | const DEFAULT_PROMPT_HARD_BYTES: usize = 64_000;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `DEFAULT_USER_ID_MAX_LEN` is never used
+  --> src\interceptor\crescendo.rs:40:7
+   |
+40 | const DEFAULT_USER_ID_MAX_LEN: usize = 128;
+   |       ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `MAX_REDIS_KEY_BYTES` is never used
+  --> src\interceptor\crescendo.rs:41:7
+   |
+41 | const MAX_REDIS_KEY_BYTES: usize = 256;
+   |       ^^^^^^^^^^^^^^^^^^^
+
+warning: struct `EscalationDecision` is never constructed
+  --> src\interceptor\crescendo.rs:45:12
+   |
+45 | pub struct EscalationDecision {
+   |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `CrescendoConfig` is never constructed
+  --> src\interceptor\crescendo.rs:57:12
+   |
+57 | pub struct CrescendoConfig {
+   |            ^^^^^^^^^^^^^^^
+
+warning: method `validate` is never used
+   --> src\interceptor\crescendo.rs:103:12
+    |
+101 | impl CrescendoConfig {
+    | -------------------- method in this implementation
+102 |     /// Validate config at startup so you donΓÇÖt discover a divide-by-zero in production.
+103 |     pub fn validate(&self) -> Result<(), CrescendoError> {
+    |            ^^^^^^^^
+
+warning: trait `RedisEval` is never used
+   --> src\interceptor\crescendo.rs:159:11
+    |
+159 | pub trait RedisEval: Send + Sync + 'static {
+    |           ^^^^^^^^^
+
+warning: struct `RedisEvalError` is never constructed
+   --> src\interceptor\crescendo.rs:173:12
+    |
+173 | pub struct RedisEvalError {
+    |            ^^^^^^^^^^^^^^
+
+warning: associated functions `new` and `without_source` are never used
+   --> src\interceptor\crescendo.rs:179:12
+    |
+178 | impl RedisEvalError {
+    | ------------------- associated functions in this implementation
+179 |     pub fn new<E>(e: E) -> Self
+    |            ^^^
+...
+188 |     pub fn without_source() -> Self {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `CrescendoCounter` is never constructed
+   --> src\interceptor\crescendo.rs:228:12
+    |
+228 | pub struct CrescendoCounter<R: RedisEval> {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: enum `CrescendoError` is never used
+   --> src\interceptor\crescendo.rs:235:10
+    |
+235 | pub enum CrescendoError {
+    |          ^^^^^^^^^^^^^^
+
+warning: associated items `with_client`, `check_escalation`, `check_escalation_detailed`, `update_heat_atomic`, and 
+`calculate_heat` are never used
+   --> src\interceptor\crescendo.rs:254:12
+    |
+252 | impl<R: RedisEval> CrescendoCounter<R> {
+    | -------------------------------------- associated items in this implementation
+253 |     /// Construct with injected Redis + config.
+254 |     pub fn with_client(redis: Arc<R>, cfg: CrescendoConfig) -> Result<Self, CrescendoError> {
+    |            ^^^^^^^^^^^
+...
+260 |     pub async fn check_escalation(&self, user_id: &str, current_prompt: &str) -> Result<bool, CrescendoError> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+273 |     pub async fn check_escalation_detailed(
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+346 |     async fn update_heat_atomic(&self, heat_key: &str, current_heat: i32) -> Result<i32, CrescendoError> {
+    |              ^^^^^^^^^^^^^^^^^^
+...
+399 |     pub fn calculate_heat(&self, prompt: &str) -> i32 {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `UserId` is never constructed
+   --> src\interceptor\crescendo.rs:406:8
+    |
+406 | struct UserId(String);
+    |        ^^^^^^
+
+warning: associated items `parse`, `as_str`, and `safe_log` are never used
+   --> src\interceptor\crescendo.rs:409:8
+    |
+408 | impl UserId {
+    | ----------- associated items in this implementation
+409 |     fn parse(raw: &str, max_len: usize) -> Result<Self, CrescendoError> {
+    |        ^^^^^
+...
+431 |     fn as_str(&self) -> &str {
+    |        ^^^^^^
+...
+435 |     fn safe_log(&self) -> UserIdLog<'_> {
+    |        ^^^^^^^^
+
+warning: struct `UserIdLog` is never constructed
+   --> src\interceptor\crescendo.rs:441:8
+    |
+441 | struct UserIdLog<'a>(&'a str);
+    |        ^^^^^^^^^
+
+warning: function `validate_prompt` is never used
+   --> src\interceptor\crescendo.rs:451:4
+    |
+451 | fn validate_prompt(prompt: &str, hard_limit: usize) -> Result<(), CrescendoError> {
+    |    ^^^^^^^^^^^^^^^
+
+warning: function `contains_disallowed_control_chars` is never used
+   --> src\interceptor\crescendo.rs:466:4
+    |
+466 | fn contains_disallowed_control_chars(s: &str) -> bool {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `make_heat_key` is never used
+   --> src\interceptor\crescendo.rs:470:4
+    |
+470 | fn make_heat_key(prefix: &str, user: &UserId) -> Result<String, CrescendoError> {
+    |    ^^^^^^^^^^^^^
+
+warning: function `next_req_id` is never used
+   --> src\interceptor\crescendo.rs:481:4
+    |
+481 | fn next_req_id() -> u64 {
+    |    ^^^^^^^^^^^
+
+warning: function `calculate_heat_impl` is never used
+   --> src\interceptor\crescendo.rs:486:4
+    |
+486 | fn calculate_heat_impl(prompt: &str, soft_limit: usize) -> i32 {
+    |    ^^^^^^^^^^^^^^^^^^^
+
+warning: function `contains_any` is never used
+   --> src\interceptor\crescendo.rs:553:4
+    |
+553 | fn contains_any(haystack: &str, needles: &[&str]) -> bool {
+    |    ^^^^^^^^^^^^
+
+warning: struct `EmergingThreatsGuard` is never constructed
+ --> src\interceptor\emerging.rs:3:12
+  |
+3 | pub struct EmergingThreatsGuard;
+  |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: associated functions `detect_many_shot_overflow`, `apply_token_jitter`, and `disarm_image_metadata` are never 
+used
+  --> src\interceptor\emerging.rs:8:12
+   |
+ 5 | impl EmergingThreatsGuard {
+   | ------------------------- associated functions in this implementation
+...
+ 8 |     pub fn detect_many_shot_overflow(prompt: &str) -> bool {
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     pub async fn apply_token_jitter() {
+   |                  ^^^^^^^^^^^^^^^^^^
+...
+32 |     pub fn disarm_image_metadata(image_bytes: &[u8]) -> Vec<u8> {
+   |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `SupplyChainGuard` is never constructed
+ --> src\interceptor\supply_chain.rs:4:12
+  |
+4 | pub struct SupplyChainGuard {
+  |            ^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `verify_artifact`, and `register_artifact` are never used
+  --> src\interceptor\supply_chain.rs:10:12
+   |
+ 9 | impl SupplyChainGuard {
+   | --------------------- associated items in this implementation
+10 |     pub fn new() -> Self {
+   |            ^^^
+...
+23 |     pub fn verify_artifact(&self, artifact_name: &str, data: &[u8]) -> Result<(), String> {
+   |            ^^^^^^^^^^^^^^^
+...
+48 |     pub fn register_artifact(&mut self, name: &str, hash: &str) {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `DataPoisoningGuard` is never constructed
+ --> src\interceptor\poison.rs:3:12
+  |
+3 | pub struct DataPoisoningGuard {
+  |            ^^^^^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\interceptor\poison.rs:8:10
+  |
+8 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: associated items `new`, `detect_hidden_text`, and `secure_ingest` are never used
+  --> src\interceptor\poison.rs:15:12
+   |
+14 | impl DataPoisoningGuard {
+   | ----------------------- associated items in this implementation
+15 |     pub fn new() -> Self {
+   |            ^^^
+...
+29 |     fn detect_hidden_text(content: &str) -> bool {
+   |        ^^^^^^^^^^^^^^^^^^
+...
+53 |     pub fn secure_ingest(&self, metadata: &HashMap<String, String>, content: &str) -> Result<(), SecurityError> {
+   |            ^^^^^^^^^^^^^
+
+warning: struct `LegalSummary` is never constructed
+ --> src\interceptor\output_guard.rs:5:12
+  |
+5 | pub struct LegalSummary {
+  |            ^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+  --> src\interceptor\output_guard.rs:11:10
+   |
+11 | pub enum SecurityError {
+   |          ^^^^^^^^^^^^^
+
+warning: struct `OutputGuard` is never constructed
+  --> src\interceptor\output_guard.rs:16:12
+   |
+16 | pub struct OutputGuard;
+   |            ^^^^^^^^^^^
+
+warning: associated function `validate_and_sanitize` is never used
+  --> src\interceptor\output_guard.rs:21:12
+   |
+18 | impl OutputGuard {
+   | ---------------- associated function in this implementation
+...
+21 |     pub fn validate_and_sanitize(raw_output: &str) -> Result<LegalSummary, SecurityError> {
+   |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ActionProposal` is never constructed
+ --> src\interceptor\agency.rs:4:12
+  |
+4 | pub struct ActionProposal {
+  |            ^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+  --> src\interceptor\agency.rs:10:10
+   |
+10 | pub enum SecurityError {
+   |          ^^^^^^^^^^^^^
+
+warning: struct `AgencyGuard` is never constructed
+  --> src\interceptor\agency.rs:14:12
+   |
+14 | pub struct AgencyGuard;
+   |            ^^^^^^^^^^^
+
+warning: associated function `propose_action` is never used
+  --> src\interceptor\agency.rs:19:12
+   |
+16 | impl AgencyGuard {
+   | ---------------- associated function in this implementation
+...
+19 |     pub fn propose_action(action: &str, params: serde_json::Value) -> Result<ActionProposal, SecurityError> {
+   |            ^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\interceptor\system_guard.rs:2:10
+  |
+2 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: struct `SystemPromptGuard` is never constructed
+ --> src\interceptor\system_guard.rs:6:12
+  |
+6 | pub struct SystemPromptGuard {
+  |            ^^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `secure_format`, and `validate_output` are never used
+  --> src\interceptor\system_guard.rs:12:12
+   |
+11 | impl SystemPromptGuard {
+   | ---------------------- associated items in this implementation
+12 |     pub fn new() -> Self {
+   |            ^^^
+...
+25 |     pub fn secure_format(&self, user_input: &str) -> String {
+   |            ^^^^^^^^^^^^^
+...
+36 |     pub fn validate_output(&self, llm_output: &str) -> Result<(), SecurityError> {
+   |            ^^^^^^^^^^^^^^^
+
+warning: struct `HallucinationGuard` is never constructed
+ --> src\interceptor\hallucination.rs:3:12
+  |
+3 | pub struct HallucinationGuard {
+  |            ^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `verify_and_annotate` are never used
+  --> src\interceptor\hallucination.rs:8:12
+   |
+ 7 | impl HallucinationGuard {
+   | ----------------------- associated items in this implementation
+ 8 |     pub fn new() -> Self {
+   |            ^^^
+...
+16 |     pub fn verify_and_annotate(&self, llm_response: &str, trusted_corpus: &str) -> String {
+   |            ^^^^^^^^^^^^^^^^^^^
+
+warning: function `init_json_logging` is never used
+  --> src\interceptor\consumption.rs:36:8
+   |
+36 | pub fn init_json_logging() {
+   |        ^^^^^^^^^^^^^^^^^
+
+warning: struct `RequestId` is never constructed
+  --> src\interceptor\consumption.rs:49:12
+   |
+49 | pub struct RequestId(String);
+   |            ^^^^^^^^^
+
+warning: associated items `parse` and `as_str` are never used
+  --> src\interceptor\consumption.rs:56:12
+   |
+51 | impl RequestId {
+   | -------------- associated items in this implementation
+...
+56 |     pub fn parse(s: &str) -> Result<Self, SecurityError> {
+   |            ^^^^^
+...
+69 |     pub fn as_str(&self) -> &str {
+   |            ^^^^^^
+
+warning: struct `SubjectId` is never constructed
+  --> src\interceptor\consumption.rs:76:12
+   |
+76 | pub struct SubjectId(String);
+   |            ^^^^^^^^^
+
+warning: associated items `parse` and `as_str` are never used
+  --> src\interceptor\consumption.rs:83:12
+   |
+78 | impl SubjectId {
+   | -------------- associated items in this implementation
+...
+83 |     pub fn parse(s: &str) -> Result<Self, SecurityError> {
+   |            ^^^^^
+...
+96 |     pub fn as_str(&self) -> &str {
+   |            ^^^^^^
+
+warning: struct `UsdMicros` is never constructed
+   --> src\interceptor\consumption.rs:103:12
+    |
+103 | pub struct UsdMicros(u64);
+    |            ^^^^^^^^^
+
+warning: associated items `new`, `as_u64`, and `from_usd_per_1k_tokens_usd` are never used
+   --> src\interceptor\consumption.rs:106:18
+    |
+105 | impl UsdMicros {
+    | -------------- associated items in this implementation
+106 |     pub const fn new(micros: u64) -> Self {
+    |                  ^^^
+...
+110 |     pub const fn as_u64(self) -> u64 {
+    |                  ^^^^^^
+...
+115 |     pub fn from_usd_per_1k_tokens_usd(usd: f64) -> Result<Self, SecurityError> {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ConsumptionGuardConfig` is never constructed
+   --> src\interceptor\consumption.rs:134:12
+    |
+134 | pub struct ConsumptionGuardConfig {
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated function `new` is never used
+   --> src\interceptor\consumption.rs:144:12
+    |
+143 | impl ConsumptionGuardConfig {
+    | --------------------------- associated function in this implementation
+144 |     pub fn new(
+    |            ^^^
+
+warning: struct `RequestContext` is never constructed
+   --> src\interceptor\consumption.rs:163:12
+    |
+163 | pub struct RequestContext<'a> {
+    |            ^^^^^^^^^^^^^^
+
+warning: struct `ValidationDecision` is never constructed
+   --> src\interceptor\consumption.rs:174:12
+    |
+174 | pub struct ValidationDecision {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+   --> src\interceptor\consumption.rs:184:10
+    |
+184 | pub enum SecurityError {
+    |          ^^^^^^^^^^^^^
+
+warning: struct `ReserveOutcome` is never constructed
+   --> src\interceptor\consumption.rs:215:12
+    |
+215 | pub struct ReserveOutcome {
+    |            ^^^^^^^^^^^^^^
+
+warning: trait `SpendStore` is never used
+   --> src\interceptor\consumption.rs:226:11
+    |
+226 | pub trait SpendStore: Send + Sync {
+    |           ^^^^^^^^^^
+
+warning: enum `SpendStoreError` is never used
+   --> src\interceptor\consumption.rs:238:10
+    |
+238 | pub enum SpendStoreError {
+    |          ^^^^^^^^^^^^^^^
+
+warning: trait `Clock` is never used
+   --> src\interceptor\consumption.rs:246:11
+    |
+246 | pub trait Clock: Send + Sync {
+    |           ^^^^^
+
+warning: struct `SystemClock` is never constructed
+   --> src\interceptor\consumption.rs:252:12
+    |
+252 | pub struct SystemClock;
+    |            ^^^^^^^^^^^
+
+warning: struct `ConsumptionGuard` is never constructed
+   --> src\interceptor\consumption.rs:269:12
+    |
+269 | pub struct ConsumptionGuard {
+    |            ^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `with_clock`, `validate_request`, `count_tokens`, `daily_spend_key`, and 
+`tokenize_with_timeout` are never used
+   --> src\interceptor\consumption.rs:275:12
+    |
+274 | impl ConsumptionGuard {
+    | --------------------- associated items in this implementation
+275 |     pub fn new(cfg: ConsumptionGuardConfig) -> Result<Self, SecurityError> {
+    |            ^^^
+...
+294 |     pub fn with_clock(mut self, clock: Box<dyn Clock>) -> Self {
+    |            ^^^^^^^^^^
+...
+312 |     pub async fn validate_request<S: SpendStore>(
+    |                  ^^^^^^^^^^^^^^^^
+...
+421 |     pub fn count_tokens(&self, text: &str) -> Result<usize, SecurityError> {
+    |            ^^^^^^^^^^^^
+...
+426 |     fn daily_spend_key(&self, subject: &SubjectId) -> String {
+    |        ^^^^^^^^^^^^^^^
+...
+432 |     async fn tokenize_with_timeout(&self, input: String) -> Result<usize, SecurityError> {
+    |              ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `estimate_cost_usd_micros` is never used
+   --> src\interceptor\consumption.rs:455:8
+    |
+455 | pub fn estimate_cost_usd_micros(token_count: usize, usd_per_1k_tokens_micros: u64) -> u64 {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `hash_for_logs` is never used
+   --> src\interceptor\consumption.rs:462:4
+    |
+462 | fn hash_for_logs(input: &str) -> String {
+    |    ^^^^^^^^^^^^^
+
+warning: static `BPE_CACHE` is never used
+   --> src\interceptor\consumption.rs:468:8
+    |
+468 | static BPE_CACHE: OnceLock<Result<CoreBPE, ()>> = OnceLock::new();
+    |        ^^^^^^^^^
+
+warning: function `get_bpe` is never used
+   --> src\interceptor\consumption.rs:470:4
+    |
+470 | fn get_bpe() -> Result<&'static CoreBPE, SecurityError> {
+    |    ^^^^^^^
+
+warning: struct `InMemorySpendStore` is never constructed
+   --> src\interceptor\consumption.rs:488:12
+    |
+488 | pub struct InMemorySpendStore {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `set`, and `get` are never used
+   --> src\interceptor\consumption.rs:493:12
+    |
+492 | impl InMemorySpendStore {
+    | ----------------------- associated items in this implementation
+493 |     pub fn new() -> Self {
+    |            ^^^
+...
+500 |     pub fn set(&self, key: &str, usd_micros: u64) {
+    |            ^^^
+...
+506 |     pub fn get(&self, key: &str) -> u64 {
+    |            ^^^
+
+warning: enum `SecurityError` is never used
+ --> src\interceptor\model_theft.rs:8:10
+  |
+8 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: struct `ModelTheftGuard` is never constructed
+  --> src\interceptor\model_theft.rs:12:12
+   |
+12 | pub struct ModelTheftGuard {
+   |            ^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `check_content`, `detect_extraction_attempt`, and `calculate_hash` are never used
+  --> src\interceptor\model_theft.rs:22:12
+   |
+21 | impl ModelTheftGuard {
+   | -------------------- associated items in this implementation
+22 |     pub fn new(max_distinct_queries_per_hour: usize) -> Self {
+   |            ^^^
+...
+35 |     pub fn check_content(&self, user_input: &str) -> bool {
+   |            ^^^^^^^^^^^^^
+...
+46 |     pub fn detect_extraction_attempt(&mut self, user_id: &str, query: &str) -> Result<(), SecurityError> {
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+71 |     fn calculate_hash(&self, t: &str) -> u64 {
+   |        ^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\interceptor\perplexity.rs:4:10
+  |
+4 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: struct `PerplexityGuard` is never constructed
+ --> src\interceptor\perplexity.rs:8:12
+  |
+8 | pub struct PerplexityGuard {
+  |            ^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `validate_input_integrity`, and `calculate_shannon_entropy` are never used
+  --> src\interceptor\perplexity.rs:15:12
+   |
+14 | impl PerplexityGuard {
+   | -------------------- associated items in this implementation
+15 |     pub fn new(threshold: f64) -> Self {
+   |            ^^^
+...
+21 |     pub fn validate_input_integrity(&self, user_prompt: &str) -> Result<(), SecurityError> {
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+35 |     fn calculate_shannon_entropy(&self, text: &str) -> f64 {
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\interceptor\financial.rs:6:10
+  |
+6 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: struct `FinancialGuard` is never constructed
+  --> src\interceptor\financial.rs:11:12
+   |
+11 | pub struct FinancialGuard {
+   |            ^^^^^^^^^^^^^^
+
+warning: associated items `new`, `check_budget`, and `check_velocity` are never used
+  --> src\interceptor\financial.rs:23:12
+   |
+22 | impl FinancialGuard {
+   | ------------------- associated items in this implementation
+23 |     pub fn new(daily_limit: Decimal, cost_per_1k: Decimal) -> Self {
+   |            ^^^
+...
+35 |     pub fn check_budget(&mut self, estimated_tokens: u64, current_daily_spend: Decimal, is_cache_hit: bool) -> 
+Result<Decimal, SecurityEr...
+   |            ^^^^^^^^^^^^
+...
+56 |     fn check_velocity(&mut self, cost: Decimal) -> Result<(), SecurityError> {
+   |        ^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\interceptor\plugin_guard.rs:5:10
+  |
+5 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: enum `QueryType` is never used
+  --> src\interceptor\plugin_guard.rs:11:10
+   |
+11 | pub enum QueryType {
+   |          ^^^^^^^^^
+
+warning: struct `CaseSearchInput` is never constructed
+  --> src\interceptor\plugin_guard.rs:18:12
+   |
+18 | pub struct CaseSearchInput {
+   |            ^^^^^^^^^^^^^^^
+
+warning: struct `PluginGuard` is never constructed
+  --> src\interceptor\plugin_guard.rs:23:12
+   |
+23 | pub struct PluginGuard;
+   |            ^^^^^^^^^^^
+
+warning: associated function `validate_plugin_input` is never used
+  --> src\interceptor\plugin_guard.rs:28:12
+   |
+25 | impl PluginGuard {
+   | ---------------- associated function in this implementation
+...
+28 |     pub fn validate_plugin_input(tool_input: &str) -> Result<CaseSearchInput, SecurityError> {
+   |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\interceptor\overreliance.rs:5:10
+  |
+5 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: struct `VerificationState` is never constructed
+  --> src\interceptor\overreliance.rs:13:12
+   |
+13 | pub struct VerificationState {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `OverrelianceGuard` is never constructed
+  --> src\interceptor\overreliance.rs:19:12
+   |
+19 | pub struct OverrelianceGuard {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `validate_export_readiness`, and `check_confidence_lock` are never used
+  --> src\interceptor\overreliance.rs:25:12
+   |
+24 | impl OverrelianceGuard {
+   | ---------------------- associated items in this implementation
+25 |     pub fn new(confidence_threshold: f64) -> Self {
+   |            ^^^
+...
+31 |     pub fn validate_export_readiness(&self, state: &VerificationState) -> Result<(), SecurityError> {
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+44 |     pub fn check_confidence_lock(&self, model_confidence_score: f64) -> Result<(), SecurityError> {
+   |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `ExecutionContext` is never used
+  --> src\interceptor\cprf.rs:36:10
+   |
+36 | pub enum ExecutionContext {
+   |          ^^^^^^^^^^^^^^^^
+
+warning: enum `ToolRiskLevel` is never used
+  --> src\interceptor\cprf.rs:51:10
+   |
+51 | pub enum ToolRiskLevel {
+   |          ^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+  --> src\interceptor\cprf.rs:65:10
+   |
+65 | pub enum SecurityError {
+   |          ^^^^^^^^^^^^^
+
+warning: struct `SecurityPolicy` is never constructed
+  --> src\interceptor\cprf.rs:91:12
+   |
+91 | pub struct SecurityPolicy {
+   |            ^^^^^^^^^^^^^^
+
+warning: associated items `default_production`, `classify_tool`, and `is_allowed` are never used
+   --> src\interceptor\cprf.rs:102:12
+    |
+ 96 | impl SecurityPolicy {
+    | ------------------- associated items in this implementation
+...
+102 |     pub fn default_production() -> Self {
+    |            ^^^^^^^^^^^^^^^^^^
+...
+135 |     pub fn classify_tool(&self, tool_name: &str) -> ToolRiskLevel {
+    |            ^^^^^^^^^^^^^
+...
+150 |     pub fn is_allowed(&self, tool_name: &str, context: ExecutionContext) -> bool {
+    |            ^^^^^^^^^^
+
+warning: struct `ContextSentinel` is never constructed
+   --> src\interceptor\cprf.rs:182:12
+    |
+182 | pub struct ContextSentinel {
+    |            ^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `with_policy`, `execute_tool_call`, `current_context`, and `transition_context` are 
+never used
+   --> src\interceptor\cprf.rs:198:12
+    |
+187 | impl ContextSentinel {
+    | -------------------- associated items in this implementation
+...
+198 |     pub fn new(initial_context: ExecutionContext) -> Self {
+    |            ^^^
+...
+214 |     pub fn with_policy(initial_context: ExecutionContext, policy: SecurityPolicy) -> Self {
+    |            ^^^^^^^^^^^
+...
+246 |     pub fn execute_tool_call(&self, tool_name: &str) -> Result<(), SecurityError> {
+    |            ^^^^^^^^^^^^^^^^^
+...
+290 |     pub fn current_context(&self) -> ExecutionContext {
+    |            ^^^^^^^^^^^^^^^
+...
+307 |     pub fn transition_context(&mut self, new_context: ExecutionContext) {
+    |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `TrainingDataScrubber` is never constructed
+ --> src\interceptor\memorization.rs:4:12
+  |
+4 | pub struct TrainingDataScrubber {
+  |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `sanitize_for_training` are never used
+  --> src\interceptor\memorization.rs:12:12
+   |
+11 | impl TrainingDataScrubber {
+   | ------------------------- associated items in this implementation
+12 |     pub fn new() -> Self {
+   |            ^^^
+...
+23 |     pub fn sanitize_for_training<'a>(&self, raw_legal_text: &'a str) -> Cow<'a, str> {
+   |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `InternalModelOutput` is never constructed
+ --> src\interceptor\model_inversion.rs:6:12
+  |
+6 | pub struct InternalModelOutput {
+  |            ^^^^^^^^^^^^^^^^^^^
+
+warning: method `decode_best_sequence` is never used
+  --> src\interceptor\model_inversion.rs:14:12
+   |
+13 | impl InternalModelOutput {
+   | ------------------------ method in this implementation
+14 |     pub fn decode_best_sequence(&self) -> String {
+   |            ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `SanitizedResponse` is never constructed
+  --> src\interceptor\model_inversion.rs:22:12
+   |
+22 | pub struct SanitizedResponse {
+   |            ^^^^^^^^^^^^^^^^^
+
+warning: struct `InversionGuard` is never constructed
+  --> src\interceptor\model_inversion.rs:27:12
+   |
+27 | pub struct InversionGuard;
+   |            ^^^^^^^^^^^^^^
+
+warning: associated function `secure_inference_handler` is never used
+  --> src\interceptor\model_inversion.rs:32:12
+   |
+29 | impl InversionGuard {
+   | ------------------- associated function in this implementation
+...
+32 |     pub fn secure_inference_handler(raw_output: InternalModelOutput) -> SanitizedResponse {
+   |            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\interceptor\shadow_ai.rs:5:10
+  |
+5 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: struct `ShadowAIGuard` is never constructed
+  --> src\interceptor\shadow_ai.rs:12:12
+   |
+12 | pub struct ShadowAIGuard {
+   |            ^^^^^^^^^^^^^
+
+warning: associated items `new` and `check_outbound_traffic` are never used
+  --> src\interceptor\shadow_ai.rs:18:12
+   |
+17 | impl ShadowAIGuard {
+   | ------------------ associated items in this implementation
+18 |     pub fn new() -> Self {
+   |            ^^^
+...
+39 |     pub fn check_outbound_traffic(&self, request_url: &str) -> Result<(), SecurityError> {
+   |            ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\interceptor\insecure_code.rs:5:10
+  |
+5 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: type alias `SafeFunction` is never used
+  --> src\interceptor\insecure_code.rs:12:6
+   |
+12 | type SafeFunction = fn(Value) -> Result<String, String>;
+   |      ^^^^^^^^^^^^
+
+warning: struct `FunctionRegistry` is never constructed
+  --> src\interceptor\insecure_code.rs:14:12
+   |
+14 | pub struct FunctionRegistry {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `invoke_function` are never used
+  --> src\interceptor\insecure_code.rs:21:12
+   |
+20 | impl FunctionRegistry {
+   | --------------------- associated items in this implementation
+21 |     pub fn new() -> Self {
+   |            ^^^
+...
+35 |     pub fn invoke_function(&self, function_name: &str, params: Value) -> Result<String, SecurityError> {
+   |            ^^^^^^^^^^^^^^^
+
+warning: function `safe_calculate_interest` is never used
+  --> src\interceptor\insecure_code.rs:50:4
+   |
+50 | fn safe_calculate_interest(params: Value) -> Result<String, String> {
+   |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `safe_format_date` is never used
+  --> src\interceptor\insecure_code.rs:57:4
+   |
+57 | fn safe_format_date(params: Value) -> Result<String, String> {
+   |    ^^^^^^^^^^^^^^^^
+
+warning: struct `UniversalGuard` is never constructed
+  --> src\interceptor\universal_guard.rs:10:12
+   |
+10 | pub struct UniversalGuard {
+   |            ^^^^^^^^^^^^^^
+
+warning: associated items `new`, `evaluate_complete_risk_profile`, and `process_secure_response` are never used
+  --> src\interceptor\universal_guard.rs:19:12
+   |
+18 | impl UniversalGuard {
+   | ------------------- associated items in this implementation
+19 |     pub fn new() -> Self {
+   |            ^^^
+...
+41 |     pub async fn evaluate_complete_risk_profile(&self, prompt: &str, user_id: &str) -> Result<String, String> {
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+83 |     pub async fn process_secure_response(&self, response_text: &str) -> String {
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `LLM01Sentinel` is never constructed
+ --> src\interceptor\llm01_sentinel.rs:5:12
+  |
+5 | pub struct LLM01Sentinel {
+  |            ^^^^^^^^^^^^^
+
+warning: associated items `new` and `sanitize` are never used
+  --> src\interceptor\llm01_sentinel.rs:10:12
+   |
+ 9 | impl LLM01Sentinel {
+   | ------------------ associated items in this implementation
+10 |     pub fn new() -> Self {
+   |            ^^^
+...
+28 |     pub fn sanitize(&self, raw_input: &str) -> Result<String, String> {
+   |            ^^^^^^^^
+
+warning: constant `MAX_EPSILON` is never used
+  --> src\interceptor\differential_privacy.rs:32:7
+   |
+32 | const MAX_EPSILON: f64 = 10.0;
+   |       ^^^^^^^^^^^
+
+warning: constant `MIN_EPSILON` is never used
+  --> src\interceptor\differential_privacy.rs:35:7
+   |
+35 | const MIN_EPSILON: f64 = 0.01;
+   |       ^^^^^^^^^^^
+
+warning: constant `MAX_SENSITIVITY` is never used
+  --> src\interceptor\differential_privacy.rs:38:7
+   |
+38 | const MAX_SENSITIVITY: f64 = 1e6;
+   |       ^^^^^^^^^^^^^^^
+
+warning: constant `MIN_SENSITIVITY` is never used
+  --> src\interceptor\differential_privacy.rs:41:7
+   |
+41 | const MIN_SENSITIVITY: f64 = 1e-10;
+   |       ^^^^^^^^^^^^^^^
+
+warning: constant `MAX_VALUE` is never used
+  --> src\interceptor\differential_privacy.rs:44:7
+   |
+44 | const MAX_VALUE: f64 = 1e15;
+   |       ^^^^^^^^^
+
+warning: enum `DPError` is never used
+  --> src\interceptor\differential_privacy.rs:53:10
+   |
+53 | pub enum DPError {
+   |          ^^^^^^^
+
+warning: struct `PrivacyBudget` is never constructed
+  --> src\interceptor\differential_privacy.rs:90:12
+   |
+90 | pub struct PrivacyBudget {
+   |            ^^^^^^^^^^^^^
+
+warning: associated items `new`, `consume`, `remaining`, and `query_count` are never used
+   --> src\interceptor\differential_privacy.rs:104:12
+    |
+ 96 | impl PrivacyBudget {
+    | ------------------ associated items in this implementation
+...
+104 |     pub fn new(total_budget: f64) -> Result<Self, DPError> {
+    |            ^^^
+...
+122 |     pub fn consume(&mut self, epsilon: f64) -> Result<(), DPError> {
+    |            ^^^^^^^
+...
+156 |     pub fn remaining(&self) -> f64 {
+    |            ^^^^^^^^^
+...
+161 |     pub fn query_count(&self) -> usize {
+    |            ^^^^^^^^^^^
+
+warning: enum `NoiseMechanism` is never used
+   --> src\interceptor\differential_privacy.rs:172:10
+    |
+172 | pub enum NoiseMechanism {
+    |          ^^^^^^^^^^^^^^
+
+warning: struct `DifferentialPrivacy` is never constructed
+   --> src\interceptor\differential_privacy.rs:196:12
+    |
+196 | pub struct DifferentialPrivacy {
+    |            ^^^^^^^^^^^^^^^^^^^
+
+warning: multiple associated items are never used
+   --> src\interceptor\differential_privacy.rs:220:12
+    |
+202 | impl DifferentialPrivacy {
+    | ------------------------ associated items in this implementation
+...
+220 |     pub fn new(epsilon: f64) -> Result<Self, DPError> {
+    |            ^^^
+...
+245 |     pub fn with_budget(epsilon: f64, total_budget: f64) -> Result<Self, DPError> {
+    |            ^^^^^^^^^^^
+...
+315 |     pub fn add_laplace_noise(
+    |            ^^^^^^^^^^^^^^^^^
+...
+399 |     pub fn randomized_response(&mut self, true_value: bool) -> Result<bool, DPError> {
+    |            ^^^^^^^^^^^^^^^^^^^
+...
+436 |     pub fn epsilon(&self) -> f64 {
+    |            ^^^^^^^
+...
+441 |     pub fn budget(&self) -> Option<&PrivacyBudget> {
+    |            ^^^^^^
+...
+446 |     pub fn budget_mut(&mut self) -> Option<&mut PrivacyBudget> {
+    |            ^^^^^^^^^^
+
+warning: function `validate_epsilon` is never used
+   --> src\interceptor\differential_privacy.rs:460:4
+    |
+460 | fn validate_epsilon(epsilon: f64) -> Result<(), DPError> {
+    |    ^^^^^^^^^^^^^^^^
+
+warning: function `validate_sensitivity` is never used
+   --> src\interceptor\differential_privacy.rs:472:4
+    |
+472 | fn validate_sensitivity(sensitivity: f64) -> Result<(), DPError> {
+    |    ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `validate_value` is never used
+   --> src\interceptor\differential_privacy.rs:487:4
+    |
+487 | fn validate_value(value: f64) -> Result<(), DPError> {
+    |    ^^^^^^^^^^^^^^
+
+warning: struct `Normalizer` is never constructed
+ --> src\interceptor\normalization.rs:3:12
+  |
+3 | pub struct Normalizer;
+  |            ^^^^^^^^^^
+
+warning: associated function `normalize` is never used
+ --> src\interceptor\normalization.rs:8:12
+  |
+5 | impl Normalizer {
+  | --------------- associated function in this implementation
+...
+8 |     pub fn normalize(input: &str) -> String {
+  |            ^^^^^^^^^
+
+warning: function `is_invisible` is never used
+  --> src\interceptor\normalization.rs:17:4
+   |
+17 | fn is_invisible(c: char) -> bool {
+   |    ^^^^^^^^^^^^
+
+warning: struct `ContextStitchGuard` is never constructed
+ --> src\interceptor\v30_context_stitch.rs:7:12
+  |
+7 | pub struct ContextStitchGuard {
+  |            ^^^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `check_exposure` are never used
+  --> src\interceptor\v30_context_stitch.rs:14:12
+   |
+13 | impl ContextStitchGuard {
+   | ----------------------- associated items in this implementation
+14 |     pub fn new(max_tokens: usize) -> Self {
+   |            ^^^
+...
+23 |     pub fn check_exposure(&mut self, response_tokens: Vec<&str>) -> bool {
+   |            ^^^^^^^^^^^^^^
+
+warning: struct `ProxyClient` is never constructed
+  --> src\network\proxy.rs:10:12
+   |
+10 | pub struct ProxyClient {
+   |            ^^^^^^^^^^^
+
+warning: associated items `new` and `forward` are never used
+  --> src\network\proxy.rs:16:12
+   |
+15 | impl ProxyClient {
+   | ---------------- associated items in this implementation
+16 |     pub fn new(upstream_url: &str) -> Self {
+   |            ^^^
+...
+25 |     pub async fn forward(&self, mut req: Request<Body>) -> Result<Response<Body>, StatusCode> {
+   |                  ^^^^^^^
+
+warning: struct `RedisClient` is never constructed
+ --> src\network\redis.rs:6:12
+  |
+6 | pub struct RedisClient {
+  |            ^^^^^^^^^^^
+
+warning: struct `RedisResponse` is never constructed
+  --> src\network\redis.rs:13:8
+   |
+13 | struct RedisResponse<T> {
+   |        ^^^^^^^^^^^^^
+
+warning: struct `EvalRequest` is never constructed
+  --> src\network\redis.rs:18:8
+   |
+18 | struct EvalRequest<'a> {
+   |        ^^^^^^^^^^^
+
+warning: multiple associated items are never used
+   --> src\network\redis.rs:25:12
+    |
+ 24 | impl RedisClient {
+    | ---------------- associated items in this implementation
+ 25 |     pub fn new(base_url: &str, token: &str) -> Self {
+    |            ^^^
+...
+ 33 |     pub fn from_env() -> Result<Self, String> {
+    |            ^^^^^^^^
+...
+ 40 |     pub async fn eval_i64(&self, script: &str, keys: &[&str], args: &[&str]) -> Result<i64, String> {
+    |                  ^^^^^^^^
+...
+ 60 |     pub async fn check_registry(&self, domain: &str) -> Result<bool, String> {
+    |                  ^^^^^^^^^^^^^^
+...
+ 81 |     pub async fn get_semantic_cache(&self, hash: &str) -> Option<String> {
+    |                  ^^^^^^^^^^^^^^^^^^
+...
+ 94 |     pub async fn set_with_ttl(&self, key: &str, value: &str, seconds: u64) -> Result<(), String> {
+    |                  ^^^^^^^^^^^^
+...
+112 |     pub async fn get(&self, key: &str) -> Result<Option<String>, String> {
+    |                  ^^^
+
+warning: struct `AuditEvent` is never constructed
+ --> src\network\audit.rs:8:12
+  |
+8 | pub struct AuditEvent {
+  |            ^^^^^^^^^^
+
+warning: struct `AuditLogger` is never constructed
+  --> src\network\audit.rs:22:12
+   |
+22 | pub struct AuditLogger {
+   |            ^^^^^^^^^^^
+
+warning: associated items `new` and `log` are never used
+  --> src\network\audit.rs:29:12
+   |
+26 | impl AuditLogger {
+   | ---------------- associated items in this implementation
+...
+29 |     pub fn new(connection_string: String) -> Self {
+   |            ^^^
+...
+81 |     pub fn log(&self, event: AuditEvent) {
+   |            ^^^
+
+warning: struct `ForensicMonitor` is never constructed
+ --> src\network\forensics.rs:5:12
+  |
+5 | pub struct ForensicMonitor {
+  |            ^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `trigger_investigation` are never used
+  --> src\network\forensics.rs:12:12
+   |
+11 | impl ForensicMonitor {
+   | -------------------- associated items in this implementation
+12 |     pub fn new() -> Self {
+   |            ^^^
+...
+27 |     pub async fn trigger_investigation(&self, agent_id: &str, risk_code: &str) {
+   |                  ^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `ForensicSentinel` is never constructed
+  --> src\network\forensics.rs:64:12
+   |
+64 | pub struct ForensicSentinel {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: associated items `new` and `run` are never used
+  --> src\network\forensics.rs:70:12
+   |
+69 | impl ForensicSentinel {
+   | --------------------- associated items in this implementation
+70 |     pub fn new(db_url: String) -> Self {
+   |            ^^^
+...
+78 |     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+   |                  ^^^
+
+warning: struct `RlsManager` is never constructed
+ --> src\storage\rls.rs:4:12
+  |
+4 | pub struct RlsManager;
+  |            ^^^^^^^^^^
+
+warning: associated function `set_context_sql` is never used
+ --> src\storage\rls.rs:9:12
+  |
+6 | impl RlsManager {
+  | --------------- associated function in this implementation
+...
+9 |     pub fn set_context_sql(client_id: &str) -> String {
+  |            ^^^^^^^^^^^^^^^
+
+warning: enum `EgressError` is never used
+ --> src\middleware\exfiltration.rs:5:10
+  |
+5 | pub enum EgressError {
+  |          ^^^^^^^^^^^
+
+warning: struct `EgressGuard` is never constructed
+  --> src\middleware\exfiltration.rs:12:12
+   |
+12 | pub struct EgressGuard {
+   |            ^^^^^^^^^^^
+
+warning: associated items `new`, `verify_egress`, `check_canary_tokens`, `verify_proprietary_data`, and `scrub_pii` 
+are never used
+  --> src\middleware\exfiltration.rs:26:12
+   |
+25 | impl EgressGuard {
+   | ---------------- associated items in this implementation
+26 |     pub fn new() -> Self {
+   |            ^^^
+...
+37 |     pub fn verify_egress(&self, content: &str) -> Result<String, EgressError> {
+   |            ^^^^^^^^^^^^^
+...
+50 |     fn check_canary_tokens(&self, content: &str) -> Result<(), EgressError> {
+   |        ^^^^^^^^^^^^^^^^^^^
+...
+59 |     fn verify_proprietary_data(&self, content: &str) -> Result<(), EgressError> {
+   |        ^^^^^^^^^^^^^^^^^^^^^^^
+...
+68 |     fn scrub_pii(&self, content: &str) -> String {
+   |        ^^^^^^^^^
+
+warning: enum `SecurityError` is never used
+ --> src\middleware\egress_scrubber.rs:6:10
+  |
+6 | pub enum SecurityError {
+  |          ^^^^^^^^^^^^^
+
+warning: struct `EgressScrubber` is never constructed
+  --> src\middleware\egress_scrubber.rs:15:12
+   |
+15 | pub struct EgressScrubber {
+   |            ^^^^^^^^^^^^^^
+
+warning: multiple associated items are never used
+   --> src\middleware\egress_scrubber.rs:29:12
+    |
+ 28 | impl EgressScrubber {
+    | ------------------- associated items in this implementation
+ 29 |     pub fn new() -> Self {
+    |            ^^^
+...
+ 44 |     pub async fn scrub_response(&self, raw_output: &str, _session_context: &str) -> Result<String, 
+SecurityError> {
+    |                  ^^^^^^^^^^^^^^
+...
+ 69 |     fn mask_pii(&self, text: &str) -> String {
+    |        ^^^^^^^^
+...
+ 76 |     async fn verify_semantic_integrity(&self, text: &str, _ctx: &str) -> Result<bool, SecurityError> {
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+ 87 |     pub async fn scrub_stream(&self, _stream_chunk: &str) -> Result<String, SecurityError> {
+    |                  ^^^^^^^^^^^^
+...
+ 95 |     pub async fn check_entropy_drift(&self, session_id: &str, token: &str) -> Result<(), String> {
+    |                  ^^^^^^^^^^^^^^^^^^^
+...
+115 |     fn calculate_shannon_entropy(&self, s: &str) -> f64 {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `SecurityCell` is never constructed
+  --> src\middleware\multi_tenant.rs:14:12
+   |
+14 | pub struct SecurityCell {
+   |            ^^^^^^^^^^^^
+
+warning: struct `TenantRouter` is never constructed
+  --> src\middleware\multi_tenant.rs:25:12
+   |
+25 | pub struct TenantRouter;
+   |            ^^^^^^^^^^^^
+
+warning: associated functions `register_cell` and `get_cell` are never used
+  --> src\middleware\multi_tenant.rs:28:12
+   |
+27 | impl TenantRouter {
+   | ----------------- associated functions in this implementation
+28 |     pub fn register_cell(org_id: &str, shard: &str) {
+   |            ^^^^^^^^^^^^^
+...
+37 |     pub fn get_cell(org_id: &str) -> Option<SecurityCell> {
+   |            ^^^^^^^^
+
+warning: struct `ValidatedTenant` is never constructed
+  --> src\middleware\multi_tenant.rs:43:12
+   |
+43 | pub struct ValidatedTenant(pub SecurityCell);
+   |            ^^^^^^^^^^^^^^^
+
+warning: enum `ActionRisk` is never used
+ --> src\protocol\dbs.rs:4:10
+  |
+4 | pub enum ActionRisk {
+  |          ^^^^^^^^^^
+
+warning: struct `AgencyGate` is never constructed
+  --> src\protocol\dbs.rs:11:12
+   |
+11 | pub struct AgencyGate {
+   |            ^^^^^^^^^^
+
+warning: associated items `new`, `check_agency`, and `assess_risk` are never used
+  --> src\protocol\dbs.rs:16:12
+   |
+15 | impl AgencyGate {
+   | --------------- associated items in this implementation
+16 |     pub fn new() -> Self {
+   |            ^^^
+...
+24 |     pub fn check_agency(&self, user_id: &str, action: &str) -> (bool, Option<String>) {
+   |            ^^^^^^^^^^^^
+...
+40 |     fn assess_risk(&self, action: &str) -> ActionRisk {
+   |        ^^^^^^^^^^^
+
+warning: struct `DBSProtocol` is never constructed
+  --> src\protocol\dbs.rs:54:12
+   |
+54 | pub struct DBSProtocol;
+   |            ^^^^^^^^^^^
+
+warning: associated items `new`, `validate`, and `enforce` are never used
+  --> src\protocol\dbs.rs:57:12
+   |
+56 | impl DBSProtocol {
+   | ---------------- associated items in this implementation
+57 |     pub fn new() -> Self {
+   |            ^^^
+...
+62 |     pub fn validate(&self, input: &str) -> bool {
+   |            ^^^^^^^^
+...
+68 |     pub fn enforce(input: &str, action_context: Option<(&str, &str)>) -> bool {
+   |            ^^^^^^^
+
+warning: `zerotrace-core` (bin "zerotrace-core") generated 441 warnings (21 duplicates) (run `cargo fix --bin 
+"zerotrace-core" -p zerotrace-core` to apply 2 suggestions)
+warning: unused import: `std::fs::File`
+ --> tests\onboarding_validation.rs:2:5
+  |
+2 | use std::fs::File;
+  |     ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `EscalationDecision`
+ --> tests\crescendo_tests.rs:2:56
+  |
+2 |     CrescendoConfig, CrescendoCounter, CrescendoError, EscalationDecision, RedisEval, RedisEvalError,
+  |                                                        ^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::thread`
+ --> tests\cprf_tests.rs:5:5
+  |
+5 | use std::thread;
+  |     ^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `rust_decimal::prelude::FromPrimitive`
+  --> src\interceptor\financial.rs:85:9
+   |
+85 |     use rust_decimal::prelude::FromPrimitive;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::thread`
+  --> src\security\v49_nhi_rotation.rs:58:9
+   |
+58 |     use std::thread;
+   |         ^^^^^^^^^^^
+
+warning: unused import: `std::time::Duration`
+  --> src\security\v49_nhi_rotation.rs:59:9
+   |
+59 |     use std::time::Duration;
+   |         ^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `registry`
+  --> src\security\mcp_registry.rs:61:13
+   |
+61 |         let registry = McpRegistry::new();
+   |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_registry`
+
+warning: unused variable: `manifest`
+  --> src\security\mcp_registry.rs:63:13
+   |
+63 |         let manifest = "content-that-hashes-to-af1349..."; // BLAKE3 hash of "safe-content" is actually needed 
+here.
+   |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_manifest`
+
+warning: unused variable: `registry`
+  --> src\security\mcp_registry.rs:61:13
+   |
+61 |         let registry = McpRegistry::new();
+   |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_registry`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `jitter_ms`
+  --> src\interceptor\emerging.rs:24:13
+   |
+24 |         let jitter_ms = rng.gen_range(5..50);
+   |             ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_jitter_ms`
+
+warning: variants `ExtractionError` and `SanitizationError` are never constructed
+  --> src\security\emg21.rs:9:5
+   |
+ 5 | pub enum SecurityError {
+   |          ------------- variants in this enum
+...
+ 9 |     ExtractionError(String),
+   |     ^^^^^^^^^^^^^^^
+10 |     #[error("Sanitization failed: {0}")]
+11 |     SanitizationError(String),
+   |     ^^^^^^^^^^^^^^^^^
+   |
+   = note: `SecurityError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead 
+code analysis
+
+warning: variant `SystemError` is never constructed
+  --> src\security\emg27.rs:12:5
+   |
+ 4 | pub enum AuthError {
+   |          --------- variant in this enum
+...
+12 |     SystemError(String),
+   |     ^^^^^^^^^^^
+   |
+   = note: `AuthError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code 
+analysis
+
+warning: field `role` is never read
+  --> src\security\emg27.rs:19:9
+   |
+17 | pub struct UserClaims {
+   |            ---------- field in this struct
+18 |     pub sub: String, // Subject (User ID)
+19 |     pub role: String, // Role (e.g., "Associate", "Partner")
+   |         ^^^^
+   |
+   = note: `UserClaims` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored 
+during dead code analysis
+
+warning: variant `DecryptionFailed` is never constructed
+  --> src\security\emg28.rs:10:5
+   |
+ 4 | pub enum IntegrityError {
+   |          -------------- variant in this enum
+...
+10 |     DecryptionFailed,
+   |     ^^^^^^^^^^^^^^^^
+   |
+   = note: `IntegrityError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead 
+code analysis
+
+warning: variant `MonitorError` is never constructed
+ --> src\security\emg29.rs:8:5
+  |
+4 | pub enum CrescendoError {
+  |          -------------- variant in this enum
+...
+8 |     MonitorError(String),
+  |     ^^^^^^^^^^^^
+  |
+  = note: `CrescendoError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead 
+code analysis
+
+warning: fields `turn_id` and `prompt_snippet` are never read
+  --> src\security\emg29.rs:14:9
+   |
+13 | pub struct InteractionNode {
+   |            --------------- fields in this struct
+14 |     pub turn_id: usize,
+   |         ^^^^^^^
+15 |     pub prompt_snippet: String,
+   |         ^^^^^^^^^^^^^^
+   |
+   = note: `InteractionNode` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored 
+during dead code analysis
+
+warning: fields `session_id` and `user_token` are never read
+  --> src\security\agent_sentry.rs:36:9
+   |
+35 | pub struct ZeroTraceOrchestrator {
+   |            --------------------- fields in this struct
+36 |     pub session_id: Uuid,
+   |         ^^^^^^^^^^
+37 |     pub user_token: String,
+   |         ^^^^^^^^^^
+
+warning: variants `ClassificationError`, `SecurityViolation`, and `DriftCalculationError` are never constructed
+  --> src\security\broker.rs:8:5
+   |
+ 6 | pub enum BrokerError {
+   |          ----------- variants in this enum
+ 7 |     #[error("Classification Failed")]
+ 8 |     ClassificationError,
+   |     ^^^^^^^^^^^^^^^^^^^
+ 9 |     #[error("Security Violation: {0}")]
+10 |     SecurityViolation(String),
+   |     ^^^^^^^^^^^^^^^^^
+11 |     #[error("Drift Calculation Failed")]
+12 |     DriftCalculationError,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `BrokerError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code 
+analysis
+
+warning: associated function `new` is never used
+  --> src\security\v39_toxic_guard.rs:29:12
+   |
+28 | impl ToxicCombinationGuard {
+   | -------------------------- associated function in this implementation
+29 |     pub fn new(registry: HashMap<String, u8>) -> Self {
+   |            ^^^
+
+warning: variant `DecryptionFailed` is never constructed
+ --> src\security\transient_vault.rs:9:5
+  |
+5 | pub enum VaultError {
+  |          ---------- variant in this enum
+...
+9 |     DecryptionFailed,
+  |     ^^^^^^^^^^^^^^^^
+  |
+  = note: `VaultError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code 
+analysis
+
+warning: associated function `new` is never used
+  --> src\security\transient_vault.rs:56:12
+   |
+55 | impl TransientVaultClient {
+   | ------------------------- associated function in this implementation
+56 |     pub fn new(api: &str, token: &str) -> Self {
+   |            ^^^
+
+warning: field `params` is never read
+ --> src\security\cognitive_monitor.rs:6:9
+  |
+4 | pub struct ToolAction {
+  |            ---------- field in this struct
+5 |     pub tool_name: String,
+6 |     pub params: String,
+  |         ^^^^^^
+  |
+  = note: `ToolAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored 
+during dead code analysis
+
+warning: associated function `new` is never used
+  --> src\security\cognitive_monitor.rs:22:12
+   |
+21 | impl CognitiveGuard {
+   | ------------------- associated function in this implementation
+22 |     pub fn new(threshold: f64) -> Self {
+   |            ^^^
+
+warning: associated function `commit` is never used
+  --> src\security\immutable_audit.rs:35:12
+   |
+21 | impl WormLedger {
+   | --------------- associated function in this implementation
+...
+35 |     pub fn commit(entry: &AuditEntry) {
+   |            ^^^^^^
+
+warning: fields `sentry_broker`, `stateful_firewall`, `static_engine`, and `llm_engine` are never read
+  --> src\security\speculative_mesh.rs:62:9
+   |
+61 | pub struct SpeculativeMesh {
+   |            --------------- fields in this struct
+62 |     pub sentry_broker: SentryBroker,
+   |         ^^^^^^^^^^^^^
+63 |     pub stateful_firewall: Neo4jGuard,
+   |         ^^^^^^^^^^^^^^^^^
+64 |     pub static_engine: StaticScrubber,
+   |         ^^^^^^^^^^^^^
+65 |     pub llm_engine: LLMEngine,
+   |         ^^^^^^^^^^
+
+warning: field `id` is never read
+ --> src\security\v54_nhi_lifecycle.rs:8:9
+  |
+7 | pub struct NhiToken {
+  |            -------- field in this struct
+8 |     pub id: String,
+  |         ^^
+
+warning: associated function `fallback` is never used
+   --> src\interceptor\cognitive.rs:128:12
+    |
+125 | impl ThreatAssessment {
+    | --------------------- associated function in this implementation
+...
+128 |     pub fn fallback(reason: impl Into<String>) -> Self {
+    |            ^^^^^^^^
+
+warning: variants `MissingApiKey`, `InvalidModelName`, `NonSuccess`, and `InvalidAssessment` are never constructed
+   --> src\interceptor\cognitive.rs:173:5
+    |
+171 | pub enum IntentError {
+    |          ----------- variants in this enum
+172 |     #[error("missing GEMINI_API_KEY env var")]
+173 |     MissingApiKey,
+    |     ^^^^^^^^^^^^^
+...
+176 |     InvalidModelName(String),
+    |     ^^^^^^^^^^^^^^^^
+...
+182 |     NonSuccess { status: u16, body: String },
+    |     ^^^^^^^^^^
+...
+191 |     InvalidAssessment(String),
+    |     ^^^^^^^^^^^^^^^^^
+    |
+    = note: `IntentError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code 
+analysis
+
+warning: associated function `apply_token_jitter` is never used
+  --> src\interceptor\emerging.rs:22:18
+   |
+ 5 | impl EmergingThreatsGuard {
+   | ------------------------- associated function in this implementation
+...
+22 |     pub async fn apply_token_jitter() {
+   |                  ^^^^^^^^^^^^^^^^^^
+
+warning: field `0` is never read
+ --> src\interceptor\perplexity.rs:5:31
+  |
+5 |     AdversarialSuffixDetected(f64),
+  |     ------------------------- ^^^
+  |     |
+  |     field in this variant
+  |
+  = note: `SecurityError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code 
+analysis
+help: consider changing the field to be of unit type to suppress this warning while preserving the field numbering, or 
+remove the field
+  |
+5 -     AdversarialSuffixDetected(f64),
+5 +     AdversarialSuffixDetected(()),
+  |
+
+warning: variant `RNGFailure` is never constructed
+  --> src\interceptor\differential_privacy.rs:74:5
+   |
+53 | pub enum DPError {
+   |          ------- variant in this enum
+...
+74 |     RNGFailure { reason: String },
+   |     ^^^^^^^^^^
+   |
+   = note: `DPError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code 
+analysis
+
+warning: methods `epsilon` and `budget_mut` are never used
+   --> src\interceptor\differential_privacy.rs:436:12
+    |
+202 | impl DifferentialPrivacy {
+    | ------------------------ methods in this implementation
+...
+436 |     pub fn epsilon(&self) -> f64 {
+    |            ^^^^^^^
+...
+446 |     pub fn budget_mut(&mut self) -> Option<&mut PrivacyBudget> {
+    |            ^^^^^^^^^^
+
+warning: method `scrub_stream` is never used
+  --> src\middleware\egress_scrubber.rs:87:18
+   |
+28 | impl EgressScrubber {
+   | ------------------- method in this implementation
+...
+87 |     pub async fn scrub_stream(&self, _stream_chunk: &str) -> Result<String, SecurityError> {
+   |                  ^^^^^^^^^^^^
+
+warning: field `org_id` is never read
+  --> src\middleware\multi_tenant.rs:15:9
+   |
+14 | pub struct SecurityCell {
+   |            ------------ field in this struct
+15 |     pub org_id: String,
+   |         ^^^^^^
+   |
+   = note: `SecurityCell` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored 
+during dead code analysis
+
+warning: `zerotrace-core` (test "onboarding_validation") generated 1 warning (run `cargo fix --test 
+"onboarding_validation" -p zerotrace-core` to apply 1 suggestion)
+warning: `zerotrace-core` (test "crescendo_tests") generated 1 warning (run `cargo fix --test "crescendo_tests" -p 
+zerotrace-core` to apply 1 suggestion)
+warning: `zerotrace-core` (test "cprf_tests") generated 1 warning (run `cargo fix --test "cprf_tests" -p 
+zerotrace-core` to apply 1 suggestion)
+warning: `zerotrace-core` (lib test) generated 31 warnings (26 duplicates) (run `cargo fix --lib -p zerotrace-core 
+--tests` to apply 5 suggestions)
+warning: `zerotrace-core` (bin "zerotrace-core" test) generated 222 warnings (196 duplicates) (run `cargo fix --bin 
+"zerotrace-core" -p zerotrace-core --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.84s
+     Running unittests src\lib.rs (target\debug\deps\zerotrace_core-3caab48f3ebc1077.exe)
+
+running 13 tests
+test interceptor::differential_privacy::tests::test_negative_value_handling ... ok
+test interceptor::differential_privacy::tests::test_budget_remaining ... ok
+test interceptor::differential_privacy::tests::test_budget_tracking ... ok
+test interceptor::differential_privacy::tests::test_invalid_epsilon_rejected ... ok
+test interceptor::differential_privacy::tests::test_laplace_noise_basic ... ok
+test interceptor::differential_privacy::tests::test_high_sensitivity_stability ... ok
+test interceptor::differential_privacy::tests::test_query_count_tracking ... ok
+test interceptor::differential_privacy::tests::test_randomized_response_basic ... ok
+test interceptor::differential_privacy::tests::test_zero_value_handling ... ok
+test interceptor::differential_privacy::tests::test_low_epsilon_high_noise ... ok
+test interceptor::differential_privacy::tests::test_invalid_sensitivity_rejected ... ok
+test interceptor::differential_privacy::tests::test_invalid_value_rejected ... ok
+test interceptor::differential_privacy::tests::test_randomized_response_distribution ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 173 filtered out; finished in 0.01s
+
+     Running unittests src\main.rs (target\debug\deps\zerotrace_core-17c7ec3426869a86.exe)
+
+running 13 tests
+test interceptor::differential_privacy::tests::test_invalid_epsilon_rejected ... ok
+test interceptor::differential_privacy::tests::test_invalid_value_rejected ... ok
+test interceptor::differential_privacy::tests::test_invalid_sensitivity_rejected ... ok
+test interceptor::differential_privacy::tests::test_negative_value_handling ... ok
+test interceptor::differential_privacy::tests::test_budget_tracking ... ok
+test interceptor::differential_privacy::tests::test_budget_remaining ... ok
+test interceptor::differential_privacy::tests::test_low_epsilon_high_noise ... ok
+test interceptor::differential_privacy::tests::test_high_sensitivity_stability ... ok
+test interceptor::differential_privacy::tests::test_query_count_tracking ... ok
+test interceptor::differential_privacy::tests::test_laplace_noise_basic ... ok
+test interceptor::differential_privacy::tests::test_zero_value_handling ... ok
+test interceptor::differential_privacy::tests::test_randomized_response_basic ... ok
+test interceptor::differential_privacy::tests::test_randomized_response_distribution ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 170 filtered out; finished in 0.01s
+
+     Running tests\consumption_guard_tests.rs (target\debug\deps\consumption_guard_tests-4752d0c4caf179e8.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests\cprf_tests.rs (target\debug\deps\cprf_tests-7d31192b9b2c1113.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+     Running tests\crescendo_tests.rs (target\debug\deps\crescendo_tests-75c34b5d406ea43f.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests\deep_research_tests.rs (target\debug\deps\deep_research_tests-fcb747eca9d1b742.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests\detect_tests.rs (target\debug\deps\detect_tests-c285ce5a49e23b10.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests\intent_analyzer_tests.rs (target\debug\deps\intent_analyzer_tests-e8062b0444d52fb7.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+
+     Running tests\onboarding_validation.rs (target\debug\deps\onboarding_validation-18da358b69340892.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+
+     Running tests\security_integration.rs (target\debug\deps\security_integration-b20bccecbfd5c12d.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+

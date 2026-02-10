@@ -29,7 +29,10 @@ struct ExecutePayload {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 0. Safety Checks
+    // 0. Initialize Structured Logging
+    crate::interceptor::cognitive::init_tracing_json();
+
+    // 0.1 Safety Checks
     if env::var("EMERGENCY_SHUTDOWN").unwrap_or_default() == "true" {
         println!("!!! EMERGENCY SHUTDOWN ACTIVE - REFUSING STARTUP !!!");
         std::process::exit(1);

@@ -1,9 +1,8 @@
-use crate::interceptor::detect::TyposquatEngine;
 use std::collections::HashSet;
+use strsim::levenshtein;
 
 pub struct SlopsquatDetector {
     verified_packages: HashSet<String>,
-    typosquat_engine: TyposquatEngine,
 }
 
 impl SlopsquatDetector {
@@ -20,8 +19,7 @@ impl SlopsquatDetector {
         verified.insert("serde".to_string());
 
         SlopsquatDetector {
-            verified_packages: verified.clone(),
-            typosquat_engine: TyposquatEngine::new(verified.into_iter().collect(), 2),
+            verified_packages: verified,
         }
     }
 
@@ -46,9 +44,15 @@ impl SlopsquatDetector {
 
                     // 2. Typosquat Check (Hallucination Squatting)
                     // If it's close to a verified package but not exact, it's a risk.
-                    if self.typosquat_engine.is_typosquat(package_name) {
-                        println!("Slopsquat Detection: Package '{}' resembles verified package.", package_name);
-                        return true;
+                    for verified in &self.verified_packages {
+                        let dist = levenshtein(package_name, verified);
+                        if dist > 0 && dist <= 2 {
+                             // crude length check to avoid false positives on short words
+                             if verified.len() > 3 {
+                                println!("Slopsquat Detection: Package '{}' resembles verified package '{}'.", package_name, verified);
+                                return true;
+                             }
+                        }
                     }
                     
                     // 3. Unverified "Slop" Check (Unknown Package)

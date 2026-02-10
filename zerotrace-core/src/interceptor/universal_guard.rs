@@ -10,9 +10,10 @@ use std::sync::Arc;
 pub struct UniversalGuard {
     sanitizer: PiiSanitizer,
     slopsquat: SlopsquatDetector,
-    crescendo: CrescendoCounter,
+    crescendo: CrescendoCounter<RedisClient>,
     dbs_gate: DBSProtocol,
     llm01: LLM01Sentinel,
+    emerging: EmergingThreatsGuard,
 }
 
 impl UniversalGuard {
@@ -24,12 +25,16 @@ impl UniversalGuard {
             RedisClient::new("http://stub", "stub")
         ));
 
+        // Default Config for Crescendo
+        let crescendo_cfg = crate::interceptor::crescendo::CrescendoConfig::default();
+
         Self {
             sanitizer: PiiSanitizer::new(redis.clone()),
             slopsquat: SlopsquatDetector::new(),
-            crescendo: CrescendoCounter::new("http://stub".to_string(), "stub".to_string()), // Should reuse the Arc client really
+            crescendo: CrescendoCounter::with_client(redis.clone(), crescendo_cfg).expect("Invalid Crescendo Config"), 
             dbs_gate: DBSProtocol::new(),
             llm01: LLM01Sentinel::new(),
+            emerging: EmergingThreatsGuard::new(Default::default()).expect("Invalid Default Emerging Threats Config"),
         }
     }
 
@@ -37,8 +42,10 @@ impl UniversalGuard {
     /// Returns: Result<(SanitizedPrompt, Metadata), SecurityBlock>
     pub async fn evaluate_complete_risk_profile(&self, prompt: &str, user_id: &str) -> Result<String, String> {
         // 1. Emerging: Context Flood (EMG26)
-        if EmergingThreatsGuard::detect_many_shot_overflow(prompt) {
-            return Err("EMG26: Context Flooding Detected".to_string());
+        if let Ok(assessment) = self.emerging.assess_many_shot_overflow(prompt) {
+            if assessment.tripped {
+                return Err("EMG26: Context Flooding Detected".to_string());
+            }
         }
 
         // 2. Shield: LLM01 Sentinel

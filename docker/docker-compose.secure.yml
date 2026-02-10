@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  sentry-test-runner:
+    image: zerotrace-secure-runner:latest
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.secure_runner
+    runtime: runsc # This triggers the gVisor sandbox
+    networks:
+      - none # Strictly NO network access
+    cap_drop:
+      - ALL # Drop all Linux capabilities
+    security_opt:
+      - no-new-privileges:true
+    # Mount the 'Adversarial Vault' as Read-Only
+    volumes:
+      - ./vault/encrypted_payloads:/app/vault:ro
+    # Ensure memory is limited to prevent resource exhaustion attacks
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+networks:
+  none:
+    driver: null
+    internal: true

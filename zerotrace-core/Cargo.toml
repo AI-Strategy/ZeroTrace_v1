@@ -3,44 +3,42 @@ name = "zerotrace-core"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-# Web & Async
-axum = "0.7"
-tokio = { version = "1.0", features = ["full"] }
-reqwest = { version = "0.11", features = ["json", "rustls-tls"] } # for Gemini API
-async-trait = "0.1"
+[dev-dependencies]
+tempfile = "3.10"
+tower = { version = "0.4", features = ["util"] }
 
-# Serialization
+[dependencies]
+# Async Runtime & Concurrency
+tokio = { version = "1.35", features = ["full"] }
+futures = "0.3"
+
+# Graph Database (Neo4j Bolt Driver)
+neo4rs = "0.7" 
+
+# Security & Cryptography
+ring = "0.17"            # For Ed25519 signature verification
+aes-gcm = "0.10"         # For Adversarial Vault decryption
+sha2 = "0.10"            # For WORM Ledger hashing
+radix_trie = "0.2"       # Fast-path Tier 1 matching
+
+# Performance & Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+dashmap = "5.5"          # High-concurrency HashMap for NHI tokens
+ndarray = "0.15"         # Vector Math for EMG24
+chrono = { version = "0.4", features = ["serde"] }
 
-# Database & Graph
-neo4rs = "0.7"
-log = "0.4"
-aho-corasick = "1.0"
-tokio-postgres = { version = "0.7", features = ["with-uuid-1", "with-serde_json-1"] }
-base64 = "0.21"
-url = "2.5"
-
-# Security & Performance
-strsim = "0.11" # Typosquatting
-
-ndarray = "0.15"
-dashmap = "5.5" # Concurrent Caching
-regex = "1.10"
-tiktoken-rs = "0.5"
-lazy_static = "1.4"
-
-# Telemetry
-tracing = "0.1"
+# Monitoring
+metrics = "0.21"         # Real-time telemetry for the HUD HUD
+tracing = "0.1"          # Structured logging for WORM paths
 tracing-subscriber = "0.3"
+
+# Utilities
 uuid = { version = "1.0", features = ["v4", "serde"] }
 rand = "0.8"
 unicode-normalization = "0.1"
 worker = "0.3.0"
 console_error_panic_hook = "0.1.7"
-futures = "0.3"
-sha2 = "0.10"
 hex = "0.4"
 blake3 = "1.5"
 ed25519-dalek = "2.1"
@@ -49,6 +47,15 @@ v_htmlescape = "0.15"
 thiserror = "1.0"
 anyhow = "1.0"
 
-
-
-
+# Web
+axum = "0.7"
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+async-trait = "0.1"
+strsim = "0.11"
+aho-corasick = "1.0"
+regex = "1.10"
+tiktoken-rs = "0.5"
+lazy_static = "1.4"
+tokio-postgres = { version = "0.7", features = ["with-uuid-1", "with-serde_json-1"] }
+base64 = "0.21"
+url = "2.5"

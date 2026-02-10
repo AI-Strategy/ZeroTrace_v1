@@ -30,3 +30,6 @@ pub mod insecure_code;
 
 pub mod universal_guard;
 pub mod llm01_sentinel;
+pub mod differential_privacy;
+pub mod normalization;
+pub mod v30_context_stitch;

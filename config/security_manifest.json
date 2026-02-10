@@ -1,0 +1,258 @@
+{
+    "manifest_version": "2026.1.2",
+    "project": "ZeroTrace Security Stack",
+    "vectors": [
+        {
+            "id": "LLM01",
+            "name": "Prompt Injection",
+            "tier": "Fast",
+            "action": "Airlock_Isolation"
+        },
+        {
+            "id": "LLM02",
+            "name": "Sensitive Info Disclosure",
+            "tier": "Amber",
+            "action": "Redaction_Pipeline"
+        },
+        {
+            "id": "LLM03",
+            "name": "Supply Chain Vulnerabilities",
+            "tier": "Airlock",
+            "action": "Immutable_Registry"
+        },
+        {
+            "id": "LLM04",
+            "name": "Data & Model Poisoning",
+            "tier": "Amber",
+            "action": "Golden_Source_Check"
+        },
+        {
+            "id": "LLM05",
+            "name": "Improper Output Handling",
+            "tier": "Fast",
+            "action": "Strict_Schema_Enforcement"
+        },
+        {
+            "id": "LLM06",
+            "name": "Excessive Agency",
+            "tier": "Airlock",
+            "action": "Action_Proposal_Gating"
+        },
+        {
+            "id": "LLM07",
+            "name": "System Prompt Leakage",
+            "tier": "Fast",
+            "action": "Sandwich_Defense"
+        },
+        {
+            "id": "LLM08",
+            "name": "Vector DB Weakness",
+            "tier": "Amber",
+            "action": "RLS_Isolation"
+        },
+        {
+            "id": "LLM09",
+            "name": "Misinformation (Hallucination)",
+            "tier": "Amber",
+            "action": "Evidence_Grounding"
+        },
+        {
+            "id": "LLM10",
+            "name": "Unbounded Consumption",
+            "tier": "Fast",
+            "action": "Token_Leaky_Bucket"
+        },
+        {
+            "id": "EXT11",
+            "name": "Model Theft",
+            "tier": "Airlock",
+            "action": "RAM_Only_Inference"
+        },
+        {
+            "id": "EXT12",
+            "name": "Adversarial Perturbation",
+            "tier": "Amber",
+            "action": "Perplexity_Filtering"
+        },
+        {
+            "id": "EXT13",
+            "name": "Denial of Wallet",
+            "tier": "Fast",
+            "action": "Semantic_Caching"
+        },
+        {
+            "id": "EXT14",
+            "name": "Insecure Plugin Design",
+            "tier": "Amber",
+            "action": "Type_Safe_Interop"
+        },
+        {
+            "id": "EXT15",
+            "name": "Overreliance",
+            "tier": "Amber",
+            "action": "Cognitive_Friction"
+        },
+        {
+            "id": "EXT16",
+            "name": "CPRF (Request Forgery)",
+            "tier": "Amber",
+            "action": "Context_Sandboxing"
+        },
+        {
+            "id": "EXT17",
+            "name": "Training Memorization",
+            "tier": "Airlock",
+            "action": "Differential_Privacy"
+        },
+        {
+            "id": "EXT18",
+            "name": "Model Inversion",
+            "tier": "Airlock",
+            "action": "Output_Blinding"
+        },
+        {
+            "id": "EXT19",
+            "name": "Shadow AI",
+            "tier": "Fast",
+            "action": "Enterprise_Displacement"
+        },
+        {
+            "id": "EXT20",
+            "name": "Insecure Code Gen",
+            "tier": "Airlock",
+            "action": "Deterministic_Function_Registry"
+        },
+        {
+            "id": "EMG21",
+            "name": "Multi-Modal Injection",
+            "tier": "Amber",
+            "action": "CDR_Pipeline"
+        },
+        {
+            "id": "EMG22",
+            "name": "Side-Channel Exfiltration",
+            "tier": "Airlock",
+            "action": "Deterministic_Timing"
+        },
+        {
+            "id": "EMG23",
+            "name": "Sybil Poisoning",
+            "tier": "Amber",
+            "action": "Proof_of_Authority"
+        },
+        {
+            "id": "EMG24",
+            "name": "Recursive Loops",
+            "tier": "Fast",
+            "action": "Depth_Limit_Breaker"
+        },
+        {
+            "id": "EMG25",
+            "name": "Prompt Steganography",
+            "tier": "Fast",
+            "action": "Invisible_Char_Purge"
+        },
+        {
+            "id": "EMG26",
+            "name": "Token Smuggling",
+            "tier": "Fast",
+            "action": "Multi_Format_Decoding"
+        },
+        {
+            "id": "EMG27",
+            "name": "Confused Deputy (Auth-Bypass)",
+            "tier": "Amber",
+            "action": "ARS_Model"
+        },
+        {
+            "id": "EMG28",
+            "name": "Model Weight Exfiltration",
+            "tier": "Airlock",
+            "action": "Hardware_Bound_Encryption"
+        },
+        {
+            "id": "EMG29",
+            "name": "Crescendo Attack",
+            "tier": "Amber",
+            "action": "Forensic_Drift_Mapping"
+        },
+        {
+            "id": "ASI01",
+            "name": "Agent Goal Hijacking",
+            "tier": "Amber",
+            "action": "Anchor_Re_Injection"
+        },
+        {
+            "id": "ASI04",
+            "name": "Agentic Supply Chain",
+            "tier": "Airlock",
+            "action": "Artifact_Sandboxing"
+        },
+        {
+            "id": "ASI07",
+            "name": "Insecure Inter-Agent Comm",
+            "tier": "Amber",
+            "action": "Zero_Trust_Broker"
+        },
+        {
+            "id": "V33",
+            "name": "Shadow Escape",
+            "tier": "Fast",
+            "action": "Hash_Verify"
+        },
+        {
+            "id": "V34",
+            "name": "Identity Forge",
+            "tier": "Airlock",
+            "action": "Ed25519_MFA"
+        },
+        {
+            "id": "V35",
+            "name": "Memory Poisoning (Drift)",
+            "tier": "Amber",
+            "action": "ASI_Audit"
+        },
+        {
+            "id": "V36",
+            "name": "Token-Drip Exfiltration",
+            "tier": "Amber",
+            "action": "Entropy_Sum"
+        },
+        {
+            "id": "V37",
+            "name": "Sleeper-Cell Memory Poisoning",
+            "tier": "Airlock",
+            "type": "Logic_Check"
+        },
+        {
+            "id": "V38",
+            "name": "Coordination Drift",
+            "tier": "Amber",
+            "type": "Consensus_Audit"
+        },
+        {
+            "id": "V39",
+            "name": "Toxic Combinations",
+            "tier": "Amber",
+            "type": "Anthill_Guard"
+        },
+        {
+            "id": "V40",
+            "name": "Vibe-Coding Backdoor",
+            "tier": "Airlock",
+            "type": "AST_Scan"
+        },
+        {
+            "id": "V41",
+            "name": "Context-Format-Salience (CFS)",
+            "tier": "Fast",
+            "type": "Normalization"
+        },
+        {
+            "id": "V42",
+            "name": "Base-Rate Fallacy Flood",
+            "tier": "Fast",
+            "type": "Probabilistic_Limiter"
+        }
+    ]
+}

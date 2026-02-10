@@ -1,0 +1,33 @@
+app = "zerotrace-mesh-v1"
+primary_region = "lax" # Southern California base
+
+[build]
+  dockerfile = "docker/Dockerfile.lean"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8080
+
+  [services.concurrency]
+    type = "requests"
+    soft_limit = 200
+    hard_limit = 500
+
+[[vm]]
+  # Start with shared CPU for cost efficiency, scale to performance-2x as revenue grows
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512 
+
+[env]
+  # Global ZeroTrace Config
+  RUST_LOG = "info"
+  NEO4J_AURA_POOL_SIZE = "5" # Max connections per tenant to avoid Aura starvation

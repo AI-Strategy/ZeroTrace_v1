@@ -20,7 +20,8 @@ impl DifferentialPrivacy {
         
         // Generate Laplace noise using uniform distribution
         // X = \mu - b * sgn(U) * ln(1 - 2|U|) where U ~ Uniform(-0.5, 0.5)
-        let u = Uniform::new(-0.5, 0.5).sample(&mut rng);
+        let distribution = Uniform::new(-0.5, 0.5);
+        let u: f64 = distribution.sample(&mut rng); // Explicit f64
         let noise = -scale * u.signum() * (1.0 - 2.0 * u.abs()).ln();
 
         value + noise

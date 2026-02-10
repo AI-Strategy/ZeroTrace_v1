@@ -1,0 +1,208 @@
+{
+    "vectors": [
+        {
+            "id": "LLM01",
+            "name": "Prompt Injection",
+            "tier": "Green",
+            "latency": "<5ms"
+        },
+        {
+            "id": "LLM02",
+            "name": "Insecure Output",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "LLM03",
+            "name": "Training Data Poisoning",
+            "tier": "Red",
+            "latency": "Offline"
+        },
+        {
+            "id": "LLM04",
+            "name": "Model Denial of Service",
+            "tier": "Green",
+            "latency": "<5ms"
+        },
+        {
+            "id": "LLM05",
+            "name": "Supply Chain Vulnerabilities",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "LLM06",
+            "name": "Sensitive Info Disclosure",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "LLM07",
+            "name": "Insecure Plugin Design",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "LLM08",
+            "name": "Excessive Agency",
+            "tier": "Red",
+            "latency": "~800ms"
+        },
+        {
+            "id": "LLM09",
+            "name": "Overreliance",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "LLM10",
+            "name": "Model Theft",
+            "tier": "Green",
+            "latency": "<5ms"
+        },
+        {
+            "id": "EMG21",
+            "name": "Multi-Modal Injection",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "EMG22",
+            "name": "Side-Channel Attacks",
+            "tier": "Green",
+            "latency": "<5ms"
+        },
+        {
+            "id": "EMG23",
+            "name": "Sybil Attacks",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "EMG24",
+            "name": "Recursive Loop",
+            "tier": "Green",
+            "latency": "<5ms"
+        },
+        {
+            "id": "EMG25",
+            "name": "Steganography",
+            "tier": "Green",
+            "latency": "<5ms"
+        },
+        {
+            "id": "EMG26",
+            "name": "Token Smuggling",
+            "tier": "Green",
+            "latency": "<5ms"
+        },
+        {
+            "id": "EMG27",
+            "name": "Confused Deputy",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "EMG28",
+            "name": "Model Weight Exfiltration",
+            "tier": "Red",
+            "latency": "~800ms"
+        },
+        {
+            "id": "EMG29",
+            "name": "Crescendo Attack",
+            "tier": "Red",
+            "latency": "~800ms"
+        },
+        {
+            "id": "ASI01",
+            "name": "Goal Anchoring",
+            "tier": "Red",
+            "latency": "~800ms"
+        },
+        {
+            "id": "ASI02",
+            "name": "Reward Hacking",
+            "tier": "Red",
+            "latency": "~800ms"
+        },
+        {
+            "id": "ASI03",
+            "name": "Side-Effect Minimization",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "ASI04",
+            "name": "Tool Isolation",
+            "tier": "Red",
+            "latency": "~800ms"
+        },
+        {
+            "id": "ASI05",
+            "name": "Context Awareness",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "ASI06",
+            "name": "Self-Reflection",
+            "tier": "Red",
+            "latency": "~800ms"
+        },
+        {
+            "id": "ASI07",
+            "name": "Authorized Intent",
+            "tier": "Red",
+            "latency": "~800ms"
+        },
+        {
+            "id": "EXT16",
+            "name": "Metadata Leakage",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "EXT17",
+            "name": "Egress Exfiltration",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "EXT18",
+            "name": "Canary Token Trigger",
+            "tier": "Green",
+            "latency": "<5ms"
+        },
+        {
+            "id": "EXT19",
+            "name": "Proprietary Data Masking",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "EXT20",
+            "name": "Sandboxed Execution",
+            "tier": "Red",
+            "latency": "~800ms"
+        },
+        {
+            "id": "V33",
+            "name": "Shadow Escape",
+            "tier": "Green",
+            "latency": "<5ms"
+        },
+        {
+            "id": "V34",
+            "name": "Identity Forge",
+            "tier": "Amber",
+            "latency": "~50ms"
+        },
+        {
+            "id": "V35",
+            "name": "Memory Poisoning",
+            "tier": "Red",
+            "latency": "~800ms"
+        }
+    ]
+}

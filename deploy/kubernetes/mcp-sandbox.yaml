@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-agent-pool
+  namespace: zerotrace
+  labels:
+    app: mcp-agent
+    tier: sandboxed-execution
+    asi: "04"
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: mcp-agent
+  template:
+    metadata:
+      labels:
+        app: mcp-agent
+    spec:
+      # ASI04: Hard requirement for gVisor sandbox
+      runtimeClassName: gvisor
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+      containers:
+      - name: agent-runtime
+        image: zerotrace/mcp-runtime:v2.1
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ZEROTRACE_ORCHESTRATOR_URL
+          value: "http://zerotrace-core.zerotrace.svc.cluster.local:8000"
+        - name: SANDBOX_MODE
+          value: "strict"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: workspace-volume
+          mountPath: /workspace
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: workspace-volume
+        emptyDir:
+          medium: Memory
+          sizeLimit: 512Mi
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-egress-except-core
+  namespace: zerotrace
+spec:
+  podSelector:
+    matchLabels:
+      app: mcp-agent
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS resolution
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Allow communication ONLY to ZeroTrace Core
+  - to:
+    - podSelector:
+        matchLabels:
+          app: zerotrace-core
+    ports:
+    - protocol: TCP
+      port: 8000

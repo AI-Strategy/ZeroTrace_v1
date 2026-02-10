@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: digital-scif-egress-lockdown
+  namespace: zerotrace
+spec:
+  podSelector:
+    matchLabels:
+      app: zerotrace-core
+  policyTypes:
+    - Egress
+  egress:
+    # 1. Allow Connection to Vector DB (Internal)
+    - to:
+        - podSelector:
+            matchLabels:
+              app: vector-db
+      ports:
+        - protocol: TCP
+          port: 5432
+
+    # 2. Allow Connection to LLM Gateway (Simulated Internal/Private Endpoint)
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.0/24 # Private Subnet for Gateway
+      ports:
+        - protocol: TCP
+          port: 8080
+
+    # 3. DENY ALL Other Egress (Internet, Other Services)
+    # Implicitly denied by not being listed.

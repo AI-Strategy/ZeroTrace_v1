@@ -1,0 +1,39 @@
+name: Security Matrix Red-Team
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  red-team-matrix:
+    name: Red Team Matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        threat-cluster: [injection, logic, agents]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Run Injection Cluster (LLM/Content)
+        if: matrix.threat-cluster == 'injection'
+        run: cargo test security::emg21 security::emg25 security::emg26
+
+      - name: Run Logic Cluster (State/Recursion)
+        if: matrix.threat-cluster == 'logic'
+        run: cargo test security::emg24 security::emg27 security::emg29
+
+      - name: Run Agents Cluster (Infrastructure/ASI)
+        if: matrix.threat-cluster == 'agents'
+        run: cargo test security::emg22 security::emg23 security::emg28 security::agent_sentry security::sandbox

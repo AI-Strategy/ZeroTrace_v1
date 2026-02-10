@@ -1,0 +1,26 @@
+name = "zerotrace-edge"
+main = "build/worker/shim.mjs"
+compatibility_date = "2024-01-01"
+compatibility_flags = [ "nodejs_compat" ]
+
+[vars]
+RUST_LOG = "info"
+UPSTASH_REDIS_REST_URL = "https://global-upstash-redis.db" # Replace with actual URL
+
+# Hyperdrive Binding for Postgres
+[[hyperdrive]]
+binding = "DB"
+id = "your-hyperdrive-id"
+
+# Bindings to KV Namespaces for "Verified Registry"
+[[kv_namespaces]]
+binding = "REGISTRY_KV"
+id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" # Replace with actual KV ID
+preview_id = "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+
+[build]
+command = "cargo install -q worker-build && worker-build --release"
+
+[secrets]
+# Secrets handled via `wrangler secret put`
+# UPSTASH_REDIS_REST_TOKEN

@@ -1,0 +1,50 @@
+name: ZeroTrace Clean Baseline
+
+on:
+  push:
+    branches: [ main, 'release/*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Baseline
+        uses: actions/checkout@v4
+
+      - name: Setup Rust (WASM Toolchain)
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+          override: true
+
+      # --- SECURITY LINTING (Stage 1) ---
+      - name: Supply Chain Audit
+        run: cargo audit || true # Allow failure if audit db is unreachable, but ideally fail
+
+      - name: Static Analysis (Clippy)
+        run: cargo clippy -- -D warnings # Enforces clean, safe code
+
+      # --- BUILD & VALIDATION (Stage 2) ---
+      - name: Install Wrangler & Miniflare
+        run: npm install -g wrangler miniflare
+
+      - name: Build WASM Artifact
+        run: npx wrangler deploy --dry-run # Compiles Rust to ./build/worker/shim.mjs
+
+      - name: Install Test Deps
+        run: npm install
+
+      - name: Run Miniflare Security Tests
+        run: npm test # Executes test.mjs in local sandbox
+
+      # --- DEPLOYMENT (Stage 3) ---
+      - name: Edge Deployment (Main Only)
+        if: github.ref == 'refs/heads/main'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: deploy

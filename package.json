@@ -1,0 +1,11 @@
+{
+  "name": "zerotrace-integration",
+  "version": "1.0.0",
+  "description": "Integration tests for ZeroTrace",
+  "scripts": {
+    "test": "node test.mjs"
+  },
+  "dependencies": {
+    "miniflare": "^3.0.0"
+  }
+}

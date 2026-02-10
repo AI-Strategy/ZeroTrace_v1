@@ -1,0 +1,32 @@
+# STAGE 1: Deterministic Builder
+FROM rust:1.75-bookworm as builder
+
+# Create a dummy project to cache dependencies
+WORKDIR /usr/src/zerotrace
+COPY Cargo.toml Cargo.lock ./
+# Create dummy main.rs to build deps
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN cargo build --release
+RUN rm -rf src
+
+# Copy actual source code
+COPY . .
+# Touch main.rs to force rebuild of the app logic
+RUN touch src/main.rs
+RUN cargo build --release
+
+# STAGE 2: "Clean Room" Runtime
+# Distroless: No shell, no package manager, just glibc/openssl
+FROM gcr.io/distroless/cc-debian12
+
+# Run as non-root user (Security Best Practice)
+USER nonroot:nonroot
+
+WORKDIR /app
+COPY --from=builder /usr/src/zerotrace/target/release/zerotrace-core /app/zerotrace-core
+
+# Expose the Airlock Port
+EXPOSE 3000
+
+# Immutable Entrypoint
+ENTRYPOINT ["./zerotrace-core"]
